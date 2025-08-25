@@ -52,3 +52,26 @@ document.getElementById('resetBtn').addEventListener('click', ()=>{
 
 // initial render
 update();
+
+// ===== Auto PPS Game Loop (injected) =====
+import { totalPps } from './economy.js';
+let __lastTs = 0;
+function __gameLoop(ts){
+  if (!__lastTs) __lastTs = ts;
+  const dt = Math.max(0, (ts - __lastTs) / 1000);
+  __lastTs = ts;
+  try {
+    const pps = totalPps(state);
+    if (Number.isFinite(pps) && pps > 0) {
+      state.power += pps * dt;
+    }
+    update();
+  } catch(e){
+    // fail-safe: still try to render to avoid lock
+    try{ update(); }catch{}
+  }
+  requestAnimationFrame(__gameLoop);
+}
+requestAnimationFrame(__gameLoop);
+// ===== /Auto PPS Game Loop =====
+
