@@ -1,6 +1,6 @@
 import { GENERATORS } from './data.js';
 import { save, load, reset } from './save.js';
-import { renderAll, renderKPI, lightRefresh } from './ui.js';
+import { renderAll, renderKPI, lightRefresh, bindFormatToggle } from './ui.js';
 import { clickGainByLevel, clickNextCost } from './click.js';
 
 const state = {
@@ -70,5 +70,6 @@ function __loop(ts){
 requestAnimationFrame(__loop);
 // ===== /Auto PPS Game Loop =====
 
+bindFormatToggle();
 // initial render
 update();

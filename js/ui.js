@@ -1,4 +1,4 @@
-import { fmt } from './format.js';
+import { fmt, getFormatMode, setFormatMode } from './format.js';
 import { clickGainByLevel, clickNextCost, clickNextDelta, globalMultiplier } from './click.js';
 import {
   nextUnitCost, totalCostUnits, maxAffordableUnits, buyUnits,
@@ -183,3 +183,12 @@ export function lightRefresh(state){
   });
 }
 
+
+/* ===== 表記モードトグル ===== */
+export function bindFormatToggle(){
+  const btn = document.getElementById('fmtToggle');
+  if(!btn) return;
+  const apply = ()=>{ btn.textContent = (getFormatMode()==='eng' ? '表記：工学式' : '表記：日本式'); };
+  btn.addEventListener('click', ()=>{ setFormatMode(getFormatMode()==='eng' ? 'jp' : 'eng'); apply(); });
+  apply();
+}
