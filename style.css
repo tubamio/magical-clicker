@@ -29,11 +29,21 @@ body{margin:0;background:radial-gradient(1200px 800px at 20% 0%,#1b1536 0%,#0f0d
 footer.center{text-align:center}
 .tap{background:linear-gradient(180deg,#2a49ff,#2b2db5);border:1px solid #2f3fdb;border-radius:12px;padding:14px 16px;text-align:center;color:white;font-weight:800}
 .tap .big{font-size:22px}
-/* --- 購入/強化ボタンを同系色の濃淡で --- */
-.btn.buy      { background:#3ea0ff; }
-.btn.buy.alt  { background:#2b79c7; }
-.btn.up       { background:#a275ff; }
-.btn.up.alt   { background:#7a57d9; }
+/* --- ボタン色系統の分離 --- */
+.btn.tapbtn { background: #00b3ad; }
+.btn.buy    { background: #3ea0ff; }    /* 購入（青系） */
+.btn.buy.alt{ background: #2b79c7; }    /* 最大購入（青・濃） */
+.btn.up     { background: #a275ff; }    /* 強化（紫系） */
+.btn.up.alt { background: #7a57d9; }    /* 最大強化（紫・濃） */
 
-.btn:disabled{ opacity:.5; cursor:not-allowed }
-.btn:hover{ filter:brightness(1.06) }
+/* --- 無効時の完全無反応化 --- */
+.btn:disabled{
+  opacity: .55;
+  filter: none !important;
+  cursor: default !important;
+  pointer-events: none; /* hover/click無効 */
+  background: #5a607a !important; /* グレー固定に */
+  color: #e6e7ee !important;
+  border: none !important;
+}
+.btn:hover{ filter:brightness(1.06); }
