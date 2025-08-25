@@ -1,7 +1,11 @@
 // js/ui.js
 import { fmt } from './format.js';
 import { clickGainByLevel, clickNextCost, clickNextDelta } from './click.js';
-import { nextUnitCost, buy, totalPps } from './economy.js';
+import {
+  nextUnitCost, totalCostUnits, maxAffordableUnits, buyUnits,
+  nextUpgradeCost, totalCostUpgrades, maxAffordableUpgrades, upgrade,
+  powerFor, totalPps
+} from './economy.js';
 
 export function renderClick(state){
   const elTapGain = document.getElementById('tapGain');
@@ -19,58 +23,66 @@ export function renderKPI(state){
 }
 
 function genRow(state, g, onUpdate){
-  // 単価（次の一体）を算出
-  const unit = nextUnitCost(g);
-
   const row = document.createElement('div');
   row.className = 'gen';
   row.innerHTML = `
     <div>
-      <div class="name">${g.name} <span class="muted">x<span class="own">${g.count}</span></span></div>
-      <div class="desc">${g.desc}</div>
+      <div class="name">${g.name} <span class="muted">x<span class="own">${g.count|0}</span></span></div>
+      <div class="desc">単体/sec: <span class="eachPps">${fmt(powerFor(g))}</span></div>
     </div>
-    <div class="row" style="justify-content:flex-end">
-      <span class="pill">単価: <span class="price">${fmt(unit)}</span></span>
-      <button class="btn buy1">購入 1</button>
-      <button class="btn buy10">購入 10</button>
-      <button class="btn buymax">最大購入</button>
+    <div class="right">
+      <div class="row" style="justify-content:flex-end;gap:8px">
+        <button class="btn buy">${/* 単体購入 */''}</button>
+        <button class="btn buy alt">${/* 最大購入 */''}</button>
+      </div>
+      <div class="row" style="justify-content:flex-end;gap:8px">
+        <button class="btn up">${/* 強化+1 */''}</button>
+        <button class="btn up alt">${/* 最大強化 */''}</button>
+      </div>
     </div>`;
 
-  // ボタンの活性/価格更新
-  const refreshButtons = ()=>{
-    const unitNow = nextUnitCost(g);
-    row.querySelector('.price').textContent = fmt(unitNow);
-    row.querySelector('.own').textContent   = g.count;
-    // 所持で1体買えるかどうか
-    row.querySelector('.buy1').disabled  = (state.power < unitNow);
-    // 10体の合計コスト（お金足りなければ無効）
-    // ここは economy 側に任せても良いが簡易チェックを行う
-    row.querySelector('.buy10').disabled = !buyCheck(state, g, '10');
-    row.querySelector('.buymax').disabled = !buyCheck(state, g, 'max');
-  };
+  const ownEl   = row.querySelector('.own');
+  const eachEl  = row.querySelector('.eachPps');
+  const btnBuy1 = row.querySelector('.btn.buy:not(.alt)');
+  const btnBuyM = row.querySelector('.btn.buy.alt');
+  const btnUp1  = row.querySelector('.btn.up:not(.alt)');
+  const btnUpM  = row.querySelector('.btn.up.alt');
 
-  // 「買えるかだけ事前判定」用の薄いコピー
-  const buyCheck = (state0, g0, mode)=>{
-    const clone = { power: state0.power, gens: state0.gens.map(x=>({...x})) };
-    return buy(clone, g0.id, mode);
-  };
+  function refresh(){
+    // 単体出力
+    eachEl.textContent = fmt(powerFor(g));
+    ownEl.textContent  = g.count|0;
 
-  // ハンドラ
-  row.querySelector('.buy1').addEventListener('click', ()=>{
-    if (buy(state, g.id, '1')) onUpdate();
-    refreshButtons();
-  });
-  row.querySelector('.buy10').addEventListener('click', ()=>{
-    if (buy(state, g.id, '10')) onUpdate();
-    refreshButtons();
-  });
-  row.querySelector('.buymax').addEventListener('click', ()=>{
-    if (buy(state, g.id, 'max')) onUpdate();
-    refreshButtons();
-  });
+    // 購入まわり
+    const unit = nextUnitCost(g);
+    const nMax = maxAffordableUnits(g, state.power);
+    const sumU = totalCostUnits(g, nMax);
 
-  // 初期状態反映
-  refreshButtons();
+    btnBuy1.textContent = `購入 1（${fmt(unit)}）`;
+    btnBuy1.disabled = state.power < unit;
+
+    btnBuyM.textContent = `最大購入 ×${nMax}（${fmt(sumU)}）`;
+    btnBuyM.disabled = (nMax <= 0);
+
+    // 強化まわり
+    const up1  = nextUpgradeCost(g);
+    const kMax = maxAffordableUpgrades(g, state.power);
+    const sumK = totalCostUpgrades(g, kMax);
+
+    btnUp1.textContent = `強化 +1（${fmt(up1)}）`;
+    btnUp1.disabled = state.power < up1;
+
+    btnUpM.textContent = `最大強化 ×${kMax}（${fmt(sumK)}）`;
+    btnUpM.disabled = (kMax <= 0);
+  }
+
+  // handlers
+  btnBuy1.addEventListener('click', ()=>{ if (buyUnits(state, g.id, '1'))  onUpdate(); refresh(); });
+  btnBuyM.addEventListener('click', ()=>{ if (buyUnits(state, g.id, 'max')) onUpdate(); refresh(); });
+  btnUp1 .addEventListener('click', ()=>{ if (upgrade (state, g.id, '1'))  onUpdate(); refresh(); });
+  btnUpM .addEventListener('click', ()=>{ if (upgrade (state, g.id, 'max')) onUpdate(); refresh(); });
+
+  refresh();
   return row;
 }
 
@@ -80,6 +92,10 @@ export function renderGens(state){
   state.gens.forEach(g=>{
     list.appendChild(genRow(state, g, ()=> {
       renderKPI(state);
+      // 行の再描画（価格や出力が変わる）
+      list.replaceChild(genRow(state, g, ()=>{ renderKPI(state); }), list.lastChild);
+      // ↑最末尾にしか差し替わらないのを避けるなら、全再描画でもOK：
+      // renderGens(state);
     }));
   });
 }
