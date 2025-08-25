@@ -1,14 +1,7 @@
-// 単純な表記関数（Numberベース）。必要なら後で科学記数・工学記数を強化。
 export function fmt(n){
-  if (!isFinite(n)) return '∞';
-  if (n === 0) return '0';
-  const abs = Math.abs(n);
-  if (abs < 1000) return n.toFixed(abs<10 ? 2 : 0);
-  const e = Math.floor(Math.log10(abs));
-  const m = abs / 10**e;
-  return (n<0?'-':'') + m.toFixed(2) + 'e' + e;
-}
-
-export function fmtInt(n){
-  return Math.floor(n).toLocaleString('en-US');
+  if(!Number.isFinite(n)) return '∞';
+  const a=Math.abs(n);
+  if(a<1e6){ return (a>=1000? Math.round(n).toLocaleString('en-US'): (a>=100? n.toFixed(0): a>=10? n.toFixed(1): n.toFixed(2))); }
+  const e=Math.floor(Math.log10(a)), m=a/10**e;
+  return (n<0?'-':'')+m.toFixed(2)+'e'+e;
 }
