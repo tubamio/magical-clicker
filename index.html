@@ -133,7 +133,7 @@ function updateHUD(){
   elClickGain.textContent = fmt(cg);
   elClickGainBtn.textContent = fmt(cg);
 
-  // ガード付き更新（.price/.own が無かったらスキップ）
+  // ★ 修正点：ボタン内ではなく「カード全体」から .price / .own を探す
   const btns = elGenList.querySelectorAll('button[data-id]');
   btns.forEach(btn=>{
     const id = btn.getAttribute('data-id');
@@ -141,10 +141,12 @@ function updateHUD(){
     if(!g) return;
     const cost = nextCost(g, g.count);
     btn.disabled = state.score < cost;
-    const priceEl = btn.querySelector('.price');
-    if (priceEl) priceEl.textContent = fmt(cost);
+
     const card = btn.closest('.card');
-    const ownEl = card && card.querySelector('.own');
+    if (!card) return;
+    const priceEl = card.querySelector('.price');
+    if (priceEl) priceEl.textContent = fmt(cost);
+    const ownEl = card.querySelector('.own');
     if (ownEl) ownEl.textContent = fmtInt(g.count);
   });
 }
