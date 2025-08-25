@@ -82,8 +82,6 @@ function genRow(state, g, onUpdate){
 
   const ownEl = row.querySelector('.own');
   const eachEl= row.querySelector('.eachPps');
-  const priceEl=row.querySelector('.price');
-
   const btnBuy1=row.querySelector('.buy1');
   const btnBuyM=row.querySelector('.buyMax');
   const btnUp1 =row.querySelector('.up1');
@@ -96,14 +94,12 @@ function genRow(state, g, onUpdate){
 
   function refresh(){
     ownEl.textContent = g.count|0;
-    eachEl.textContent= fmt(powerFor(g));
-    priceEl.textContent= fmt(nextUnitCost(g));
-
-    // 購入
+    eachEl.textContent= fmt(powerFor(g));// 購入
     const nMax=maxAffordableUnits(g,state.power);
     const sumU=totalCostUnits(g,nMax);
     btnBuy1.disabled = state.power<nextUnitCost(g);
     btnBuyM.disabled = (nMax<=0);
+    btnBuy1.textContent = `購入（${fmt(nextUnitCost(g))}）`;
     btnBuy1.textContent = `購入（${fmt(nextUnitCost(g))}）`;
     btnBuyM.textContent=`最大購入 ×${nMax}（${fmt(sumU)}）`;
 
@@ -113,6 +109,7 @@ function genRow(state, g, onUpdate){
     const sumK=totalCostUpgrades(g,kMax);
     btnUp1.disabled= state.power<up1;
     btnUpM.disabled=(kMax<=0);
+    btnUp1.textContent = `強化＋1（${fmt(nextUpgradeCost(g))}）`;
     btnUp1.textContent = `強化＋1（${fmt(nextUpgradeCost(g))}）`;
     btnUpM.textContent=`最大強化 ×${kMax}（${fmt(sumK)}）`;
 
