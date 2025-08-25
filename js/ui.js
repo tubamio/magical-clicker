@@ -1,4 +1,4 @@
-import { fmt, getFormatMode, setFormatMode } from './format.js';
+import { fmt } from './format.js';
 import { clickGainByLevel, clickNextCost, clickNextDelta, globalMultiplier } from './click.js';
 import {
   nextUnitCost, totalCostUnits, maxAffordableUnits, buyUnits,
@@ -57,7 +57,7 @@ function simulateTotalAfterUpgrade(state, g, n){
 
 function genRow(state, g, onUpdate){
   const row = document.createElement('div');
-  row.className = 'gen';
+  row.className = 'gen'; row.dataset.index = String(g.__index ?? 0);
   row.innerHTML = `
     <div class="left">
       <div class="name">${g.name} <span class="muted">x<span class="own">${g.count|0}</span></span></div>
@@ -82,6 +82,8 @@ function genRow(state, g, onUpdate){
 
   const ownEl = row.querySelector('.own');
   const eachEl= row.querySelector('.eachPps');
+  const priceEl=row.querySelector('.price');
+
   const btnBuy1=row.querySelector('.buy1');
   const btnBuyM=row.querySelector('.buyMax');
   const btnUp1 =row.querySelector('.up1');
@@ -94,12 +96,14 @@ function genRow(state, g, onUpdate){
 
   function refresh(){
     ownEl.textContent = g.count|0;
-    eachEl.textContent= fmt(powerFor(g));// 購入
+    eachEl.textContent= fmt(powerFor(g));
+    priceEl.textContent= fmt(nextUnitCost(g));
+
+    // 購入
     const nMax=maxAffordableUnits(g,state.power);
     const sumU=totalCostUnits(g,nMax);
     btnBuy1.disabled = state.power<nextUnitCost(g);
     btnBuyM.disabled = (nMax<=0);
-    btnBuy1.textContent = `購入（${fmt(nextUnitCost(g))}）`;
     btnBuy1.textContent = `購入（${fmt(nextUnitCost(g))}）`;
     btnBuyM.textContent=`最大購入 ×${nMax}（${fmt(sumU)}）`;
 
@@ -109,7 +113,6 @@ function genRow(state, g, onUpdate){
     const sumK=totalCostUpgrades(g,kMax);
     btnUp1.disabled= state.power<up1;
     btnUpM.disabled=(kMax<=0);
-    btnUp1.textContent = `強化＋1（${fmt(nextUpgradeCost(g))}）`;
     btnUp1.textContent = `強化＋1（${fmt(nextUpgradeCost(g))}）`;
     btnUpM.textContent=`最大強化 ×${kMax}（${fmt(sumK)}）`;
 
@@ -133,6 +136,8 @@ function genRow(state, g, onUpdate){
 }
 
 export function renderGens(state){
+  state.gens.forEach((g,i)=> g.__index=i);
+
   const list=document.getElementById('genlist'); list.innerHTML='';
   state.gens.forEach(g=> list.appendChild(genRow(state,g,()=>renderKPI(state))));
 }
@@ -142,11 +147,43 @@ export function renderAll(state){
 }
 
 
-/* ===== 表記モードトグル ===== */
-export function bindFormatToggle(){
-  const btn = document.getElementById('fmtToggle');
-  if(!btn) return;
-  const apply = ()=>{ btn.textContent = (getFormatMode()==='eng' ? '表記：工学式' : '表記：日本式'); };
-  btn.addEventListener('click', ()=>{ setFormatMode(getFormatMode()==='eng' ? 'jp' : 'eng'); apply(); });
-  apply();
+/* ===== 軽量リフレッシュ：自動加算中のボタン有効判定とラベル更新 ===== */
+export function lightRefresh(state){
+  // クリック強化ボタン
+  const b1 = document.getElementById('upgradeClick');
+  const bm = document.getElementById('upgradeClickMax');
+  if (b1 && bm){
+    const cost1 = clickNextCost(state.clickLv);
+    b1.disabled = state.power < cost1;
+    const nMax = maxAffordableClick(state);
+    bm.disabled = (nMax <= 0);
+    bm.textContent = `最大強化 ×${nMax}`;
+  }
+
+  // 各ジェネ行の購入/強化ボタン
+  const rows = Array.from(document.querySelectorAll('#genlist .gen'));
+  rows.forEach((row, idx)=>{
+    const g = state.gens[idx];
+    if (!g) return;
+    const btnBuy1 = row.querySelector('.buy1');
+    const btnBuyM = row.querySelector('.buyMax');
+    const btnUp1  = row.querySelector('.up1');
+    const btnUpM  = row.querySelector('.upMax');
+    if (!(btnBuy1 && btnBuyM && btnUp1 && btnUpM)) return;
+    const nMax = maxAffordableUnits(g, state.power);
+    const sumU = totalCostUnits(g, nMax);
+    btnBuy1.disabled = state.power < nextUnitCost(g);
+    btnBuyM.disabled = (nMax <= 0);
+    btnBuy1.textContent = `購入（${fmt(nextUnitCost(g))}）`;
+    btnBuyM.textContent = `最大購入 ×${nMax}（${fmt(sumU)}）`;
+
+    const up1  = nextUpgradeCost(g);
+    const kMax = maxAffordableUpgrades(g, state.power);
+    const sumK = totalCostUpgrades(g, kMax);
+    btnUp1.disabled = state.power < up1;
+    btnUpM.disabled = (kMax <= 0);
+    btnUp1.textContent = `強化＋1（${fmt(up1)}）`;
+    btnUpM.textContent = `最大強化 ×${kMax}（${fmt(sumK)}）`;
+  });
 }
+
