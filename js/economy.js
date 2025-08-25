@@ -87,12 +87,32 @@ export function buyUnits(state, id, mode='1'){
   return true;
 }
 
+
 // 強化（レベル）側
-export function nextUpgradeCost(gen){ ensureParams(gen); const lv=gen.level|0; return (gen.baseCost*2) * Math.pow(1.45, lv); }
-export function totalCostUpgrades(gen, n){ ensureParams(gen); if(n<=0) return 0; const c0=(gen.baseCost*2)*Math.pow(1.45, gen.level|0); const r=1.45; return sumGeometric(c0, r, n);}
-export function maxAffordableUpgrades(gen, money){ ensureParams(gen); if(money<=0) return 0; const r=1.45; let lo=0, hi=1e6; while(lo<hi){ const mid=Math.floor((lo+hi+1)/2); const cost=totalCostUpgrades(gen, mid); if(cost<=money) lo=mid; else hi=mid-1; } return lo; }
+export function nextUpgradeCost(gen){
+  ensureParams(gen);
+  const lv = gen.level|0;
+  return (gen.baseCost*2) * Math.pow(1.45, lv);
+}
+export function totalCostUpgrades(gen, n){
+  ensureParams(gen);
+  if (n <= 0) return 0;
+  const c0 = (gen.baseCost*2) * Math.pow(1.45, gen.level|0);
+  const r  = 1.45;
+  return sumGeometric(c0, r, n);
+}
+export function maxAffordableUpgrades(gen, money){
+  ensureParams(gen);
+  if (money <= 0) return 0;
+  let lo = 0, hi = 1e6;
+  while (lo < hi){
+    const mid = Math.floor((lo+hi+1)/2);
+    const cost = totalCostUpgrades(gen, mid);
+    if (cost <= money) lo = mid; else hi = mid - 1;
+  }
   return lo;
 }
+
 export function upgrade(state, id, mode='1'){
   const g = state.gens.find(x=>x.id===id);
   if (!g) return false;
