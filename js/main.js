@@ -1,6 +1,6 @@
 import { GENERATORS } from './data.js';
 import { save, load, reset } from './save.js';
-import { renderAll } from './ui.js';
+import { renderAll, renderKPI } from './ui.js';
 import { clickGainByLevel, clickNextCost } from './click.js';
 
 const state = {
@@ -61,14 +61,14 @@ function __gameLoop(ts){
   const dt = Math.max(0, (ts - __lastTs) / 1000);
   __lastTs = ts;
   try {
-    const pps = totalPps(state);
+    const pps = totalPps(state) * 1.03**(state.clickLv|0); // include global multiplier
     if (Number.isFinite(pps) && pps > 0) {
       state.power += pps * dt;
     }
-    update();
+    // 軽量更新（KPIだけ）。フル再描画はユーザー操作側の update() に任せる
+    try{ renderKPI(state); }catch{}
   } catch(e){
-    // fail-safe: still try to render to avoid lock
-    try{ update(); }catch{}
+    /* noop */
   }
   requestAnimationFrame(__gameLoop);
 }
