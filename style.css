@@ -29,3 +29,11 @@ body{margin:0;background:radial-gradient(1200px 800px at 20% 0%,#1b1536 0%,#0f0d
 footer.center{text-align:center}
 .tap{background:linear-gradient(180deg,#2a49ff,#2b2db5);border:1px solid #2f3fdb;border-radius:12px;padding:14px 16px;text-align:center;color:white;font-weight:800}
 .tap .big{font-size:22px}
+/* --- 購入/強化ボタンを同系色の濃淡で --- */
+.btn.buy      { background:#3ea0ff; }
+.btn.buy.alt  { background:#2b79c7; }
+.btn.up       { background:#a275ff; }
+.btn.up.alt   { background:#7a57d9; }
+
+.btn:disabled{ opacity:.5; cursor:not-allowed }
+.btn:hover{ filter:brightness(1.06) }
