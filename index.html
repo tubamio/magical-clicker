@@ -1,43 +1,249 @@
 <!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ultra Inflate Idle (JS版・最小)</title>
-  <link rel="stylesheet" href="./style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultra Inflate Idle (JS 1-file)</title>
+  <style>
+    *{box-sizing:border-box}body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,'Noto Sans JP',sans-serif;margin:0;background:#0b0b10;color:#eaeaf2}
+    header{position:sticky;top:0;background:#111427;border-bottom:1px solid #20243a;padding:12px 16px}
+    h1{margin:0;font-size:20px}h1 small{font-size:12px;color:#9aa0b4}
+    .stats{display:flex;gap:12px;align-items:center;margin-top:6px;flex-wrap:wrap}
+    main{padding:16px;display:grid;grid-template-columns:1fr;gap:16px;max-width:900px;margin:0 auto}
+    .clicker{display:flex;justify-content:center}
+    button{background:#1d7cf2;color:#fff;border:none;border-radius:10px;padding:10px 14px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+    button:hover{filter:brightness(1.05)}button:disabled{opacity:.5;cursor:not-allowed}
+    .primary{font-size:18px;padding:14px 18px}
+    .list{display:grid;gap:10px}
+    .card{background:#14182c;border:1px solid #222842;border-radius:12px;padding:12px;display:flex;justify-content:space-between;align-items:center}
+    .card .title{font-weight:700}
+    .card .desc{font-size:12px;color:#a7adc3}
+    .price{color:#ffd479}
+    .small{font-size:12px;color:#b5bbcf}
+    .row{display:flex;gap:8px;align-items:center}
+    .buygrp{display:flex;gap:6px}
+    footer{padding:12px 16px;border-top:1px solid #20243a;color:#9aa0b4;text-align:center}
+    select, .pill{background:#111827;color:#eaeaf2;border:1px solid #26304b;border-radius:10px;padding:8px 10px}
+    .pill{display:inline-block}
+  </style>
 </head>
 <body>
-  <header>
-    <h1>Ultra Inflate Idle <small>(JS minimal)</small></h1>
-    <div class="stats">
-      <div>スコア: <span id="score">0</span></div>
-      <div>毎秒: <span id="pps">0</span></div>
-      <button id="saveBtn">手動セーブ</button>
-      <button id="exportBtn">エクスポート</button>
-      <button id="importBtn">インポート</button>
+<header>
+  <h1>Ultra Inflate Idle <small>（JS 1ファイル版・まとめ購入対応）</small></h1>
+  <div class="stats">
+    <div>スコア: <span id="score">0</span></div>
+    <div>毎秒: <span id="pps">0</span></div>
+    <div>クリック: +<span id="clickGain">1</span></div>
+    <div class="row">
+      購入数:
+      <select id="buyMode">
+        <option value="1">1</option>
+        <option value="10">10</option>
+        <option value="max">Max</option>
+      </select>
     </div>
-  </header>
+  </div>
+</header>
 
-  <main>
-    <section class="clicker">
-      <button id="clickButton" class="primary">クリック！(+<span id="clickGain">1</span>)</button>
-    </section>
+<main>
+  <section class="clicker">
+    <button id="clickButton" class="primary">クリック！(+<span id="clickGainBtn">1</span>)</button>
+  </section>
 
-    <section class="shop">
-      <h2>ジェネレーター</h2>
-      <div id="generators" class="list"></div>
-    </section>
+  <section class="shop">
+    <h2>ジェネレーター</h2>
+    <div id="generators" class="list"></div>
+  </section>
+</main>
 
-    <section class="upgrades">
-      <h2>アップグレード</h2>
-      <div id="upgrades" class="list"></div>
-    </section>
-  </main>
+<footer>
+  <small>10秒ごとに自動セーブ（localStorage）。真っ白な時はリロードかキャッシュ削除を試してね。</small>
+</footer>
 
-  <footer>
-    <small>保存は自動（10秒ごと）／localStorageのみ。ビルド不要のプレーンJS版。</small>
-  </footer>
+<script type="module">
+/** ====== 小さいユーティリティ ====== */
+const fmt = (n)=>{
+  if(!isFinite(n)) return '∞';
+  const a = Math.abs(n);
+  if(a < 1_000_000){
+    if(a >= 1000) return Math.round(n).toLocaleString('en-US');
+    const d = a>=100 ? 0 : a>=10 ? 1 : 2;
+    return n.toFixed(d);
+  }
+  const e = Math.floor(Math.log10(a));
+  const m = a / 10**e;
+  return (n<0?'-':'') + m.toFixed(2) + 'e' + e;
+};
+const fmtInt = n => Math.floor(n).toLocaleString('en-US');
 
-  <script type="module" src="./js/main.js"></script>
+/** ====== データ定義（必要に応じて増やせる） ====== */
+const GENERATORS_DEF = [
+  { id:'hand',   name:'手動クリック', baseCost:10,  costMul:1.15, basePps:0,   clickGain:1 },
+  { id:'cursor', name:'カーソル',     baseCost:15,  costMul:1.15, basePps:0.1 },
+  { id:'bot',    name:'ボット',       baseCost:100, costMul:1.17, basePps:1   },
+  { id:'lab',    name:'研究所',       baseCost:1200,costMul:1.20, basePps:12  },
+];
+
+const GLOBAL = { globalMult: 1.0, clickMult: 1.0 };
+
+/** ====== 経済ロジック ====== */
+const nextCost = (g, count)=> g.baseCost * Math.pow(g.costMul, count);
+const totalPps = (state)=>{
+  let p = 0;
+  for(const g of state.generators){
+    p += g.count * (g.basePps ?? 0);
+  }
+  return p * state.mult.pps * GLOBAL.globalMult;
+};
+const clickGain = (state)=>{
+  const hand = state.generators.find(x=>x.id==='hand');
+  const base = (hand?.clickGain ?? 1);
+  return base * state.mult.click * GLOBAL.clickMult;
+};
+// 等比級数の合計 c0*(r^n-1)/(r-1)
+const sumCost = (c0, r, n)=> c0 * (Math.pow(r, n) - 1) / (r - 1);
+
+// Max購入：近似→二分探索で安全調整
+const maxAffordable = (g, budget)=>{
+  const r = g.costMul;
+  const c0 = g.baseCost * Math.pow(r, g.count);
+  if (budget < c0) return 0;
+  const nApprox = Math.floor(Math.log((budget/c0)*(r-1)+1)/Math.log(r));
+  let lo = 0, hi = Math.max(1, nApprox+3);
+  const costOf = (n)=> sumCost(c0, r, n);
+  while (costOf(hi) <= budget) hi *= 2;
+  while (lo < hi){
+    const mid = Math.floor((lo+hi+1)/2);
+    if (costOf(mid) <= budget) lo = mid; else hi = mid-1;
+  }
+  return lo;
+};
+
+const buy = (state, id, mode='1')=>{
+  const g = state.generators.find(x=>x.id===id);
+  if (!g) return false;
+  const r = g.costMul;
+  const c0 = g.baseCost * Math.pow(r, g.count);
+  let n = 1;
+  if (mode === '10') n = 10;
+  if (mode === 'max') n = maxAffordable(g, state.score);
+  if (n <= 0) return false;
+  const cost = sumCost(c0, r, n);
+  if (state.score < cost) return false;
+  state.score -= cost;
+  g.count += n;
+  return true;
+};
+
+const tick = (state, dt)=> { state.score += totalPps(state) * dt; };
+
+/** ====== セーブ ====== */
+const KEY='uII-js-onefile-save-v1';
+const save = (state)=>{
+  try{
+    localStorage.setItem(KEY, JSON.stringify({
+      score: state.score,
+      mult: state.mult,
+      generators: state.generators.map(g=>({id:g.id,count:g.count}))
+    }));
+  }catch(e){}
+};
+const load = ()=>{
+  try{
+    const raw = localStorage.getItem(KEY);
+    return raw? JSON.parse(raw) : null;
+  }catch(e){ return null; }
+};
+
+/** ====== 状態とUI ====== */
+const state = {
+  score: 0,
+  mult: { pps: 1, click: 1 },
+  generators: GENERATORS_DEF.map(g=>({ ...g, count:0 })),
+};
+
+const saved = load();
+if (saved){
+  state.score = saved.score ?? 0;
+  state.mult  = saved.mult  ?? state.mult;
+  if (Array.isArray(saved.generators)){
+    for(const sg of saved.generators){
+      const t = state.generators.find(x=>x.id===sg.id);
+      if (t) t.count = sg.count|0;
+    }
+  }
+}
+
+const $ = (id)=>document.getElementById(id);
+const elScore = $('score');
+const elPps = $('pps');
+const elClickGain = $('clickGain');
+const elClickGainBtn = $('clickGainBtn');
+const elGenList = $('generators');
+const elClick = $('clickButton');
+const elBuyMode = $('buyMode');
+
+const updateHUD = ()=>{
+  elScore.textContent = fmt(state.score);
+  elPps.textContent = fmt(totalPps(state));
+  const cg = clickGain(state);
+  elClickGain.textContent = fmt(cg);
+  elClickGainBtn.textContent = fmt(cg);
+
+  for(const btn of elGenList.querySelectorAll('button[data-id]')){
+    const id = btn.getAttribute('data-id');
+    const g = state.generators.find(x=>x.id===id);
+    const cost = nextCost(g, g.count);
+    btn.disabled = state.score < cost;
+    btn.querySelector('.price').textContent = fmt(cost);
+    btn.closest('.card').querySelector('.own').textContent = fmtInt(g.count);
+  }
+};
+
+const renderGenerators = ()=>{
+  elGenList.innerHTML = '';
+  for(const g of state.generators){
+    if (g.id === 'hand') continue;
+    const cost = nextCost(g, g.count);
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div>
+        <div class="title">${g.name} <span class="small">x<span class="own">${fmtInt(g.count)}</span></span></div>
+        <div class="desc">+ ${fmt(g.basePps)} /s（1体）</div>
+      </div>
+      <div class="buygrp">
+        <span class="pill">次の単価: <span class="price">${fmt(cost)}</span></span>
+        <button data-id="${g.id}">購入</button>
+      </div>`;
+    const btn = card.querySelector('button');
+    btn.addEventListener('click', ()=>{
+      const mode = elBuyMode.value;
+      if (buy(state, g.id, mode)) updateHUD();
+    });
+    elGenList.appendChild(card);
+  }
+};
+
+elClick.addEventListener('click', ()=>{
+  state.score += clickGain(state);
+  updateHUD();
+});
+
+renderGenerators();
+updateHUD();
+
+let last = performance.now();
+function loop(t){
+  const dt = Math.max(0, (t - last) / 1000);
+  last = t;
+  tick(state, dt);
+  updateHUD();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+setInterval(()=> save(state), 10000);
+</script>
 </body>
 </html>
