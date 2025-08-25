@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ultra Inflate Idle (JS版・最小)</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <header>
+    <h1>Ultra Inflate Idle <small>(JS minimal)</small></h1>
+    <div class="stats">
+      <div>スコア: <span id="score">0</span></div>
+      <div>毎秒: <span id="pps">0</span></div>
+      <button id="saveBtn">手動セーブ</button>
+      <button id="exportBtn">エクスポート</button>
+      <button id="importBtn">インポート</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="clicker">
+      <button id="clickButton" class="primary">クリック！(+<span id="clickGain">1</span>)</button>
+    </section>
+
+    <section class="shop">
+      <h2>ジェネレーター</h2>
+      <div id="generators" class="list"></div>
+    </section>
+
+    <section class="upgrades">
+      <h2>アップグレード</h2>
+      <div id="upgrades" class="list"></div>
+    </section>
+  </main>
+
+  <footer>
+    <small>保存は自動（10秒ごと）／localStorageのみ。ビルド不要のプレーンJS版。</small>
+  </footer>
+
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>
