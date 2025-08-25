@@ -82,8 +82,6 @@ function genRow(state, g, onUpdate){
 
   const ownEl = row.querySelector('.own');
   const eachEl= row.querySelector('.eachPps');
-  const priceEl=row.querySelector('.price');
-
   const btnBuy1=row.querySelector('.buy1');
   const btnBuyM=row.querySelector('.buyMax');
   const btnUp1 =row.querySelector('.up1');
@@ -97,8 +95,6 @@ function genRow(state, g, onUpdate){
   function refresh(){
     ownEl.textContent = g.count|0;
     eachEl.textContent= fmt(powerFor(g));
-    priceEl.textContent= fmt(nextUnitCost(g));
-
     // 購入
     const nMax=maxAffordableUnits(g,state.power);
     const sumU=totalCostUnits(g,nMax);
