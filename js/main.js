@@ -1,7 +1,7 @@
 import { GENERATORS } from './data.js';
 import { save, load, reset } from './save.js';
 import { renderAll, renderKPI, lightRefresh, bindFormatToggle } from './ui.js';
-export const VERSION = 'Ver.0.9.1.0';
+export const VERSION = 'Ver.0.1.0.1';
 import { clickGainByLevel, clickNextCost } from './click.js';
 
 const state = {
