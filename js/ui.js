@@ -62,7 +62,6 @@ function genRow(state, g, onUpdate){
     <div class="left">
       <div class="name">${g.name} <span class="muted">x<span class="own">${g.count|0}</span></span></div>
       <div class="desc">単体/sec: <span class="eachPps">${fmt(powerFor(g))}</span></div>
-      <div class="desc">次の購入単価: <span class="price">${fmt(nextUnitCost(g))}</span></div>
       <div class="desc upEffect">
         強化+1効果：単体 <span class="e1a"></span> → <span class="e1b"></span>（+<span class="e1d"></span>）／ 総 <span class="t1a"></span> → <span class="t1b"></span>（+<span class="t1d"></span>）
       </div>
@@ -105,6 +104,7 @@ function genRow(state, g, onUpdate){
     const sumU=totalCostUnits(g,nMax);
     btnBuy1.disabled = state.power<nextUnitCost(g);
     btnBuyM.disabled = (nMax<=0);
+    btnBuy1.textContent = `購入（${fmt(nextUnitCost(g))}）`;
     btnBuyM.textContent=`最大購入 ×${nMax}（${fmt(sumU)}）`;
 
     // 強化
@@ -113,6 +113,7 @@ function genRow(state, g, onUpdate){
     const sumK=totalCostUpgrades(g,kMax);
     btnUp1.disabled= state.power<up1;
     btnUpM.disabled=(kMax<=0);
+    btnUp1.textContent = `強化＋1（${fmt(nextUpgradeCost(g))}）`;
     btnUpM.textContent=`最大強化 ×${kMax}（${fmt(sumK)}）`;
 
     // 強化効果（PPSは全体倍率込みで評価）

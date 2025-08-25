@@ -1,6 +1,6 @@
 import { GENERATORS } from './data.js';
 import { save, load, reset } from './save.js';
-import { renderAll, renderKPI } from './ui.js';
+import { renderAll } from './ui.js';
 import { clickGainByLevel, clickNextCost } from './click.js';
 
 const state = {
@@ -52,26 +52,3 @@ document.getElementById('resetBtn').addEventListener('click', ()=>{
 
 // initial render
 update();
-
-// ===== Auto PPS Game Loop (injected) =====
-import { totalPps } from './economy.js';
-let __lastTs = 0;
-function __gameLoop(ts){
-  if (!__lastTs) __lastTs = ts;
-  const dt = Math.max(0, (ts - __lastTs) / 1000);
-  __lastTs = ts;
-  try {
-    const pps = totalPps(state) * 1.03**(state.clickLv|0); // include global multiplier
-    if (Number.isFinite(pps) && pps > 0) {
-      state.power += pps * dt;
-    }
-    // 軽量更新（KPIだけ）。フル再描画はユーザー操作側の update() に任せる
-    try{ renderKPI(state); }catch{}
-  } catch(e){
-    /* noop */
-  }
-  requestAnimationFrame(__gameLoop);
-}
-requestAnimationFrame(__gameLoop);
-// ===== /Auto PPS Game Loop =====
-
