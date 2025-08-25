@@ -1,6 +1,4 @@
-// js/economy.js
-// ===== 既定パラメータ（id別） =====
-// data.js が name/desc/count だけでも動くよう、必要な数値はここで補完
+// 既定パラメータ（必要最小）
 const DEFAULTS = {
   g1:{ basePps:0.10,  baseCost:  15, costMul:1.15, upBaseCost:  60, upCostMul:1.17 },
   g2:{ basePps:1.00,  baseCost: 100, costMul:1.17, upBaseCost: 300, upCostMul:1.18 },
@@ -13,7 +11,6 @@ const DEFAULTS = {
   g9:{ basePps:2.1e6, baseCost:1.5e8,costMul:1.25, upBaseCost:9.0e6,upCostMul:1.25 },
 };
 
-// 不足項目を補完
 function ensureParams(gen){
   const d = DEFAULTS[gen.id] || DEFAULTS.g1;
   if (gen.level == null)      gen.level = 0;
@@ -25,7 +22,7 @@ function ensureParams(gen){
   return gen;
 }
 
-// ===== 出力（強化式：1.1^Lv * 2^(floor(Lv/10))) =====
+// 強化式：1.1^Lv × 2^(floor(Lv/10))
 export function powerFor(gen){
   ensureParams(gen);
   const lv = gen.level|0;
@@ -37,18 +34,18 @@ export function powerFor(gen){
 export function totalPps(state){
   let p = 0;
   for (const g of state.gens){
+    ensureParams(g);
     p += (g.count|0) * powerFor(g);
   }
-  return p;
+  return p; // ←全体倍率は click.js の globalMultiplier を掛ける側で反映
 }
 
-// ===== まとめ購入（ユニット） =====
 export function nextUnitCost(gen){
   ensureParams(gen);
   return gen.baseCost * Math.pow(gen.costMul, gen.count|0);
 }
 
-// 等比合計：c0 * (r^n - 1) / (r - 1)
+// 等比合計
 function sumGeometric(c0, r, n){
   return c0 * (Math.pow(r, n) - 1) / (r - 1);
 }
@@ -66,7 +63,6 @@ export function maxAffordableUnits(gen, budget){
   const r  = gen.costMul;
   const c0 = gen.baseCost * Math.pow(r, gen.count|0);
   if (budget < c0) return 0;
-  // 近似 → 二分探索で詰める
   const nApprox = Math.floor(Math.log((budget/c0)*(r-1)+1)/Math.log(r));
   let lo = 0, hi = Math.max(1, nApprox+3);
   const costOf = (n)=> sumGeometric(c0, r, n);
@@ -91,12 +87,11 @@ export function buyUnits(state, id, mode='1'){
   return true;
 }
 
-// ===== まとめ強化（レベル） =====
+// 強化（レベル）側
 export function nextUpgradeCost(gen){
   ensureParams(gen);
   return gen.upBaseCost * Math.pow(gen.upCostMul, gen.level|0);
 }
-
 export function totalCostUpgrades(gen, n){
   ensureParams(gen);
   const r  = gen.upCostMul;
@@ -104,7 +99,6 @@ export function totalCostUpgrades(gen, n){
   if (n <= 0) return 0;
   return sumGeometric(c0, r, n);
 }
-
 export function maxAffordableUpgrades(gen, budget){
   ensureParams(gen);
   const r  = gen.upCostMul;
@@ -120,7 +114,6 @@ export function maxAffordableUpgrades(gen, budget){
   }
   return lo;
 }
-
 export function upgrade(state, id, mode='1'){
   const g = state.gens.find(x=>x.id===id);
   if (!g) return false;
