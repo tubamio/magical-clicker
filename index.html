@@ -3,17 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>魔法少女インフレクリッカー (UI scaffold)</title>
+<title>魔法少女インフレクリッカー (UI + クリック強化実装)</title>
 <style>
   :root{
     --bg:#0f0d1a; --panel:#1a1730; --panel-2:#221e3c; --border:#2c2950;
-    --text:#f0ecff; --muted:#bfb7e8; --primary:#3ea0ff; --primary-2:#56c7ff;
-    --accent:#ffd479; --good:#22c55e; --warn:#f59e0b; --danger:#ef4444;
+    --text:#f0ecff; --muted:#bfb7e8; --primary:#3ea0ff; --accent:#ffd479;
+    --good:#22c55e; --warn:#f59e0b; --danger:#ef4444;
   }
   *{box-sizing:border-box}
-  html,body{height:100%}
   body{margin:0;background:radial-gradient(1200px 800px at 20% 0%,#1b1536 0%,#0f0d1a 60%),var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif}
-  a{color:var(--primary)}
   .container{max-width:1200px;margin:24px auto;padding:0 16px;display:grid;grid-template-columns:1.6fr .9fr;gap:16px}
   header.title{grid-column:1 / span 2;display:flex;align-items:center;gap:12px}
   header.title h1{margin:0;font-size:22px}
@@ -25,24 +23,18 @@
   .col{display:flex;flex-direction:column;gap:12px}
   .btn{background:var(--primary);color:white;border:none;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600}
   .btn:hover{filter:brightness(1.06)}
-  .btn.ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
   .btn.good{background:var(--good)} .btn.warn{background:var(--warn)} .btn.danger{background:var(--danger)}
   .stat{display:flex;gap:8px;align-items:baseline}
   .stat .big{font-size:30px;font-weight:800;letter-spacing:.5px}
   .muted{color:var(--muted)}
   .pill{background:rgba(255,255,255,.07);border:1px solid var(--border);padding:6px 10px;border-radius:999px}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
   .genlist{display:flex;flex-direction:column;gap:10px}
   .gen{display:grid;grid-template-columns:1fr 340px;gap:12px;padding:12px;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.03)}
   .gen .name{font-weight:800;margin-bottom:4px}
   .gen .desc{font-size:12px;color:var(--muted)}
   .right{display:flex;flex-direction:column;gap:8px;min-width:280px}
-  .right .grid2{grid-template-columns:1fr 1fr}
-  .right .panel .bd{display:flex;flex-direction:column;gap:12px}
-  .select{background:transparent;color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px 10px}
+  .right .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   footer{grid-column:1 / span 2;color:var(--muted);text-align:center;padding:12px}
-  .kpi{display:flex;gap:14px;align-items:center}
   .tap{background:linear-gradient(180deg,#2a49ff,#2b2db5);border:1px solid #2f3fdb;border-radius:12px;padding:14px 16px;text-align:center;color:white;font-weight:800}
   .tap .big{font-size:22px}
   .box{border:1px solid var(--border);border-radius:12px;padding:12px;background:rgba(255,255,255,.02)}
@@ -52,26 +44,21 @@
   <div class="container">
     <header class="title">
       <h1>魔法少女インフレクリッカー</h1>
-      <span class="badge">v0.1.8.5</span>
+      <span class="badge">UI+Click v1</span>
       <div style="flex:1"></div>
-      <label class="row">表記
-        <select id="notation" class="select">
-          <option>日本式</option><option>英式</option><option>科学</option>
-        </select>
-      </label>
+      <span class="pill">表記：科学（簡易）</span>
     </header>
 
     <!-- Left/Main -->
     <div class="col">
       <div class="panel">
-        <div class="hd"><strong>威力</strong><span class="muted">（仮）</span></div>
+        <div class="hd"><strong>威力</strong><span class="muted">（クリックで増える通貨）</span></div>
         <div class="bd">
-          <div class="kpi">
-            <div class="stat"><span class="big" id="power">0</span></div>
-            <div class="pill">生成/秒: <span id="pps">0</span></div>
-          </div>
+          <div class="stat"><span>所持：</span><span class="big" id="power">0</span></div>
+          <div class="pill" style="margin-top:8px">生成/秒（今は0）：<span id="pps">0</span></div>
+
           <div class="tap" style="margin-top:12px">
-            <div>タップ: <span class="big" id="tapGain">+1.0</span></div>
+            <div>タップ：<span class="big" id="tapGain">+1.00</span></div>
             <div class="row" style="justify-content:center;margin-top:8px">
               <button id="tapBtn" class="btn">タップ！</button>
               <button id="upgradeClick" class="btn warn">強化 +1</button>
@@ -82,13 +69,7 @@
       </div>
 
       <div class="panel">
-        <div class="hd"><strong>仲間（ジェネレーター）</strong>
-          <div class="row">
-            <label>購入数:
-              <select id="buyMode" class="select"><option value="1">1</option><option value="10">10</option><option value="max">Max</option></select>
-            </label>
-          </div>
-        </div>
+        <div class="hd"><strong>仲間（ジェネレーター）</strong><span class="muted">※今回はUIのみ（購入ロジックは次段）</span></div>
         <div class="bd">
           <div class="genlist" id="genlist"></div>
         </div>
@@ -101,12 +82,12 @@
         <div class="hd"><strong>変身（転生）</strong></div>
         <div class="bd">
           <div class="box muted">所持：<span id="prestigeCurr">0</span></div>
-          <div class="grid2">
-            <button class="btn ghost" data-rank="1">L1 ピュアハート<br><span class="muted small">獲得見込み: +0.00</span></button>
-            <button class="btn ghost" data-rank="2">L2 魔装<br><span class="muted small">獲得見込み: +0.00</span></button>
-            <button class="btn ghost" data-rank="3">L3 霊章<br><span class="muted small">獲得見込み: +0.00</span></button>
-            <button class="btn ghost" data-rank="4">L4 星環<br><span class="muted small">獲得見込み: +0.00</span></button>
-            <button class="btn ghost" data-rank="5">L5 永輝<br><span class="muted small">獲得見込み: +0.00</span></button>
+          <div class="grid2" style="margin-top:8px">
+            <button class="btn">L1 ピュアハート</button>
+            <button class="btn">L2 魔装</button>
+            <button class="btn">L3 霊章</button>
+            <button class="btn">L4 星環</button>
+            <button class="btn">L5 永輝</button>
           </div>
         </div>
       </div>
@@ -116,34 +97,18 @@
         <div class="bd">
           <div class="row">
             <button id="saveBtn" class="btn good">保存</button>
-            <button id="loadBtn" class="btn ghost">読込</button>
+            <button id="loadBtn" class="btn">読込</button>
             <button id="resetBtn" class="btn danger" style="margin-left:auto">ハードリセット</button>
           </div>
         </div>
       </div>
     </div>
 
-    <footer>UI雛形（JS一体型）。見た目をTS版に寄せた構成。次にロジックを段階的に移植します。</footer>
+    <footer>次は「ジェネレーター購入」「まとめ購入」「保存/読込」を実装します。</footer>
   </div>
 
 <script>
-// ---- Minimal placeholder logic (UI反応だけ) ----
-const state = {
-  power: 0,
-  tapLevel: 0,
-  tapBase: 1,
-  score: 0,
-  mult: { pps: 1, click: 1 },
-  gens: [
-    { id:'familiar', name:'見習いの妖', count:15, basePps:1.55, baseCost:81.4, costMul:1.15, level:15 },
-    { id:'orb', name:'使い魔オーブ', count:8, basePps:14.0, baseCost:393, costMul:1.17, level:8 },
-    { id:'collector', name:'星屑蒐集器', count:0, basePps:170, baseCost:1800, costMul:1.20, level:0 },
-    { id:'lens', name:'月光レンズ', count:0, basePps:2546, baseCost:208000, costMul:1.22, level:0 },
-    { id:'arc', name:'虹色ループ', count:0, basePps:3.7e7, baseCost:5.2e9, costMul:1.25, level:0 },
-  ],
-};
-
-const $ = (q)=>document.querySelector(q);
+/* ========= 表記 ========= */
 const fmt = (n)=>{
   if(!Number.isFinite(n)) return '∞';
   const a=Math.abs(n);
@@ -152,69 +117,125 @@ const fmt = (n)=>{
   return (n<0?'-':'')+m.toFixed(2)+'e'+e;
 };
 
-function nextCost(gen, add=1){
-  const c0 = gen.baseCost * Math.pow(gen.costMul, gen.count);
-  return c0 * (Math.pow(gen.costMul, add)-1)/(gen.costMul-1);
+/* ========= クリック強化の式（ここだけ実装） =========
+   - クリック基礎値 baseClick
+   - レベル Lv
+   - 効果: tapGain = baseClick * (clickMul ^ Lv)
+   - コスト: cost(Lv→Lv+1) = baseCost * (costMul ^ Lv)
+   ※値は後で微調整しやすいように定数化 */
+const CLICK = {
+  baseClick: 1,     // 基礎獲得
+  clickMul:  1.20,  // 1レベルごとの倍率（例: +20%）
+  baseCost:  150,   // 初期費用
+  costMul:   1.25,  // レベルごとの費用倍率
+};
+function clickGainByLevel(lv){
+  return CLICK.baseClick * Math.pow(CLICK.clickMul, lv);
 }
-function powerFor(gen){
-  const linear = Math.pow(1.10, gen.level|0);
-  const step = Math.pow(2, Math.floor((gen.level|0)/10));
-  return gen.basePps * linear * step;
+function clickNextDelta(lv){
+  const now = clickGainByLevel(lv);
+  const next = clickGainByLevel(lv+1);
+  return next - now;
 }
-function pps(){
-  return state.gens.reduce((p,g)=> p + g.count * powerFor(g), 0) * state.mult.pps;
+function clickNextCost(lv){
+  return CLICK.baseCost * Math.pow(CLICK.costMul, lv);
 }
-function tapGain(){ return state.tapBase * Math.pow(1.2, state.tapLevel) * state.mult.click; }
 
-function renderClickArea(){
-  $('#tapGain').textContent = '+'+fmt(tapGain());
-  $('#clickInfo').textContent = `クリック強化 Lv ${state.tapLevel} / 次: +${fmt(tapGain()*0.2)}（費用 ${fmt((state.tapLevel+1)*1500)}）`;
+/* ========= 状態 ========= */
+const state = {
+  power: 0,        // 所持通貨（威力）
+  clickLv: 0,      // クリック強化レベル
+  gens: [          // 9種類に拡張（UI表示のみ）
+    { id:'g1', name:'見習いの妖',    desc:'初期の支援者',         count:0 },
+    { id:'g2', name:'使い魔オーブ',  desc:'淡い光を放つ球体',     count:0 },
+    { id:'g3', name:'星屑蒐集器',    desc:'星屑を集めて変換',     count:0 },
+    { id:'g4', name:'月光レンズ',    desc:'月光を集中させる',     count:0 },
+    { id:'g5', name:'虹色ループ',    desc:'周回する虹が力に',     count:0 },
+    { id:'g6', name:'聖歌隊',        desc:'歌声で励起する',       count:0 },
+    { id:'g7', name:'契約書庫',      desc:'古文書の加護',         count:0 },
+    { id:'g8', name:'夢紡ぎ機構',    desc:'夢を糸に変える',       count:0 },
+    { id:'g9', name:'恒星炉',        desc:'恒星の欠片を稼働',     count:0 },
+  ],
+};
+
+/* ========= UI要素 ========= */
+const $ = (q)=>document.querySelector(q);
+const elPower = $('#power');
+const elPps   = $('#pps');
+const elTapGain = $('#tapGain');
+const elClickInfo = $('#clickInfo');
+const elGenList = $('#genlist');
+
+/* ========= レンダリング ========= */
+function renderClick(){
+  const gain = clickGainByLevel(state.clickLv);
+  elTapGain.textContent = '+'+ (gain<10 ? gain.toFixed(2) : gain.toFixed(0));
+  const nextDelta = clickNextDelta(state.clickLv);
+  const nextCost  = clickNextCost(state.clickLv);
+  elClickInfo.textContent = `クリック強化 Lv ${state.clickLv} / 次: +${(nextDelta<10? nextDelta.toFixed(2): nextDelta.toFixed(0))}（費用 ${fmt(nextCost)}）`;
 }
 function renderKPI(){
-  $('#power').textContent = fmt(state.power);
-  $('#pps').textContent = fmt(pps());
-}
-function genRow(g){
-  const wrap = document.createElement('div');
-  wrap.className = 'gen';
-  wrap.innerHTML = `
-    <div class="left">
-      <div class="name">${g.name} <span class="muted">x${g.count}</span></div>
-      <div class="desc">単体/sec: ${fmt(powerFor(g))}　最大強化後: ${fmt(g.basePps)} ×(1.1^Lv)×(2^⌊Lv/10⌋)</div>
-    </div>
-    <div class="right">
-      <div class="grid2">
-        <button class="btn good buy1">購入 1（${fmt(nextCost(g,1))}）</button>
-        <button class="btn good buymax">最大購入 ×?（${fmt(nextCost(g,5))}）</button>
-      </div>
-      <div class="grid2">
-        <button class="btn warn up1">強化 +1（${fmt(300+g.level*48)}）</button>
-        <button class="btn warn upmax">最大強化 ×?（-${g.level}）</button>
-      </div>
-    </div>`;
-  // wire minimal handlers (ダミー動作)
-  wrap.querySelector('.buy1').addEventListener('click', ()=>{ g.count+=1; renderAll(); });
-  wrap.querySelector('.buymax').addEventListener('click', ()=>{ g.count+=5; renderAll(); });
-  wrap.querySelector('.up1').addEventListener('click', ()=>{ g.level+=1; renderAll(); });
-  wrap.querySelector('.upmax').addEventListener('click', ()=>{ g.level+=10; renderAll(); });
-  return wrap;
+  elPower.textContent = fmt(state.power);
+  elPps.textContent   = '0'; // いまは未実装（次段で実装）
 }
 function renderGens(){
-  const list = $('#genlist'); list.innerHTML='';
-  state.gens.forEach(g=> list.appendChild(genRow(g)));
+  elGenList.innerHTML = '';
+  state.gens.forEach(g=>{
+    const row = document.createElement('div');
+    row.className = 'gen';
+    row.innerHTML = `
+      <div>
+        <div class="name">${g.name} <span class="muted">x${g.count}</span></div>
+        <div class="desc">${g.desc}</div>
+      </div>
+      <div class="row" style="justify-content:flex-end">
+        <button class="btn" disabled>購入（次回）</button>
+        <button class="btn warn" disabled>強化（次回）</button>
+      </div>`;
+    elGenList.appendChild(row);
+  });
 }
-
-function renderAll(){ renderClickArea(); renderKPI(); renderGens(); }
+function renderAll(){ renderKPI(); renderClick(); renderGens(); }
 renderAll();
 
-// ---- UI actions ----
-$('#tapBtn').addEventListener('click', ()=>{ state.power += tapGain(); renderKPI(); });
-$('#upgradeClick').addEventListener('click', ()=>{ state.tapLevel += 1; renderClickArea(); });
+/* ========= 操作 ========= */
+// クリックで通貨が増える
+$('#tapBtn').addEventListener('click', ()=>{
+  state.power += clickGainByLevel(state.clickLv);
+  renderKPI();
+});
 
-// system buttons (ダミー)
-$('#saveBtn').addEventListener('click', ()=> alert('保存（ダミー）'));
-$('#loadBtn').addEventListener('click', ()=> alert('読込（ダミー）'));
-$('#resetBtn').addEventListener('click', ()=>{ if(confirm('ハードリセットしますか？')) location.reload(); });
+// クリック強化（お金が足りなければ無反応）
+$('#upgradeClick').addEventListener('click', ()=>{
+  const cost = clickNextCost(state.clickLv);
+  if (state.power >= cost){
+    state.power -= cost;
+    state.clickLv += 1;
+    renderKPI();
+    renderClick();
+  }
+});
+
+// 保存/読込/リセット（最低限）
+const KEY='msi-click-v1';
+$('#saveBtn').addEventListener('click', ()=>{
+  localStorage.setItem(KEY, JSON.stringify(state));
+  alert('保存しました');
+});
+$('#loadBtn').addEventListener('click', ()=>{
+  const raw = localStorage.getItem(KEY);
+  if (!raw) return alert('保存がありません');
+  const s = JSON.parse(raw);
+  Object.assign(state, s);
+  renderAll();
+  alert('読込しました');
+});
+$('#resetBtn').addEventListener('click', ()=>{
+  if (!confirm('ハードリセットしますか？')) return;
+  localStorage.removeItem(KEY);
+  state.power=0; state.clickLv=0; state.gens.forEach(g=>g.count=0);
+  renderAll();
+});
 </script>
 </body>
 </html>
