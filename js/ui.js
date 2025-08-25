@@ -1,13 +1,12 @@
-// js/ui.js
 import { fmt } from './format.js';
-import { clickGainByLevel, clickNextCost, clickNextDelta } from './click.js';
+import { clickGainByLevel, clickNextCost, clickNextDelta, globalMultiplier } from './click.js';
 import {
   nextUnitCost, totalCostUnits, maxAffordableUnits, buyUnits,
   nextUpgradeCost, totalCostUpgrades, maxAffordableUpgrades, upgrade,
   powerFor, totalPps
 } from './economy.js';
 
-/* ===== クリック強化 ===== */
+/* ===== クリック強化（最大回数） ===== */
 function maxAffordableClick(state){
   let lv = state.clickLv, money = state.power, n = 0;
   while (money >= clickNextCost(lv) && n < 1e6) {
@@ -15,12 +14,14 @@ function maxAffordableClick(state){
   }
   return n;
 }
+
 export function renderClick(state){
   const gain = clickGainByLevel(state.clickLv);
   document.getElementById('tapGain').textContent = '+' + (gain<10?gain.toFixed(2):gain.toFixed(0));
+
   document.getElementById('clickLvInfo').textContent = `Lv ${state.clickLv}`;
   document.getElementById('clickDelta').textContent = (clickNextDelta(state.clickLv)).toFixed(2);
-  document.getElementById('clickCost').textContent = fmt(clickNextCost(state.clickLv));
+  document.getElementById('clickCost').textContent  = fmt(clickNextCost(state.clickLv));
   document.getElementById('clickAfter').textContent = '+' + clickGainByLevel(state.clickLv+1).toFixed(2);
 
   const b1 = document.getElementById('upgradeClick');
@@ -33,18 +34,24 @@ export function renderClick(state){
 
 export function renderKPI(state){
   document.getElementById('power').textContent = fmt(state.power);
-  document.getElementById('pps').textContent   = fmt(totalPps(state));
+  const pps = totalPps(state) * globalMultiplier(state.clickLv);
+  document.getElementById('pps').textContent   = fmt(pps);
 }
 
 /* ===== ジェネ ===== */
 function simulateTotalAfterUpgrade(state, g, n){
-  const curr = totalPps(state);
+  const curr = totalPps(state) * globalMultiplier(state.clickLv);
   const beforeEach = powerFor(g);
   const afterEach  = powerFor({...g, level:(g.level|0)+n});
   const deltaEach  = afterEach - beforeEach;
+
   const beforeTotal = curr;
-  const afterTotal  = curr - (g.count|0)*beforeEach + (g.count|0)*afterEach;
+  const afterTotal  = (totalPps({
+    ...state,
+    gens: state.gens.map(x=> x.id===g.id ? {...g, level:(g.level|0)+n } : x)
+  }) * globalMultiplier(state.clickLv));
   const deltaTotal  = afterTotal - beforeTotal;
+
   return { beforeEach, afterEach, deltaEach, beforeTotal, afterTotal, deltaTotal };
 }
 
@@ -108,7 +115,7 @@ function genRow(state, g, onUpdate){
     btnUpM.disabled=(kMax<=0);
     btnUpM.textContent=`最大強化 ×${kMax}（${fmt(sumK)}）`;
 
-    // 強化効果
+    // 強化効果（PPSは全体倍率込みで評価）
     const s1=simulateTotalAfterUpgrade(state,g,1);
     e1a.textContent=fmt(s1.beforeEach); e1b.textContent=fmt(s1.afterEach); e1d.textContent=fmt(s1.deltaEach);
     t1a.textContent=fmt(s1.beforeTotal); t1b.textContent=fmt(s1.afterTotal); t1d.textContent=fmt(s1.deltaTotal);
