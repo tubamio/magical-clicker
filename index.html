@@ -21,9 +21,9 @@
     .price{color:#ffd479}
     .small{font-size:12px;color:#b5bbcf}
     .row{display:flex;gap:8px;align-items:center}
-    .buygrp{display:flex;gap:6px}
+    .buygrp{display:flex;gap:6px;align-items:center}
     footer{padding:12px 16px;border-top:1px solid #20243a;color:#9aa0b4;text-align:center}
-    select, .pill{background:#111827;color:#eaeaf2;border:1px solid #26304b;border-radius:10px;padding:8px 10px}
+    select,.pill{background:#111827;color:#eaeaf2;border:1px solid #26304b;border-radius:10px;padding:8px 10px}
     .pill{display:inline-block}
   </style>
 </head>
@@ -61,7 +61,7 @@
 </footer>
 
 <script type="module">
-/** ====== 小さいユーティリティ ====== */
+/* ===== utils ===== */
 const fmt = (n)=>{
   if(!isFinite(n)) return '∞';
   const a = Math.abs(n);
@@ -70,137 +70,86 @@ const fmt = (n)=>{
     const d = a>=100 ? 0 : a>=10 ? 1 : 2;
     return n.toFixed(d);
   }
-  const e = Math.floor(Math.log10(a));
-  const m = a / 10**e;
+  const e = Math.floor(Math.log10(a)); const m = a / 10**e;
   return (n<0?'-':'') + m.toFixed(2) + 'e' + e;
 };
 const fmtInt = n => Math.floor(n).toLocaleString('en-US');
 
-/** ====== データ定義（必要に応じて増やせる） ====== */
+/* ===== data ===== */
 const GENERATORS_DEF = [
   { id:'hand',   name:'手動クリック', baseCost:10,  costMul:1.15, basePps:0,   clickGain:1 },
   { id:'cursor', name:'カーソル',     baseCost:15,  costMul:1.15, basePps:0.1 },
   { id:'bot',    name:'ボット',       baseCost:100, costMul:1.17, basePps:1   },
   { id:'lab',    name:'研究所',       baseCost:1200,costMul:1.20, basePps:12  },
 ];
-
 const GLOBAL = { globalMult: 1.0, clickMult: 1.0 };
 
-/** ====== 経済ロジック ====== */
+/* ===== economy ===== */
 const nextCost = (g, count)=> g.baseCost * Math.pow(g.costMul, count);
-const totalPps = (state)=>{
-  let p = 0;
-  for(const g of state.generators){
-    p += g.count * (g.basePps ?? 0);
-  }
-  return p * state.mult.pps * GLOBAL.globalMult;
-};
-const clickGain = (state)=>{
-  const hand = state.generators.find(x=>x.id==='hand');
-  const base = (hand?.clickGain ?? 1);
-  return base * state.mult.click * GLOBAL.clickMult;
-};
-// 等比級数の合計 c0*(r^n-1)/(r-1)
+const totalPps = (state)=> state.generators.reduce((p,g)=> p + g.count*(g.basePps??0), 0) * state.mult.pps * GLOBAL.globalMult;
+const clickGain = (state)=> (state.generators.find(x=>x.id==='hand')?.clickGain ?? 1) * state.mult.click * GLOBAL.clickMult;
 const sumCost = (c0, r, n)=> c0 * (Math.pow(r, n) - 1) / (r - 1);
-
-// Max購入：近似→二分探索で安全調整
 const maxAffordable = (g, budget)=>{
-  const r = g.costMul;
-  const c0 = g.baseCost * Math.pow(r, g.count);
+  const r = g.costMul, c0 = g.baseCost * Math.pow(r, g.count);
   if (budget < c0) return 0;
   const nApprox = Math.floor(Math.log((budget/c0)*(r-1)+1)/Math.log(r));
-  let lo = 0, hi = Math.max(1, nApprox+3);
-  const costOf = (n)=> sumCost(c0, r, n);
+  let lo=0, hi=Math.max(1, nApprox+3);
+  const costOf = n=> sumCost(c0,r,n);
   while (costOf(hi) <= budget) hi *= 2;
-  while (lo < hi){
-    const mid = Math.floor((lo+hi+1)/2);
-    if (costOf(mid) <= budget) lo = mid; else hi = mid-1;
-  }
+  while (lo < hi){ const m = Math.floor((lo+hi+1)/2); if (costOf(m) <= budget) lo=m; else hi=m-1; }
   return lo;
 };
-
 const buy = (state, id, mode='1')=>{
-  const g = state.generators.find(x=>x.id===id);
-  if (!g) return false;
-  const r = g.costMul;
-  const c0 = g.baseCost * Math.pow(r, g.count);
-  let n = 1;
-  if (mode === '10') n = 10;
-  if (mode === 'max') n = maxAffordable(g, state.score);
-  if (n <= 0) return false;
+  const g = state.generators.find(x=>x.id===id); if(!g) return false;
+  const r=g.costMul, c0=g.baseCost*Math.pow(r,g.count);
+  let n = mode==='10'?10 : mode==='max'? maxAffordable(g, state.score): 1;
+  if (n<=0) return false;
   const cost = sumCost(c0, r, n);
   if (state.score < cost) return false;
-  state.score -= cost;
-  g.count += n;
-  return true;
+  state.score -= cost; g.count += n; return true;
 };
+const tick = (s, dt)=> { s.score += totalPps(s) * dt; };
 
-const tick = (state, dt)=> { state.score += totalPps(state) * dt; };
+/* ===== save ===== */
+const KEY='uII-js-onefile-save-v2';
+const save = (s)=>{ try{ localStorage.setItem(KEY, JSON.stringify({
+  score:s.score, mult:s.mult, generators:s.generators.map(g=>({id:g.id,count:g.count}))
+})); }catch{} };
+const load = ()=>{ try{ const raw=localStorage.getItem(KEY); return raw? JSON.parse(raw): null; }catch{ return null; } };
 
-/** ====== セーブ ====== */
-const KEY='uII-js-onefile-save-v1';
-const save = (state)=>{
-  try{
-    localStorage.setItem(KEY, JSON.stringify({
-      score: state.score,
-      mult: state.mult,
-      generators: state.generators.map(g=>({id:g.id,count:g.count}))
-    }));
-  }catch(e){}
-};
-const load = ()=>{
-  try{
-    const raw = localStorage.getItem(KEY);
-    return raw? JSON.parse(raw) : null;
-  }catch(e){ return null; }
-};
-
-/** ====== 状態とUI ====== */
-const state = {
-  score: 0,
-  mult: { pps: 1, click: 1 },
-  generators: GENERATORS_DEF.map(g=>({ ...g, count:0 })),
-};
-
-const saved = load();
-if (saved){
-  state.score = saved.score ?? 0;
-  state.mult  = saved.mult  ?? state.mult;
-  if (Array.isArray(saved.generators)){
-    for(const sg of saved.generators){
-      const t = state.generators.find(x=>x.id===sg.id);
-      if (t) t.count = sg.count|0;
-    }
-  }
-}
+/* ===== state & UI ===== */
+const state = { score:0, mult:{pps:1,click:1}, generators: GENERATORS_DEF.map(g=>({...g, count:0})) };
+const saved = load(); if(saved){ state.score=saved.score??0; state.mult=saved.mult??state.mult;
+  if(Array.isArray(saved.generators)){ for(const sg of saved.generators){ const t=state.generators.find(x=>x.id===sg.id); if(t) t.count=sg.count|0; } } }
 
 const $ = (id)=>document.getElementById(id);
-const elScore = $('score');
-const elPps = $('pps');
-const elClickGain = $('clickGain');
-const elClickGainBtn = $('clickGainBtn');
-const elGenList = $('generators');
-const elClick = $('clickButton');
-const elBuyMode = $('buyMode');
+const elScore=$('score'), elPps=$('pps'), elClickGain=$('clickGain'), elClickGainBtn=$('clickGainBtn');
+const elGenList=$('generators'), elClick=$('clickButton'), elBuyMode=$('buyMode');
 
-const updateHUD = ()=>{
+function updateHUD(){
   elScore.textContent = fmt(state.score);
   elPps.textContent = fmt(totalPps(state));
   const cg = clickGain(state);
   elClickGain.textContent = fmt(cg);
   elClickGainBtn.textContent = fmt(cg);
 
-  for(const btn of elGenList.querySelectorAll('button[data-id]')){
+  // ガード付き更新（.price/.own が無かったらスキップ）
+  const btns = elGenList.querySelectorAll('button[data-id]');
+  btns.forEach(btn=>{
     const id = btn.getAttribute('data-id');
     const g = state.generators.find(x=>x.id===id);
+    if(!g) return;
     const cost = nextCost(g, g.count);
     btn.disabled = state.score < cost;
-    btn.querySelector('.price').textContent = fmt(cost);
-    btn.closest('.card').querySelector('.own').textContent = fmtInt(g.count);
-  }
-};
+    const priceEl = btn.querySelector('.price');
+    if (priceEl) priceEl.textContent = fmt(cost);
+    const card = btn.closest('.card');
+    const ownEl = card && card.querySelector('.own');
+    if (ownEl) ownEl.textContent = fmtInt(g.count);
+  });
+}
 
-const renderGenerators = ()=>{
+function renderGenerators(){
   elGenList.innerHTML = '';
   for(const g of state.generators){
     if (g.id === 'hand') continue;
@@ -213,7 +162,7 @@ const renderGenerators = ()=>{
         <div class="desc">+ ${fmt(g.basePps)} /s（1体）</div>
       </div>
       <div class="buygrp">
-        <span class="pill">次の単価: <span class="price">${fmt(cost)}</span></span>
+        <span class="pill">単価: <span class="price">${fmt(cost)}</span></span>
         <button data-id="${g.id}">購入</button>
       </div>`;
     const btn = card.querySelector('button');
@@ -223,26 +172,14 @@ const renderGenerators = ()=>{
     });
     elGenList.appendChild(card);
   }
-};
+}
 
-elClick.addEventListener('click', ()=>{
-  state.score += clickGain(state);
-  updateHUD();
-});
-
-renderGenerators();
-updateHUD();
+elClick.addEventListener('click', ()=>{ state.score += clickGain(state); updateHUD(); });
+renderGenerators(); updateHUD();
 
 let last = performance.now();
-function loop(t){
-  const dt = Math.max(0, (t - last) / 1000);
-  last = t;
-  tick(state, dt);
-  updateHUD();
-  requestAnimationFrame(loop);
-}
+function loop(t){ const dt = Math.max(0, (t-last)/1000); last=t; tick(state, dt); updateHUD(); requestAnimationFrame(loop); }
 requestAnimationFrame(loop);
-
 setInterval(()=> save(state), 10000);
 </script>
 </body>
