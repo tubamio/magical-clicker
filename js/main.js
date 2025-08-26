@@ -1,4 +1,4 @@
-export const VERSION = 'Ver.0.1.1.6';
+export const VERSION = 'Ver.0.1.1.7';
 import { GENERATORS } from './data.js';
 import { save, load, reset } from './save.js';
 import { renderAll, renderKPI, lightRefresh, bindFormatToggle } from './ui.js';
