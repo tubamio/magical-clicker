@@ -1,0 +1,69 @@
+name: Add/Update Single File (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      title:
+        description: "PR title / commit message"
+        required: true
+        default: "Update via workflow"
+      path:
+        description: "Repository-relative path (e.g. js/format.js)"
+        required: true
+      content:
+        description: "New file content (entire text)"
+        required: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  commit-file:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Create branch
+        id: br
+        run: |
+          set -e
+          BR="auto/file-${{ github.run_id }}-$(date +%s)"
+          echo "BR=$BR" >> $GITHUB_ENV
+          git checkout -b "$BR"
+
+      - name: Write file content
+        run: |
+          mkdir -p "$(dirname "${{ inputs.path }}")"
+          # そのままのテキストをファイルに書き出す（コードフェンス不要）
+          cat > "${{ inputs.path }}" <<'EOF_CONTENT'
+${{ inputs.content }}
+EOF_CONTENT
+          # CRLF→LF 正規化（コピペ差異ケア）
+          sed -i 's/\r$//' "${{ inputs.path }}"
+          echo "Wrote ${{ inputs.path }}:"
+          head -n 50 "${{ inputs.path }}" || true
+
+      - name: Commit & push
+        run: |
+          set -e
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "${{ inputs.path }}"
+          git status
+          git commit -m "${{ inputs.title }}"
+          git push -u origin "$BR"
+
+      - name: Open PR
+        uses: peter-evans/create-pull-request@v6
+        with:
+          title: ${{ inputs.title }}
+          body: |
+            Applied via workflow_dispatch by ${{ github.actor }}.
+            File: `${{ inputs.path }}`
+          branch: ${{ env.BR }}
+          base: ${{ github.event.repository.default_branch }}
