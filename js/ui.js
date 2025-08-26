@@ -1,271 +1,141 @@
-import { fmt, getFormatMode, setFormatMode } from './format.js';
-import { clickGainByLevel, clickNextCost, clickNextDelta, globalMultiplier } from './click.js';
-import {
-  nextUnitCost, totalCostUnits, maxAffordableUnits, buyUnits,
-  nextUpgradeCost, totalCostUpgrades, maxAffordableUpgrades, upgrade,
-  powerFor, totalPps
-} from './economy.js';
+/* ===== UI helpers ===== */
+const el = id => document.getElementById(id);
+const fmt = (n) => window.formatJP ? window.formatJP(n) : (n||0).toLocaleString(); // 既存formatに寄せる
 
-/* ===== クリック強化（最大回数） ===== */
-function maxAffordableClick(state){
-  let lv = state.clickLv, money = state.power, n = 0;
-  while (money >= clickNextCost(lv) && n < 1e6) {
-    money -= clickNextCost(lv); lv++; n++;
-  }
-  return n;
+function setButtonDisabled(button, disabled){
+  button.disabled = !!disabled;
+  button.classList.toggle('is-disabled', !!disabled);
 }
 
-export function renderClick(state){
-  const gain = clickGainByLevel(state.clickLv);
-  document.getElementById('tapGain').textContent = '+' + (gain<10?gain.toFixed(2):gain.toFixed(0));
-
-  document.getElementById('clickLvInfo').textContent = `Lv ${state.clickLv}`;
-  document.getElementById('clickDelta').textContent = (clickNextDelta(state.clickLv)).toFixed(2);
-  document.getElementById('clickCost').textContent  = fmt(clickNextCost(state.clickLv));
-  document.getElementById('clickAfter').textContent = '+' + clickGainByLevel(state.clickLv+1).toFixed(2);
-
-  const b1 = document.getElementById('upgradeClick');
-  const bm = document.getElementById('upgradeClickMax');
-  b1.disabled = state.power < clickNextCost(state.clickLv);
-  const nMax = maxAffordableClick(state);
-  bm.disabled = (nMax <= 0);
-  bm.textContent = `最大強化 ×${nMax}`;
+function highlightMilestone(element, isOn){
+  element.classList.toggle('milestone', !!isOn);
 }
 
-export function renderKPI(state){
-  document.getElementById('power').textContent = fmt(state.power);
-  const pps = totalPps(state) * globalMultiplier(state.clickLv);
-  document.getElementById('pps').textContent   = fmt(pps);
+/* ===== Click upgrade panel ===== */
+export function renderClickPanel(state, economy){
+  const { clickLv, power } = state;
+  const nowPower = economy.clickPower(clickLv);          // = 1 * 4^Lv * 1.03^Lv を内部で計算する実装を想定
+  const nextPower = economy.clickPower(clickLv + 1);
+  const delta = nextPower - nowPower;
+  const nextCost = economy.clickCost(clickLv);
+
+  el('clickLvText').textContent = clickLv;
+  el('clickPowerNow').textContent = fmt(nowPower);
+  el('clickPowerNext').textContent = '×4';
+  el('clickDelta').textContent = delta > 0 ? `(+${fmt(delta)})` : '';
+  el('clickNextCost').textContent = fmt(nextCost);
+
+  setButtonDisabled(el('clickUp1'), power < nextCost);
+  setButtonDisabled(el('clickUpMax'), power < nextCost);
+
+  // Lv10の倍数でハイライト
+  highlightMilestone(el('clickPanel'), (clickLv + 1) % 10 === 0);
 }
 
-/* ===== ジェネ ===== */
-function simulateTotalAfterUpgrade(state, g, n){
-  const curr = totalPps(state) * globalMultiplier(state.clickLv);
-  const beforeEach = powerFor(g);
-  const afterEach  = powerFor({...g, level:(g.level|0)+n});
-  const deltaEach  = afterEach - beforeEach;
+/* ===== Generators list ===== */
+export function renderGenerators(state, economy, data){
+  const list = el('genList');
+  list.innerHTML = '';
 
-  const beforeTotal = curr;
-  const afterTotal  = (totalPps({
-    ...state,
-    gens: state.gens.map(x=> x.id===g.id ? {...g, level:(g.level|0)+n } : x)
-  }) * globalMultiplier(state.clickLv));
-  const deltaTotal  = afterTotal - beforeTotal;
+  data.forEach((g, idx) => {
+    const owned = state.gens[idx]?.count || 0;
+    const lvl   = state.gens[idx]?.level || 0;
 
-  return { beforeEach, afterEach, deltaEach, beforeTotal, afterTotal, deltaTotal };
-}
+    const baseOut = economy.genOutput(idx, 0);  // 1台あたりの基礎PPS（Lv補正なし）
+    const outPer  = economy.genOutput(idx, lvl); // 1台あたりの最終PPS（Lv補正込み）
+    const totalOut= outPer * owned;
 
-function genRow(state, g, onUpdate){
-  const row = document.createElement('div');
-  row.className = 'gen';
-  row.innerHTML = `
-    <div class="left">
-      <div class="name">${g.name} <span class="muted">x<span class="own">${g.count|0}</span></span></div>
-      <div class="desc">単体/sec: <span class="eachPps">${fmt(powerFor(g))}</span></div>
-      <div class="desc lvline">Lv <span class="lvNow">0</span> → <span class="lvNext">1</span></div>
-      <div class="desc upEffect">
-        強化+1効果：単体 <span class="e1a"></span> → <span class="e1b"></span>（+<span class="e1d"></span>）｜全体 <span class="t1a"></span> → <span class="t1b"></span>（+<span class="t1d"></span>）
+    const buyCost = economy.genCost(idx, owned); // 次の1個の費用
+    const upCost  = economy.genUpCost(idx, lvl); // 強化+1の費用
+
+    // 最大購入/最大強化の計算（maxAffordable は経済側の安全版を使用）
+    const canBuyN   = economy.maxAffordableBuy(idx, state.power, owned);
+    const canBuySum = economy.sumBuyCost(idx, owned, canBuyN);
+
+    const canUpN    = economy.maxAffordableUp(idx, state.power, lvl);
+    const nextPer   = economy.genOutput(idx, lvl + canUpN);
+    const diffOut   = nextPer * owned - totalOut;
+
+    const row = document.createElement('div');
+    row.className = 'tr';
+    row.innerHTML = `
+      <div class="name">${g.name}</div>
+      <div>${owned}台 <div class="meta">Lv <b>${lvl}</b></div></div>
+      <div>
+        <div>${fmt(totalOut)}/s</div>
+        <div class="meta">単体: <b>${fmt(outPer)}/s</b></div>
       </div>
-      <div class="desc upEffectMax">
-        最大強化効果：単体 <span class="eMa"></span> → <span class="eMb"></span>（+<span class="eMd"></span>）｜全体 <span class="tMa"></span> → <span class="tMb"></span>（+<span class="tMd"></span>）
-      </div>
-    </div>
-    <div class="right">
-      <div class="buttons">
-        <div class="row">
-          <button class="btn buy1">購入</button>
-          <button class="btn buyMax">まとめ購入</button>
+      <div>
+        <div class="meta">次: <b>${fmt(buyCost)}</b></div>
+        <div class="row" style="gap:8px;margin-top:6px;">
+          <button class="btn btn-buy" data-act="buy1" data-idx="${idx}">購入 +1</button>
+          <button class="btn btn-buy btn-max" data-act="buyMax" data-idx="${idx}">最大購入</button>
         </div>
-        <div class="row mt8">
-          <button class="btn up1">強化＋1</button>
-          <button class="btn upMax">まとめ強化</button>
+        <div class="meta">
+          <span>まとめ: <b>${canBuyN}</b></span>
+          <span>合計費用: <b>${fmt(canBuySum)}</b></span>
         </div>
       </div>
-    </div>
-  `;
+      <div>
+        <div class="meta">+1: <b>${fmt(upCost)}</b></div>
+        <div class="row" style="gap:8px;margin-top:6px;">
+          <button class="btn btn-upg" data-act="up1" data-idx="${idx}">強化 +1</button>
+          <button class="btn btn-upg btn-max" data-act="upMax" data-idx="${idx}">最大強化</button>
+        </div>
+        <div class="meta">
+          <span>まとめ: <b>${canUpN}</b></span>
+          <span>効果変化: <b class="${diffOut>=0?'diff-plus':'diff-minus'}">${diffOut>=0?'+':''}${fmt(diffOut)}/s</b></span>
+        </div>
+      </div>
+    `;
 
-  const ownEl = row.querySelector('.own');
-  const eachEl= row.querySelector('.eachPps');
-  
+    // マイルストーン演出（強化が10の倍数に到達するなら光る）
+    const willHit10 = ((lvl + 1) % 10 === 0) || ((lvl + canUpN) % 10 === 0);
+    if (willHit10) row.classList.add('milestone');
 
-  const btnBuy1=row.querySelector('.buy1');
-  const btnBuyM=row.querySelector('.buyMax');
-  const btnUp1 =row.querySelector('.up1');
-  const btnUpM =row.querySelector('.upMax');
+    // 資金による無効化
+    const b1 = row.querySelector('[data-act="buy1"]');
+    const bm = row.querySelector('[data-act="buyMax"]');
+    const u1 = row.querySelector('[data-act="up1"]');
+    const um = row.querySelector('[data-act="upMax"]');
 
-  const e1a=row.querySelector('.e1a'), e1b=row.querySelector('.e1b'), e1d=row.querySelector('.e1d');
-  const t1a=row.querySelector('.t1a'), t1b=row.querySelector('.t1b'), t1d=row.querySelector('.t1d');
-  const eMa=row.querySelector('.eMa'), eMb=row.querySelector('.eMb'), eMd=row.querySelector('.eMd');
-  const tMa=row.querySelector('.tMa'), tMb=row.querySelector('.tMb'), tMd=row.querySelector('.tMd');
+    setButtonDisabled(b1, state.power < buyCost);
+    setButtonDisabled(bm, canBuyN <= 0);
+    setButtonDisabled(u1, state.power < upCost);
+    setButtonDisabled(um, canUpN <= 0);
 
-  function refresh(){
-    ownEl.textContent = g.count|0;
-    eachEl.textContent= fmt(powerFor(g));
-    
-    // 購入
-    const nMax=maxAffordableUnits(g,state.power);
-    const sumU=totalCostUnits(g,nMax);
-    btnBuy1.disabled = state.power<nextUnitCost(g);
-    btnBuyM.disabled = (nMax<=0);
-    btnBuy1.textContent = `購入（${fmt(nextUnitCost(g))}）`;
-    btnBuyM.textContent=`まとめ購入 ×${nMax}（${fmt(sumU)}）`;
-
-    // 強化
-    const up1=nextUpgradeCost(g);
-    const kMax=maxAffordableUpgrades(g,state.power);
-    const sumK=totalCostUpgrades(g,kMax);
-    btnUp1.textContent = `強化＋1（${fmt(nextUpgradeCost(g))}）`;
-    const willHit10 = (((g.level|0)+1) % 10) === 0;
-    const needToNext = (10 - ((g.level|0)%10)) % 10; const cross10 = needToNext>0 && kMax >= needToNext;
-    btnUp1.classList.toggle('milestone', willHit10);
-    btnUpM.classList.toggle('milestone', cross10);
-
-    btnUpM.textContent=`最大強化 ×${kMax}（${fmt(sumK)}）`;
-
-    // 強化効果（PPSは全体倍率込みで評価）
-    const s1=simulateTotalAfterUpgrade(state,g,1);
-    e1a.textContent=fmt(s1.beforeEach); e1b.textContent=fmt(s1.afterEach); e1d.textContent=fmt(s1.deltaEach);
-    t1a.textContent=fmt(s1.beforeTotal); t1b.textContent=fmt(s1.afterTotal); t1d.textContent=fmt(s1.deltaTotal);
-
-    const sM=simulateTotalAfterUpgrade(state,g,Math.max(kMax,0));
-    eMa.textContent=fmt(sM.beforeEach); eMb.textContent=fmt(sM.afterEach); eMd.textContent=fmt(Math.max(0,sM.deltaEach));
-    tMa.textContent=fmt(sM.beforeTotal); tMb.textContent=fmt(sM.afterTotal); tMd.textContent=fmt(Math.max(0,sM.deltaTotal));
-  }
-
-  btnBuy1.addEventListener('click',()=>{if(!btnBuy1.disabled){if(buyUnits(state,g.id,'1'))onUpdate();refresh();}});
-  btnBuyM.addEventListener('click',()=>{if(!btnBuyM.disabled){if(buyUnits(state,g.id,'max'))onUpdate();refresh();}});
-  btnUp1 .addEventListener('click',()=>{if(!btnUp1.disabled ){if(upgrade (state,g.id,'1'))onUpdate();refresh();}});
-  btnUpM .addEventListener('click',()=>{if(!btnUpM.disabled ){if(upgrade (state,g.id,'max'))onUpdate();refresh();}});
-
-  refresh();
-  return row;
-}
-
-export function renderGens(state){
-  const list=document.getElementById('genlist'); list.innerHTML='';
-  state.gens.forEach(g=> list.appendChild(genRow(state,g,()=>renderKPI(state))));
-}
-
-export function renderAll(state){
-  renderKPI(state); renderClick(state); renderGens(state);
-}
-
-export function bindFormatToggle(){
-  const btn = document.getElementById('fmtToggle');
-  if(!btn) return;
-  const apply = ()=>{ btn.textContent = (getFormatMode()==='eng' ? '表記：工学式' : '表記：日本式'); };
-  btn.addEventListener('click', ()=>{ setFormatMode(getFormatMode()==='eng' ? 'jp' : 'eng'); apply(); });
-  apply();
-}
-
-
-export function lightRefresh(state){
-  
-  // Click block info (Lv and effects) — create once if missing
-  try{
-    const info = document.getElementById('clickInfo');
-    if (info && !info.querySelector('.lvNowClick')){
-      const wrap = document.createElement('div');
-      wrap.innerHTML = '<div class="desc lvline">Lv <span class="lvNowClick">0</span> → <span class="lvNextClick">1</span></div>'
-        + '<div class="desc upEffect">強化+1効果：クリック <span class="c1a"></span> → <span class="c1b"></span>（+<span class="c1d"></span>）</div>'
-        + '<div class="desc upEffectMax">最大強化効果：クリック <span class="cMa"></span> → <span class="cMb"></span>（+<span class="cMd"></span>）</div>';
-      info.appendChild(wrap);
-    }
-    const lvNow = state.clickLv|0;
-    const lvNext = lvNow+1;
-    const cNow = clickGainByLevel(lvNow);
-    const cNext = clickGainByLevel(lvNext);
-    const kMaxC = maxAffordableClick(state);
-    const cMax  = clickGainByLevel(lvNow + kMaxC);
-    const nEl = document.querySelector('.lvNowClick');
-    const xEl = document.querySelector('.lvNextClick');
-    if(nEl) nEl.textContent = String(lvNow);
-    if(xEl) xEl.textContent = String(lvNext);
-    const c1a=document.querySelector('.c1a'), c1b=document.querySelector('.c1b'), c1d=document.querySelector('.c1d');
-    const cMa=document.querySelector('.cMa'), cMb=document.querySelector('.cMb'), cMd=document.querySelector('.cMd');
-    if(c1a) c1a.textContent = fmt(cNow);
-    if(c1b) c1b.textContent = fmt(cNext);
-    if(c1d) c1d.textContent = fmt(Math.max(0,cNext-cNow));
-    if(cMa) cMa.textContent = fmt(cNow);
-    if(cMb) cMb.textContent = fmt(cMax);
-    if(cMd) cMd.textContent = fmt(Math.max(0,cMax-cNow));
-  }catch{}
-// クリック強化（最大）
-  const bm = document.getElementById('upgradeClickMax');
-  const b1 = document.getElementById('upgradeClick');
-  if (bm && b1){
-    const cost1 = clickNextCost(state.clickLv);
-    b1.disabled = state.power < cost1;
-    const nMax = maxAffordableClick(state);
-    bm.disabled = (nMax <= 0);
-    bm.textContent = `最大強化 ×${nMax}`;
-  }
-  // ジェネ各行
-  const rows = Array.from(document.querySelectorAll('#genlist .gen'));
-  rows.forEach((row, idx)=>{
-    const g = state.gens[idx];
-    if (!g) return;
-    const btnBuy1=row.querySelector('.buy1');
-    const btnBuyM=row.querySelector('.buyMax');
-    const btnUp1 =row.querySelector('.up1');
-    const btnUpM =row.querySelector('.upMax');
-    if (!(btnBuy1 && btnBuyM && btnUp1 && btnUpM)) return;
-
-    const nMax=maxAffordableUnits(g,state.power);
-    const sumU=totalCostUnits(g,nMax);
-    btnBuy1.disabled = state.power<nextUnitCost(g);
-    btnBuyM.disabled = (nMax<=0);
-    btnBuy1.textContent = `購入（${fmt(nextUnitCost(g))}）`;
-    btnBuyM.textContent = `まとめ購入 ×${nMax}（${fmt(sumU)}）`;
-
-    const up1=nextUpgradeCost(g);
-    const kMax=maxAffordableUpgrades(g,state.power);
-    const sumK=totalCostUpgrades(g,kMax);
-    btnUp1.disabled = state.power<up1;
-    btnUpM.disabled = (kMax<=0);
-    btnUp1.textContent = `強化＋1（${fmt(up1)}）`;
-    btnUpM.textContent = `まとめ強化 ×${kMax}（${fmt(sumK)}）`;
-
-    const willHit10 = (((g.level|0)+1) % 10) === 0;
-    const needToNext = (10 - ((g.level|0)%10)) % 10; const cross10 = needToNext>0 && kMax >= needToNext;
-    btnUp1.classList.toggle('milestone', willHit10);
-    btnUpM.classList.toggle('milestone', cross10);
-
-    // 左側 Lv と差分（+1 / 最大）
-    const lvNowEl=row.querySelector('.lvNow');
-    const lvNextEl=row.querySelector('.lvNext');
-    if (lvNowEl) lvNowEl.textContent = String(g.level|0);
-    if (lvNextEl) lvNextEl.textContent = String((g.level|0)+1);
-
-    const e1a=row.querySelector('.e1a'), e1b=row.querySelector('.e1b'), e1d=row.querySelector('.e1d');
-    const t1a=row.querySelector('.t1a'), t1b=row.querySelector('.t1b'), t1d=row.querySelector('.t1d');
-    const eMa=row.querySelector('.eMa'), eMb=row.querySelector('.eMb'), eMd=row.querySelector('.eMd');
-    const tMa=row.querySelector('.tMa'), tMb=row.querySelector('.tMb'), tMd=row.querySelector('.tMd');
-
-    try{
-      const curEach = powerFor(g);
-      const nextEach = powerFor({...g, level:(g.level|0)+1});
-      const dEach = Math.max(0, nextEach - curEach);
-      if (e1a) e1a.textContent = fmt(curEach);
-      if (e1b) e1b.textContent = fmt(nextEach);
-      if (e1d) e1d.textContent = fmt(dEach);
-
-      const currTot = (totalPps(state) * globalMultiplier(state.clickLv));
-      const afterTot = (totalPps({...state, gens: state.gens.map(x=> x.id===g.id ? {...g, level:(g.level|0)+1 } : x)}) * globalMultiplier(state.clickLv));
-      if (t1a) t1a.textContent = fmt(currTot);
-      if (t1b) t1b.textContent = fmt(afterTot);
-      if (t1d) t1d.textContent = fmt(Math.max(0, afterTot - currTot));
-
-      const kAfter = (g.level|0)+kMax;
-      const nextEachM = powerFor({...g, level:kAfter});
-      if (eMa) eMa.textContent = fmt(curEach);
-      if (eMb) eMb.textContent = fmt(nextEachM);
-      if (eMd) eMd.textContent = fmt(Math.max(0, nextEachM - curEach));
-
-      const afterTotM = (totalPps({...state, gens: state.gens.map(x=> x.id===g.id ? {...g, level:kAfter } : x)}) * globalMultiplier(state.clickLv));
-      if (tMa) tMa.textContent = fmt(currTot);
-      if (tMb) tMb.textContent = fmt(afterTotM);
-      if (tMd) tMd.textContent = fmt(Math.max(0, afterTotM - currTot));
-    }catch{}
+    list.appendChild(row);
   });
+}
+
+/* ===== Wire events (呼び出し側で一度だけ) ===== */
+export function wireUIEvents(dispatch){
+  // Click core
+  el('tapButton')?.addEventListener('click', () => dispatch({type:'tap'}));
+  el('clickUp1')?.addEventListener('click', () => dispatch({type:'clickUp', n:1}));
+  el('clickUpMax')?.addEventListener('click', () => dispatch({type:'clickUp', n:'max'}));
+
+  // Generators (委譲)
+  el('genList')?.addEventListener('click', (ev)=>{
+    const btn = ev.target.closest('button[data-act]');
+    if(!btn) return;
+    const idx = +btn.dataset.idx;
+    const act = btn.dataset.act;
+    if(act==='buy1')  dispatch({type:'genBuy', idx, n:1});
+    if(act==='buyMax')dispatch({type:'genBuy', idx, n:'max'});
+    if(act==='up1')   dispatch({type:'genUp', idx, n:1});
+    if(act==='upMax') dispatch({type:'genUp', idx, n:'max'});
+  });
+
+  // System
+  el('saveBtn')?.addEventListener('click', ()=> dispatch({type:'save'}));
+  el('loadBtn')?.addEventListener('click', ()=> dispatch({type:'load'}));
+  el('resetBtn')?.addEventListener('click',()=> dispatch({type:'clearSave'}));
+  el('hardReset')?.addEventListener('click',()=> dispatch({type:'hardReset'}));
+}
+
+/* ===== HUD ===== */
+export function renderHud(state){
+  el('powerText').textContent = fmt(state.power);
+  el('ppsText').textContent   = fmt(state.pps || 0);
 }
