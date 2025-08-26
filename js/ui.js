@@ -112,7 +112,6 @@ function genRow(state, g, onUpdate){
     const kMax=maxAffordableUpgrades(g,state.power);
     const sumK=totalCostUpgrades(g,kMax);
     btnUp1.textContent = `強化＋1（${fmt(nextUpgradeCost(g))}）`;
-\1
     const willHit10 = (((g.level|0)+1) % 10) === 0;
     const cross10 = Math.floor(((g.level|0)+Math.max(kMax,0))/10) > Math.floor((g.level|0)/10);
     btnUp1.classList.toggle('milestone', willHit10);
