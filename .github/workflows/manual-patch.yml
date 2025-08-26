@@ -1,9 +1,10 @@
 name: Apply Patch (manual)
+
 on:
   workflow_dispatch:
     inputs:
       title:
-        description: "Patch title (PR title)"
+        description: "PR title"
         required: true
         default: "Auto patch"
       patch:
@@ -18,7 +19,15 @@ jobs:
   apply:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0           # pushに必要
+          persist-credentials: true
+
+      - name: Show default branch
+        run: |
+          echo "DEFAULT_BRANCH=${{ github.event.repository.default_branch }}"
 
       - name: Write patch file
         run: |
@@ -26,32 +35,38 @@ jobs:
           ${{ inputs.patch }}
           PATCH_END
           echo "---- PATCH START ----"
-          head -n 50 patch.diff || true
+          sed -n '1,80p' patch.diff || true
           echo "----  PATCH END  ----"
 
-      - name: Try to apply (p0 → p1 fallback)
+      - name: Apply patch (-p0 → -p1)
+        shell: bash
         run: |
           set -e
-          git config user.name "github-actions[bot]"
+          git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # まず -p0 を試す。ダメなら -p1
           if git apply --check -p0 patch.diff; then
             git apply -p0 patch.diff
           else
+            echo "::warning ::-p0 failed, trying -p1"
             git apply -p1 patch.diff
           fi
-          BR="auto/patch-$(date +%s)"
+
+          BR="auto/patch-${{ github.run_id }}-$(date +%s)"
+          echo "BRANCH=$BR"
           git checkout -b "$BR"
           git add -A
           git commit -m "${{ inputs.title }}"
+          git push -u origin "$BR"
+          echo "BR=$BR" >> $GITHUB_ENV
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
           title: ${{ inputs.title }}
           body: |
-            Applied via workflow_dispatch.
-            - Triggered by: ${{ github.actor }}
+            Applied via workflow_dispatch by ${{ github.actor }}.
+            Base: `${{ github.event.repository.default_branch }}` / Head: `${{ env.BR }}`
           branch: ${{ env.BR }}
-          base: main
-        env:
-          BR: auto/patch-${{ github.run_id }}
+          base: ${{ github.event.repository.default_branch }}
