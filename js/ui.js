@@ -116,7 +116,7 @@ function genRow(state, g, onUpdate){
     const sumK=totalCostUpgrades(g,kMax);
     btnUp1.textContent = `強化＋1（${fmt(nextUpgradeCost(g))}）`;
     const willHit10 = (((g.level|0)+1) % 10) === 0;
-    const cross10 = Math.floor(((g.level|0)+Math.max(kMax,0))/10) > Math.floor((g.level|0)/10);
+    const needToNext = (10 - ((g.level|0)%10)) % 10; const cross10 = needToNext>0 && kMax >= needToNext;
     btnUp1.classList.toggle('milestone', willHit10);
     btnUpM.classList.toggle('milestone', cross10);
 
@@ -160,7 +160,37 @@ export function bindFormatToggle(){
 
 
 export function lightRefresh(state){
-  // クリック強化（最大）
+  
+  // Click block info (Lv and effects) — create once if missing
+  try{
+    const info = document.getElementById('clickInfo');
+    if (info && !info.querySelector('.lvNowClick')){
+      const wrap = document.createElement('div');
+      wrap.innerHTML = '<div class="desc lvline">Lv <span class="lvNowClick">0</span> → <span class="lvNextClick">1</span></div>'
+        + '<div class="desc upEffect">強化+1効果：クリック <span class="c1a"></span> → <span class="c1b"></span>（+<span class="c1d"></span>）</div>'
+        + '<div class="desc upEffectMax">最大強化効果：クリック <span class="cMa"></span> → <span class="cMb"></span>（+<span class="cMd"></span>）</div>';
+      info.appendChild(wrap);
+    }
+    const lvNow = state.clickLv|0;
+    const lvNext = lvNow+1;
+    const cNow = clickGainByLevel(lvNow);
+    const cNext = clickGainByLevel(lvNext);
+    const kMaxC = maxAffordableClick(state);
+    const cMax  = clickGainByLevel(lvNow + kMaxC);
+    const nEl = document.querySelector('.lvNowClick');
+    const xEl = document.querySelector('.lvNextClick');
+    if(nEl) nEl.textContent = String(lvNow);
+    if(xEl) xEl.textContent = String(lvNext);
+    const c1a=document.querySelector('.c1a'), c1b=document.querySelector('.c1b'), c1d=document.querySelector('.c1d');
+    const cMa=document.querySelector('.cMa'), cMb=document.querySelector('.cMb'), cMd=document.querySelector('.cMd');
+    if(c1a) c1a.textContent = fmt(cNow);
+    if(c1b) c1b.textContent = fmt(cNext);
+    if(c1d) c1d.textContent = fmt(Math.max(0,cNext-cNow));
+    if(cMa) cMa.textContent = fmt(cNow);
+    if(cMb) cMb.textContent = fmt(cMax);
+    if(cMd) cMd.textContent = fmt(Math.max(0,cMax-cNow));
+  }catch{}
+// クリック強化（最大）
   const bm = document.getElementById('upgradeClickMax');
   const b1 = document.getElementById('upgradeClick');
   if (bm && b1){
@@ -197,7 +227,7 @@ export function lightRefresh(state){
     btnUpM.textContent = `まとめ強化 ×${kMax}（${fmt(sumK)}）`;
 
     const willHit10 = (((g.level|0)+1) % 10) === 0;
-    const cross10 = Math.floor(((g.level|0)+Math.max(kMax,0))/10) > Math.floor((g.level|0)/10);
+    const needToNext = (10 - ((g.level|0)%10)) % 10; const cross10 = needToNext>0 && kMax >= needToNext;
     btnUp1.classList.toggle('milestone', willHit10);
     btnUpM.classList.toggle('milestone', cross10);
 

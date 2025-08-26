@@ -45,11 +45,32 @@ function formatJP(x){
 function formatENG(x){
   const n=Number(x); if(!Number.isFinite(n)) return String(n);
   if(n===0) return '0.00';
-  const s=sign(n), a=Math.abs(n);
-  if(a<1000 && a>=1){ const d=digits(a); if(d>=3) return s+Math.round(a).toString(); if(d===2) return s+(Math.round(a*10)/10).toFixed(1); return s+(Math.round(a*100)/100).toFixed(2); }
+  const s=n<0?'-':''; const a=Math.abs(n);
+  const rawExp = a>0 ? Math.floor(Math.log10(a)) : 0;
+  if (a>0 && Math.abs(rawExp) < 3){
+    // Plain (no e) with 3 significant digits
+    if (a>=1){
+      const d = a>=100?3:(a>=10?2:1);
+      const dec = Math.max(0, 3-d);
+      return s + strRound(a, dec);
+    } else {
+      const exp = Math.floor(Math.log10(a));
+      const scale = 3 - 1 - exp;
+      return s + strRound(a, Math.max(0, scale));
+    }
+  }
+  const e3 = Math.floor(rawExp/3)*3;
+  const mant = a / 10**e3;
+  const di = mant>=100?3:(mant>=10?2:1);
+  const dec = Math.max(0, 3-di);
+  const rounded = Math.round(mant*10**dec)/10**dec;
+  return s + rounded.toFixed(dec) + 'e' + e3;
+}
   const rawExp=Math.floor(Math.log10(a)); const e3=Math.floor(rawExp/3)*3; if(e3===0){ const d=digits(a); if(d>=3) return s+Math.round(a).toString(); if(d===2) return s+(Math.round(a*10)/10).toFixed(1); return s+(Math.round(a*100)/100).toFixed(2);}
   const mant=a/10**e3; const di=digits(mant); const dec=Math.max(0,3-di); const rounded=Math.round(mant*10**dec)/10**dec;
   return s+rounded.toFixed(dec)+'e'+e3;
 }
 
 export function fmt(x){ return __mode==='eng' ? formatENG(x) : formatJP(x); }
+
+function strRound(val,dec){ return (Math.round(val*10**dec)/10**dec).toFixed(dec); }
