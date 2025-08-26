@@ -61,7 +61,8 @@ function genRow(state, g, onUpdate){
   row.innerHTML = `
     <div class="left">
       <div class="name">${g.name} <span class="muted">x<span class="own">${g.count|0}</span></span></div>
-      <div class="desc">単体/sec: <span class="eachPps">${fmt(powerFor(g))}</span></div>
+      <div class=\"desc lvline\">Lv <span class=\"lvNow\">0</span> → <span class=\"lvNext\">1</span></div>
+      <div class=\"desc\">単体/sec: <span class="eachPps">${fmt(powerFor(g))}</span></div>
       <div class="desc upEffect">
         強化+1効果：単体 <span class="e1a"></span> → <span class="e1b"></span>（+<span class="e1d"></span>）／ 総 <span class="t1a"></span> → <span class="t1b"></span>（+<span class="t1d"></span>）
       </div>
@@ -112,7 +113,25 @@ function genRow(state, g, onUpdate){
     btnUp1.textContent = `強化＋1（${fmt(nextUpgradeCost(g))}）`;
     btnUpM.textContent=`最大強化 ×${kMax}（${fmt(sumK)}）`;
 
-    // 強化効果（PPSは全体倍率込みで評価）
+        // 左情報（Lvと効果）
+    if (lvNowEl) lvNowEl.textContent = String(g.level|0);
+    if (lvNextEl) lvNextEl.textContent = String((g.level|0)+1);
+    const s1=simulateTotalAfterUpgrade(state,g,1);
+    if (e1a) e1a.textContent=fmt(s1.beforeEach);
+    if (e1b) e1b.textContent=fmt(s1.afterEach);
+    if (e1d) e1d.textContent=fmt(s1.deltaEach);
+    if (t1a) t1a.textContent=fmt(s1.beforeTotal);
+    if (t1b) t1b.textContent=fmt(s1.afterTotal);
+    if (t1d) t1d.textContent=fmt(s1.deltaTotal);
+    const kMax=maxAffordableUpgrades(g,state.power);
+    const sM=simulateTotalAfterUpgrade(state,g,Math.max(kMax,0));
+    if (eMa) eMa.textContent=fmt(sM.beforeEach);
+    if (eMb) eMb.textContent=fmt(sM.afterEach);
+    if (eMd) eMd.textContent=fmt(Math.max(0,sM.deltaEach));
+    if (tMa) tMa.textContent=fmt(sM.beforeTotal);
+    if (tMb) tMb.textContent=fmt(sM.afterTotal);
+    if (tMd) tMd.textContent=fmt(Math.max(0,sM.deltaTotal));
+// 強化効果（PPSは全体倍率込みで評価）
     const s1=simulateTotalAfterUpgrade(state,g,1);
     e1a.textContent=fmt(s1.beforeEach); e1b.textContent=fmt(s1.afterEach); e1d.textContent=fmt(s1.deltaEach);
     t1a.textContent=fmt(s1.beforeTotal); t1b.textContent=fmt(s1.afterTotal); t1d.textContent=fmt(s1.deltaTotal);
@@ -166,6 +185,12 @@ export function lightRefresh(state){
     const btnUp1  = row.querySelector('.up1');
     const btnUpM  = row.querySelector('.upMax');
     if (!(btnBuy1 && btnBuyM && btnUp1 && btnUpM)) return;
+    const e1a=row.querySelector('.e1a'), e1b=row.querySelector('.e1b'), e1d=row.querySelector('.e1d');
+    const t1a=row.querySelector('.t1a'), t1b=row.querySelector('.t1b'), t1d=row.querySelector('.t1d');
+    const eMa=row.querySelector('.eMa'), eMb=row.querySelector('.eMb'), eMd=row.querySelector('.eMd');
+    const tMa=row.querySelector('.tMa'), tMb=row.querySelector('.tMb'), tMd=row.querySelector('.tMd');
+    const lvNowEl=row.querySelector('.lvNow'); const lvNextEl=row.querySelector('.lvNext');
+
     const nMax = maxAffordableUnits(g, state.power);
     const sumU = totalCostUnits(g, nMax);
     btnBuy1.disabled = state.power < nextUnitCost(g);
