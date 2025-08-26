@@ -64,22 +64,25 @@ function genRow(state, g, onUpdate){
       <div class="desc">単体/sec: <span class="eachPps">${fmt(powerFor(g))}</span></div>
       <div class="desc lvline">Lv <span class="lvNow">0</span> → <span class="lvNext">1</span></div>
       <div class="desc upEffect">
-        強化+1効果：単体 <span class="e1a"></span> → <span class="e1b"></span>（+<span class="e1d"></span>）／ 総 <span class="t1a"></span> → <span class="t1b"></span>（+<span class="t1d"></span>）
+        強化+1効果：単体 <span class="e1a"></span> → <span class="e1b"></span>（+<span class="e1d"></span>）｜全体 <span class="t1a"></span> → <span class="t1b"></span>（+<span class="t1d"></span>）
       </div>
       <div class="desc upEffectMax">
-        最大強化効果：単体 <span class="eMa"></span> → <span class="eMb"></span>（+<span class="eMd"></span>）／ 総 <span class="tMa"></span> → <span class="tMb"></span>（+<span class="tMd"></span>）
+        最大強化効果：単体 <span class="eMa"></span> → <span class="eMb"></span>（+<span class="eMd"></span>）｜全体 <span class="tMa"></span> → <span class="tMb"></span>（+<span class="tMd"></span>）
       </div>
     </div>
     <div class="right">
-      <div class="row gap8">
-        <button class="btn buy buy1">購入 1</button>
-        <button class="btn buy alt buyMax">最大購入</button>
+      <div class="buttons">
+        <div class="row">
+          <button class="btn buy1">購入</button>
+          <button class="btn buyMax">まとめ購入</button>
+        </div>
+        <div class="row mt8">
+          <button class="btn up1">強化＋1</button>
+          <button class="btn upMax">まとめ強化</button>
+        </div>
       </div>
-      <div class="row gap8 mt8">
-        <button class="btn up up1">強化 +1</button>
-        <button class="btn up alt upMax">最大強化</button>
-      </div>
-    </div>`;
+    </div>
+  `;
 
   const ownEl = row.querySelector('.own');
   const eachEl= row.querySelector('.eachPps');
