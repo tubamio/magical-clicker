@@ -1,7 +1,7 @@
 import { GENERATORS } from './data.js';
 import { save, load, reset } from './save.js';
 import { renderAll, renderKPI, lightRefresh, bindFormatToggle } from './ui.js';
-export const VERSION = 'Ver.0.1.0.1';
+export const VERSION = 'Ver.0.1.1.0';
 import { clickGainByLevel, clickNextCost } from './click.js';
 
 const state = {
@@ -74,4 +74,8 @@ requestAnimationFrame(__loop);
 bindFormatToggle();
 // initial render
 update();
+try{ const v=document.getElementById('version'); if(v) v.textContent = VERSION; }catch{}
+try{ const v2=document.getElementById('version-footer'); if(v2) v2.textContent = VERSION; }catch{}
+try{ const v3=document.getElementById('version-about'); if(v3) v3.textContent = VERSION; }catch{}
+console.log('Magical Clicker', VERSION);
 try{ const v=document.getElementById('version'); if(v) v.textContent = VERSION; console.log('Magical Clicker', VERSION);}catch{}

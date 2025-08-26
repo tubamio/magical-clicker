@@ -180,6 +180,19 @@ export function lightRefresh(state){
     btnUpM.disabled = (kMax <= 0);
     btnUp1.textContent = `強化＋1（${fmt(up1)}）`;
     btnUpM.textContent = `最大強化 ×${kMax}（${fmt(sumK)}）`;
+    // Lv/Delta info update
+    const lvNowEl = row.querySelector('.lvNow');
+    const lvNextEl = row.querySelector('.lvNext');
+    const deltaEl  = row.querySelector('.deltaVal');
+    if (lvNowEl) lvNowEl.textContent = String(g.level|0);
+    if (lvNextEl) lvNextEl.textContent = String((g.level|0)+1);
+    try {
+      const cur = g.basePps * g.count * (Math.pow(1.1, g.level|0) * Math.pow(2, Math.floor((g.level|0)/10)));
+      const nxt = g.basePps * g.count * (Math.pow(1.1, (g.level|0)+1) * Math.pow(2, Math.floor(((g.level|0)+1)/10)));
+      const d = Math.max(0, (nxt - cur));
+      if (deltaEl) deltaEl.textContent = fmt(d);
+    } catch {}
+
   });
 }
 
