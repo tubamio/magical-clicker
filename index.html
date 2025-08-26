@@ -1,98 +1,68 @@
-<!doctype html>
-<html lang="ja">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Magical Clicker Ver.0.1.1.7</title>
-  <link rel="stylesheet" href="./style.css">
-<style>.milestone{outline:2px solid gold;box-shadow:0 0 10px rgba(255,215,0,.7);} .buttons .row{display:flex;gap:.5rem} .buttons .row > .btn{flex:1}</style><style>.btn.buy1,.btn.buyMax{background:#2d7;border-color:#2d7;}.btn.buyMax{filter:brightness(0.9);}.btn.up1,.btn.upMax{background:#276bd1;border-color:#276bd1;}.btn.upMax{filter:brightness(0.9);}.buttons .row{display:flex;gap:.5rem} .buttons .row>button{flex:1}</style>
-</head>
-<body>
-  <div class="container">
-    <header class="title">
-      <h1>魔法少女インフレクリッカー <span id="version" class="pill"></span></h1>
-      
-      <div class="spacer"></div>
-      <button id="fmtToggle" class="btn small">表記：日本式</button>
-    </header>
+<!-- HUD -->
+<div class="hud" id="hud">
+  <div class="hud__item">所持魔力 <strong id="powerText">0</strong><small>Power</small></div>
+  <div class="hud__item">毎秒 <strong id="ppsText">0</strong><small>PPS</small></div>
+  <div class="hud__item"><span class="chip">Ver <span id="verText">0.1.x</span></span></div>
+</div>
 
-    <div class="col main">
-      <!-- タップ（クリックする場所） -->
-      <div class="panel">
-        <div class="hd"><strong>タップ</strong><span class="muted">（クリックで通貨を獲得）</span></div>
-        <div class="bd">
-          <div class="stat">
-            <span>所持：</span><span class="big" id="power">0</span>
-          </div>
-          <div class="pill mt8">生成/秒：<span id="pps">0</span></div>
-          <div class="tap mt12">
-            <div>現在のタップ：<span class="big" id="tapGain">+1.00</span></div>
-            <div class="row center mt8">
-              <button id="tapBtn" class="btn tapbtn">タップ！</button>
-            </div>
+<div class="app">
+  <!-- Left -->
+  <div>
+    <!-- Click Panel -->
+    <div class="panel" id="clickPanel">
+      <div class="panel__title">タップ強化 <span class="chip">x4 / 1.03</span></div>
+
+      <div class="row">
+        <button class="btn btn-buy" id="tapButton">タップ！</button>
+        <div class="card col">
+          <div class="kv"><div>現在Lv</div><strong id="clickLvText">0</strong></div>
+          <div class="meta">
+            <span>いまの威力: <b id="clickPowerNow">1</b></span>
+            <span>次Lv効果: <b id="clickPowerNext">×4</b> <span class="diff-plus" id="clickDelta"></span></span>
+            <span>次Lv費用: <b id="clickNextCost">125</b></span>
           </div>
         </div>
-      </div>
 
-      <!-- クリック強化（位置を分離） -->
-      <div class="panel">
-        <div class="hd"><strong>クリック強化</strong></div>
-        <div class="bd">
-          <div class="row wrap">
-            <span class="pill" id="clickLvInfo">Lv 0</span>
-            <span class="pill">次レベル効果：<span id="clickDelta">+0</span></span>
-            <span class="pill">次レベル費用：<span id="clickCost">0</span></span>
-            <span class="pill">適用後タップ：<span id="clickAfter">+0</span></span>
-          </div>
-          <div class="row center mt12">
-            <button id="upgradeClick" class="btn up">強化 +1</button>
-            <button id="upgradeClickMax" class="btn up alt">最大強化 ×0</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- ジェネレーター -->
-      <div class="panel">
-        <div class="hd">
-          <strong>仲間（ジェネレーター）</strong>
-          <span class="muted">購入＝青系、強化＝紫系。無効時は灰色で反応なし。</span>
-        </div>
-        <div class="bd">
-          <div class="genlist" id="genlist"></div>
+        <div class="row">
+          <button class="btn btn-upg" id="clickUp1">強化 +1</button>
+          <button class="btn btn-upg btn-max" id="clickUpMax">最大強化</button>
         </div>
       </div>
     </div>
 
-    <aside class="right">
-      <div class="panel">
-        <div class="hd"><strong>変身（転生）</strong></div>
-        <div class="bd">
-          <div class="box muted">所持：<span id="prestigeCurr">0</span></div>
-          <div class="grid2 mt8">
-            <button class="btn ghost">L1 ピュアハート</button>
-            <button class="btn ghost">L2 魔装</button>
-            <button class="btn ghost">L3 霊章</button>
-            <button class="btn ghost">L4 星環</button>
-            <button class="btn ghost">L5 永輝</button>
-          </div>
-        </div>
+    <!-- Generators -->
+    <div class="panel" id="genPanel">
+      <div class="panel__title">ジェネレーター</div>
+      <div class="row th">
+        <div class="col">名前</div>
+        <div class="col">所持</div>
+        <div class="col">出力</div>
+        <div class="col">購入</div>
+        <div class="col">強化</div>
       </div>
-
-      <div class="panel">
-        <div class="hd"><strong>システム</strong></div>
-        <div class="bd">
-          <div class="row">
-            <button id="saveBtn" class="btn good">保存</button>
-            <button id="loadBtn" class="btn">読込</button>
-            <button id="resetBtn" class="btn danger ml-auto">ハードリセット</button>
-          </div>
-        </div>
-      </div>
-    </aside>
-
-    
+      <div id="genList" class="table"></div>
+    </div>
   </div>
 
-  <script type="module" src="./js/main.js"></script>
-</body>
-</html>
+  <!-- Right -->
+  <div>
+    <div class="panel" id="prestigePanel">
+      <div class="panel__title">転生 <span class="chip">準備中</span></div>
+      <div class="meta">転生報酬や条件は今後実装予定だよ。</div>
+      <div class="hr"></div>
+      <button class="btn btn-ghost" id="hardReset">ハードリセット</button>
+    </div>
+
+    <div class="panel">
+      <div class="panel__title">システム</div>
+      <div class="meta">セーブ/ロード・表記ルールの切替など。</div>
+      <div class="row">
+        <button class="btn btn-ghost" id="saveBtn">セーブ</button>
+        <button class="btn btn-ghost" id="loadBtn">ロード</button>
+        <button class="btn btn-ghost" id="resetBtn">セーブ消去</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">Magical Clicker — pastel魔法少女UI ✨</div>
