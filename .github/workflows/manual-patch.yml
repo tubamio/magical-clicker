@@ -1,0 +1,57 @@
+name: Apply Patch (manual)
+on:
+  workflow_dispatch:
+    inputs:
+      title:
+        description: "Patch title (PR title)"
+        required: true
+        default: "Auto patch"
+      patch:
+        description: "Paste unified diff (git diff/patch)"
+        required: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Write patch file
+        run: |
+          cat > patch.diff <<'PATCH_END'
+          ${{ inputs.patch }}
+          PATCH_END
+          echo "---- PATCH START ----"
+          head -n 50 patch.diff || true
+          echo "----  PATCH END  ----"
+
+      - name: Try to apply (p0 → p1 fallback)
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git apply --check -p0 patch.diff; then
+            git apply -p0 patch.diff
+          else
+            git apply -p1 patch.diff
+          fi
+          BR="auto/patch-$(date +%s)"
+          git checkout -b "$BR"
+          git add -A
+          git commit -m "${{ inputs.title }}"
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          title: ${{ inputs.title }}
+          body: |
+            Applied via workflow_dispatch.
+            - Triggered by: ${{ github.actor }}
+          branch: ${{ env.BR }}
+          base: main
+        env:
+          BR: auto/patch-${{ github.run_id }}
