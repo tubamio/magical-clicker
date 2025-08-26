@@ -1,104 +1,186 @@
-/* ====== Base / Layout ====== */
-*{ box-sizing:border-box }
-html,body{ height:100% }
-body{
+/* ===== Magical Clicker UI — 4K friendly, pastel MG theme ===== */
+:root{
+  --bg:#0e0b14;
+  --panel:#171327;
+  --panel-soft:#1e1940;
+  --text:#f6f3ff;
+  --muted:#cfc8f7;
+  --danger:#ff6e6e;
+
+  /* Buttons (買う=青系 / 強化=紫系 / まとめ=濃いめ) */
+  --buy:#2a78ff;
+  --buy-deep:#1d56b8;
+  --upg:#9b5cff;
+  --upg-deep:#6a39c2;
+  --disabled:#4e4a63;
+
+  --accent:#ff94e8;  /* 魔法少女ぽいピンク */
+  --outline:#3b2f61;
+
+  /* 4K向けスケール */
+  --fs-xl: clamp(24px, 1.3vw, 36px);
+  --fs-lg: clamp(20px, 1.1vw, 30px);
+  --fs-md: clamp(16px, 0.9vw, 24px);
+  --fs-sm: clamp(14px, 0.8vw, 20px);
+  --radius: 16px;
+  --radius-xl: 20px;
+  --gap: 16px;
+}
+
+*{ box-sizing: border-box; }
+html, body{
+  height:100%;
+  background: radial-gradient(1200px 800px at 15% 10%, #1d1740 0%, var(--bg) 70%) fixed;
+  color:var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN","Noto Sans JP", "Apple Color Emoji","Segoe UI Emoji";
   margin:0;
-  background:radial-gradient(1200px 800px at 20% 0%,#1b1536 0%,#0f0d1a 60%),#0f0d1a;
-  color:#f0ecff;
-  font-family:system-ui,-apple-system,'Segoe UI',Roboto,'Noto Sans JP',sans-serif;
-  font-size:22px; line-height:1.45;
 }
-.container{
-  max-width:1400px; margin:24px auto; padding:0 20px;
-  display:grid; grid-template-columns:1.6fr .9fr; gap:20px;
-}
-.title{ grid-column:1 / span 2; display:flex; align-items:center; gap:14px }
-.title h1{ margin:0; font-size:32px; font-weight:800 }
-.badge{ font-size:16px; color:#bdb7e7; background:rgba(255,255,255,.06); padding:4px 10px; border-radius:999px; border:1px solid #2c2950 }
-.spacer{ flex:1 }
 
-/* ====== Panels ====== */
+.app{
+  max-width: 1600px;
+  margin: 24px auto 64px;
+  padding: 0 24px;
+  display:grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: calc(var(--gap) * 1.25);
+}
+
+@media (max-width: 1200px){
+  .app{ grid-template-columns: 1fr; }
+}
+
+.hud{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap: 12px 24px;
+  background: linear-gradient(180deg, var(--panel) 0%, var(--panel-soft) 100%);
+  border:1px solid var(--outline);
+  border-radius: var(--radius-xl);
+  padding: 18px 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  margin-bottom: 18px;
+}
+
+.hud__item{
+  font-size: var(--fs-lg);
+  letter-spacing:.2px;
+}
+.hud__item small{ color: var(--muted); font-size: var(--fs-sm); margin-left: 6px; }
+
 .panel{
-  background:linear-gradient(180deg,#1a1730,#221e3c);
-  border:1px solid #2c2950; border-radius:16px;
-  box-shadow:0 10px 28px rgba(0,0,0,.35); overflow:hidden;
-}
-.hd{
-  display:flex; justify-content:space-between; align-items:center;
-  padding:16px 18px; border-bottom:1px solid #2c2950; background:rgba(255,255,255,.03);
-  font-weight:700;
-}
-.bd{ padding:18px 18px 20px }
-
-/* ====== Grids / Flex ====== */
-.col{ display:flex; flex-direction:column; gap:16px }
-.right{ display:flex; flex-direction:column; gap:12px; min-width:320px }
-.row{ display:flex; gap:20px; align-items:center; flex-wrap:wrap }
-.wrap{ flex-wrap:wrap } .center{ justify-content:center }
-.grid2{ display:grid; grid-template-columns:1fr 1fr; gap:16px }
-
-/* Spacing helpers */
-.mt8{ margin-top:12px } .mt12{ margin-top:20px }
-.ml-auto{ margin-left:auto } .gap8{ gap:12px }
-
-/* ====== Typography / Pills ====== */
-.stat{ display:flex; gap:10px; align-items:baseline }
-.big{ font-size:48px; font-weight:900; letter-spacing:.3px }
-.muted{ color:#bfb7e8 }
-.pill{
-  background:rgba(255,255,255,.07); border:1px solid #2c2950;
-  padding:10px 16px; border-radius:999px; font-size:20px;
+  background: linear-gradient(180deg, var(--panel) 0%, rgba(255,255,255,0.02) 100%);
+  border: 1px solid var(--outline);
+  border-radius: var(--radius-xl);
+  padding: 18px;
+  box-shadow: 0 14px 32px rgba(0,0,0,.35);
 }
 
-/* ====== Buttons ====== */
+.panel + .panel{ margin-top: var(--gap); }
+
+.panel__title{
+  font-size: var(--fs-xl);
+  font-weight: 800;
+  letter-spacing:.2px;
+  margin: 6px 0 14px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.panel__title .chip{
+  font-size: var(--fs-sm);
+  color:#1a0f2b;
+  background: linear-gradient(90deg, var(--accent), #d596ff);
+  padding: 4px 10px;
+  border-radius: 999px;
+  border:1px solid rgba(255,255,255,.25);
+}
+
+.row{ display:flex; align-items:center; gap: 10px; flex-wrap: wrap; }
+.col{ flex:1; min-width: 260px; }
+
+.card{
+  background: rgba(255,255,255,0.03);
+  border:1px solid var(--outline);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+
+.kv{
+  display:flex; justify-content:space-between; align-items:baseline; gap: 16px;
+  font-size: var(--fs-md);
+}
+.kv strong{ font-size: var(--fs-lg); }
+
+/* Buttons */
 .btn{
-  background:#3ea0ff; color:#fff; border:none; border-radius:16px;
-  padding:18px 28px; cursor:pointer; font-weight:700; font-size:22px;
-  transition:filter .15s ease;
+  appearance: none; border:0; cursor:pointer; user-select:none;
+  font-size: var(--fs-md); font-weight: 800; letter-spacing:.2px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  transition: transform .05s ease, filter .15s ease, box-shadow .15s ease, background .15s ease;
+  color:#fff; position:relative;
 }
-.btn:hover{ filter:brightness(1.06) }
-.btn.good{ background:#22c55e }
-.btn.warn{ background:#f59e0b }
-.btn.danger{ background:#ef4444 }
-.btn.ghost{ background:transparent; color:#f0ecff; border:1px solid #2c2950 }
+.btn:active{ transform: translateY(1px); }
 
-/* 操作用ボタン色系統（完全分離） */
-.btn.tapbtn{ background:#00b3ad }  /* タップ */
-.btn.buy{ background:#3ea0ff }     /* 購入（青系） */
-.btn.buy.alt{ background:#2b79c7 } /* 最大購入（青・濃） */
-.btn.up{ background:#a275ff }      /* 強化（紫系） */
-.btn.up.alt{ background:#7a57d9 }  /* 最大強化（紫・濃） */
-
-/* 無効ボタン：灰色・非反応・カーソル通常 */
-.btn:disabled{
-  opacity:.55; pointer-events:none; cursor:default; filter:none !important;
-  background:#5a607a !important; color:#e6e7ee !important; border:none !important;
+.btn-buy{ background: linear-gradient(180deg, var(--buy) 0%, var(--buy-deep) 100%); }
+.btn-upg{ background: linear-gradient(180deg, var(--upg) 0%, var(--upg-deep) 100%); }
+.btn-ghost{
+  background: transparent; color: var(--muted);
+  border:1px dashed var(--outline);
+}
+.btn-max{
+  outline: 2px solid rgba(255,255,255,.12);
+  box-shadow: 0 0 0 2px rgba(255,255,255,.06) inset;
+}
+.btn:disabled,
+.btn.is-disabled{
+  cursor:not-allowed;
+  background: linear-gradient(180deg, var(--disabled), #3e3952);
+  filter: grayscale(.2) brightness(.8);
 }
 
-/* ====== Tap block ====== */
-.tap{
-  background:linear-gradient(180deg,#2a49ff,#2b2db5);
-  border:1px solid #2f3fdb; border-radius:16px;
-  padding:18px; text-align:center; color:#fff; font-weight:800;
+/* Inline metrics / diffs */
+.meta{
+  display:flex; flex-wrap:wrap; gap: 6px 14px; color: var(--muted);
+  font-size: var(--fs-sm);
 }
-.tap .big{ font-size:36px }
+.meta b{ color: var(--text); }
+.diff-plus{ color:#b2ffb2; }
+.diff-minus{ color:#ffb2b2; }
 
-/* ====== Generator list ====== */
-.genlist{ display:flex; flex-direction:column; gap:14px }
-.gen{
-  display:grid; grid-template-columns:1fr 420px; gap:16px;
-  padding:14px; border:1px solid #2c2950; border-radius:14px; background:rgba(255,255,255,.03);
+/* Milestone highlight (Lv 10 multiples) */
+.milestone{
+  box-shadow: 0 0 0 2px rgba(255,255,255,.07) inset, 0 0 22px rgba(212,146,255,.35);
+  animation: pulse 1.5s ease-in-out infinite;
 }
-.gen .name{ font-weight:900; margin-bottom:6px; font-size:24px }
-.gen .desc{ font-size:18px; color:#c6c0ea }
+@keyframes pulse{
+  0%,100%{ filter: drop-shadow(0 0 0 rgba(212,146,255,.0)); }
+  50%{ filter: drop-shadow(0 0 10px rgba(212,146,255,.45)); }
+}
 
-/* ====== Misc ====== */
-.box{ border:1px solid #2c2950; border-radius:12px; padding:14px; background:rgba(255,255,255,.02) }
-footer.center{ text-align:center; padding:12px 0; color:#bfb7e8 }
+/* Tables for generator list */
+.table{
+  width:100%;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+}
+.tr{
+  display:grid;
+  grid-template-columns: 1.2fr 0.9fr 1.2fr 1fr 1.4fr;
+  gap: 10px;
+  align-items:center;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.03);
+  border:1px solid var(--outline);
+  border-radius: 12px;
+}
+.th{ color: var(--muted); font-size: var(--fs-sm); padding: 0 6px 6px; }
+.name{ font-weight: 800; font-size: var(--fs-md); }
 
-/* ====== Responsive ====== */
-@media (max-width: 1100px){
-  .container{ grid-template-columns:1fr; }
-  .gen{ grid-template-columns:1fr; }
-  .right{ min-width:0 }
+.hr{ height:1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent); margin: 12px 0; }
+
+.footer{
+  margin-top: 24px; color: var(--muted); font-size: var(--fs-sm);
+  text-align:center;
 }
