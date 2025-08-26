@@ -1,14 +1,14 @@
 // 既定パラメータ（必要最小）
 const DEFAULTS = {
-  g1:{ basePps:1.0, baseCost:10, costMul:1.15, upBaseCost:20, upCostMul:1.45 },
-  g2:{ basePps:12.0, baseCost:120, costMul:1.16, upBaseCost:240, upCostMul:1.45 },
-  g3:{ basePps:160.0, baseCost:1800, costMul:1.14, upBaseCost:3600, upCostMul:1.45 },
-  g4:{ basePps:2400.0, baseCost:28000, costMul:1.165, upBaseCost:56000, upCostMul:1.45 },
-  g5:{ basePps:36000.0, baseCost:520000, costMul:1.18, upBaseCost:1040000, upCostMul:1.45 },
-  g6:{ basePps:540000.0, baseCost:10000000, costMul:1.19, upBaseCost:20000000, upCostMul:1.45 },
-  g7:{ basePps:8100000.0, baseCost:220000000, costMul:1.2, upBaseCost:440000000, upCostMul:1.45 },
-  g8:{ basePps:120000000.0, baseCost:5000000000, costMul:1.205, upBaseCost:10000000000, upCostMul:1.45 },
-  g9:{ basePps:1800000000.0, baseCost:120000000000, costMul:1.21, upBaseCost:240000000000, upCostMul:1.45 },
+  g1:{ basePps:0.10,  baseCost:  15, costMul:1.15, upBaseCost:  60, upCostMul:1.17 },
+  g2:{ basePps:1.00,  baseCost: 100, costMul:1.17, upBaseCost: 300, upCostMul:1.18 },
+  g3:{ basePps:8.00,  baseCost: 850, costMul:1.18, upBaseCost:1200, upCostMul:1.19 },
+  g4:{ basePps:64.0,  baseCost:6500, costMul:1.20, upBaseCost:4800, upCostMul:1.20 },
+  g5:{ basePps:520.0, baseCost:4.8e4,costMul:1.21, upBaseCost:2.1e4,upCostMul:1.21 },
+  g6:{ basePps:4200,  baseCost:3.6e5,costMul:1.22, upBaseCost:9.6e4,upCostMul:1.22 },
+  g7:{ basePps:3.4e4, baseCost:2.7e6,costMul:1.23, upBaseCost:4.5e5,upCostMul:1.23 },
+  g8:{ basePps:2.7e5, baseCost:2.0e7,costMul:1.24, upBaseCost:2.1e6,upCostMul:1.24 },
+  g9:{ basePps:2.1e6, baseCost:1.5e8,costMul:1.25, upBaseCost:9.0e6,upCostMul:1.25 },
 };
 
 function ensureParams(gen){
@@ -87,32 +87,33 @@ export function buyUnits(state, id, mode='1'){
   return true;
 }
 
-
 // 強化（レベル）側
 export function nextUpgradeCost(gen){
   ensureParams(gen);
-  const lv = gen.level|0;
-  return (gen.baseCost*2) * Math.pow(1.45, lv);
+  return gen.upBaseCost * Math.pow(gen.upCostMul, gen.level|0);
 }
 export function totalCostUpgrades(gen, n){
   ensureParams(gen);
+  const r  = gen.upCostMul;
+  const c0 = gen.upBaseCost * Math.pow(r, gen.level|0);
   if (n <= 0) return 0;
-  const c0 = (gen.baseCost*2) * Math.pow(1.45, gen.level|0);
-  const r  = 1.45;
   return sumGeometric(c0, r, n);
 }
-export function maxAffordableUpgrades(gen, money){
+export function maxAffordableUpgrades(gen, budget){
   ensureParams(gen);
-  if (money <= 0) return 0;
-  let lo = 0, hi = 1e6;
+  const r  = gen.upCostMul;
+  const c0 = gen.upBaseCost * Math.pow(r, gen.level|0);
+  if (budget < c0) return 0;
+  const nApprox = Math.floor(Math.log((budget/c0)*(r-1)+1)/Math.log(r));
+  let lo = 0, hi = Math.max(1, nApprox+3);
+  const costOf = (n)=> sumGeometric(c0, r, n);
+  while (costOf(hi) <= budget) hi *= 2;
   while (lo < hi){
     const mid = Math.floor((lo+hi+1)/2);
-    const cost = totalCostUpgrades(gen, mid);
-    if (cost <= money) lo = mid; else hi = mid - 1;
+    if (costOf(mid) <= budget) lo = mid; else hi = mid-1;
   }
   return lo;
 }
-
 export function upgrade(state, id, mode='1'){
   const g = state.gens.find(x=>x.id===id);
   if (!g) return false;

@@ -1,8 +1,8 @@
+export const VERSION = 'Ver.0.1.1.2';
 import { GENERATORS } from './data.js';
 import { save, load, reset } from './save.js';
 import { renderAll, renderKPI, lightRefresh, bindFormatToggle } from './ui.js';
-export const VERSION = 'Ver.0.1.1.1';
-import { clickGainByLevel, clickNextCost } from './click.js';
+import { clickGainByLevel, clickNextCost, globalMultiplier } from './click.js';
 
 const state = {
   power: 0,
@@ -51,29 +51,28 @@ document.getElementById('resetBtn').addEventListener('click', ()=>{
   update();
 });
 
+// initial render
+update();
+try{ const v=document.getElementById('version'); if(v) v.textContent = VERSION; }catch{}
+try{ bindFormatToggle && bindFormatToggle(); }catch{}
 
-// ===== Auto PPS Game Loop =====
+
 import { totalPps } from './economy.js';
+
 let __lastTs = 0;
 let __sinceUI = 0;
 function __loop(ts){
   if(!__lastTs) __lastTs = ts;
   const dt = Math.max(0, (ts-__lastTs)/1000);
   __lastTs = ts;
-  const pps = totalPps(state) * Math.pow(1.03, state.clickLv|0);
-  if (Number.isFinite(pps) && pps>0) state.power += pps * dt;
-  __sinceUI += dt;
-  // 軽量UI更新：KPI毎フレーム、ボタン有効/ラベルは ~10FPS 程度
-  try{ renderKPI(state); }catch{}
-  if (__sinceUI >= 0.1) { try{ lightRefresh(state); }catch{} __sinceUI = 0; }
+  try{
+    const pps = totalPps(state) * globalMultiplier(state.clickLv);
+    if (Number.isFinite(pps) && pps>0) { state.power += pps * dt; }
+    renderKPI(state);
+    __sinceUI += dt;
+    if (__sinceUI >= 0.1){ lightRefresh(state); __sinceUI = 0; }
+  }catch{}
   requestAnimationFrame(__loop);
 }
 requestAnimationFrame(__loop);
-// ===== /Auto PPS Game Loop =====
 
-bindFormatToggle();
-// initial render
-update();
-try{ const v=document.getElementById('version'); if(v) v.textContent = VERSION; }catch{}
-console.log('Magical Clicker', VERSION);
-try{ const v=document.getElementById('version'); if(v) v.textContent = VERSION; console.log('Magical Clicker', VERSION);}catch{}

@@ -57,12 +57,12 @@ function simulateTotalAfterUpgrade(state, g, n){
 
 function genRow(state, g, onUpdate){
   const row = document.createElement('div');
-  row.className = 'gen'; row.dataset.index = String(g.__index ?? 0);
+  row.className = 'gen';
   row.innerHTML = `
     <div class="left">
       <div class="name">${g.name} <span class="muted">x<span class="own">${g.count|0}</span></span></div>
-      <div class=\"desc lvline\">Lv <span class=\"lvNow\">0</span> → <span class=\"lvNext\">1</span></div>
-      <div class=\"desc\">単体/sec: <span class="eachPps">${fmt(powerFor(g))}</span></div>
+      <div class="desc">単体/sec: <span class="eachPps">${fmt(powerFor(g))}</span></div>
+      <div class="desc lvline">Lv <span class="lvNow">0</span> → <span class="lvNext">1</span></div>
       <div class="desc upEffect">
         強化+1効果：単体 <span class="e1a"></span> → <span class="e1b"></span>（+<span class="e1d"></span>）／ 総 <span class="t1a"></span> → <span class="t1b"></span>（+<span class="t1d"></span>）
       </div>
@@ -83,6 +83,8 @@ function genRow(state, g, onUpdate){
 
   const ownEl = row.querySelector('.own');
   const eachEl= row.querySelector('.eachPps');
+  
+
   const btnBuy1=row.querySelector('.buy1');
   const btnBuyM=row.querySelector('.buyMax');
   const btnUp1 =row.querySelector('.up1');
@@ -96,42 +98,29 @@ function genRow(state, g, onUpdate){
   function refresh(){
     ownEl.textContent = g.count|0;
     eachEl.textContent= fmt(powerFor(g));
+    
     // 購入
     const nMax=maxAffordableUnits(g,state.power);
     const sumU=totalCostUnits(g,nMax);
     btnBuy1.disabled = state.power<nextUnitCost(g);
     btnBuyM.disabled = (nMax<=0);
     btnBuy1.textContent = `購入（${fmt(nextUnitCost(g))}）`;
-    btnBuyM.textContent=`最大購入 ×${nMax}（${fmt(sumU)}）`;
+    btnBuyM.textContent=`まとめ購入 ×${nMax}（${fmt(sumU)}）`;
 
     // 強化
     const up1=nextUpgradeCost(g);
     const kMax=maxAffordableUpgrades(g,state.power);
     const sumK=totalCostUpgrades(g,kMax);
-    btnUp1.disabled= state.power<up1;
-    btnUpM.disabled=(kMax<=0);
     btnUp1.textContent = `強化＋1（${fmt(nextUpgradeCost(g))}）`;
+\1
+    const willHit10 = (((g.level|0)+1) % 10) === 0;
+    const cross10 = Math.floor(((g.level|0)+Math.max(kMax,0))/10) > Math.floor((g.level|0)/10);
+    btnUp1.classList.toggle('milestone', willHit10);
+    btnUpM.classList.toggle('milestone', cross10);
+
     btnUpM.textContent=`最大強化 ×${kMax}（${fmt(sumK)}）`;
 
-        // 左情報（Lvと効果）
-    if (lvNowEl) lvNowEl.textContent = String(g.level|0);
-    if (lvNextEl) lvNextEl.textContent = String((g.level|0)+1);
-    const s1=simulateTotalAfterUpgrade(state,g,1);
-    if (e1a) e1a.textContent=fmt(s1.beforeEach);
-    if (e1b) e1b.textContent=fmt(s1.afterEach);
-    if (e1d) e1d.textContent=fmt(s1.deltaEach);
-    if (t1a) t1a.textContent=fmt(s1.beforeTotal);
-    if (t1b) t1b.textContent=fmt(s1.afterTotal);
-    if (t1d) t1d.textContent=fmt(s1.deltaTotal);
-    const kMax=maxAffordableUpgrades(g,state.power);
-    const sM=simulateTotalAfterUpgrade(state,g,Math.max(kMax,0));
-    if (eMa) eMa.textContent=fmt(sM.beforeEach);
-    if (eMb) eMb.textContent=fmt(sM.afterEach);
-    if (eMd) eMd.textContent=fmt(Math.max(0,sM.deltaEach));
-    if (tMa) tMa.textContent=fmt(sM.beforeTotal);
-    if (tMb) tMb.textContent=fmt(sM.afterTotal);
-    if (tMd) tMd.textContent=fmt(Math.max(0,sM.deltaTotal));
-// 強化効果（PPSは全体倍率込みで評価）
+    // 強化効果（PPSは全体倍率込みで評価）
     const s1=simulateTotalAfterUpgrade(state,g,1);
     e1a.textContent=fmt(s1.beforeEach); e1b.textContent=fmt(s1.afterEach); e1d.textContent=fmt(s1.deltaEach);
     t1a.textContent=fmt(s1.beforeTotal); t1b.textContent=fmt(s1.afterTotal); t1d.textContent=fmt(s1.deltaTotal);
@@ -151,8 +140,6 @@ function genRow(state, g, onUpdate){
 }
 
 export function renderGens(state){
-  state.gens.forEach((g,i)=> g.__index=i);
-
   const list=document.getElementById('genlist'); list.innerHTML='';
   state.gens.forEach(g=> list.appendChild(genRow(state,g,()=>renderKPI(state))));
 }
@@ -161,72 +148,92 @@ export function renderAll(state){
   renderKPI(state); renderClick(state); renderGens(state);
 }
 
-
-/* ===== 軽量リフレッシュ：自動加算中のボタン有効判定とラベル更新 ===== */
-export function lightRefresh(state){
-  // クリック強化ボタン
-  const b1 = document.getElementById('upgradeClick');
-  const bm = document.getElementById('upgradeClickMax');
-  if (b1 && bm){
-    const cost1 = clickNextCost(state.clickLv);
-    b1.disabled = state.power < cost1;
-    const nMax = maxAffordableClick(state);
-    bm.disabled = (nMax <= 0);
-    bm.textContent = `最大強化 ×${nMax}`;
-  }
-
-  // 各ジェネ行の購入/強化ボタン
-  const rows = Array.from(document.querySelectorAll('#genlist .gen'));
-  rows.forEach((row, idx)=>{
-    const g = state.gens[idx];
-    if (!g) return;
-    const btnBuy1 = row.querySelector('.buy1');
-    const btnBuyM = row.querySelector('.buyMax');
-    const btnUp1  = row.querySelector('.up1');
-    const btnUpM  = row.querySelector('.upMax');
-    if (!(btnBuy1 && btnBuyM && btnUp1 && btnUpM)) return;
-    const e1a=row.querySelector('.e1a'), e1b=row.querySelector('.e1b'), e1d=row.querySelector('.e1d');
-    const t1a=row.querySelector('.t1a'), t1b=row.querySelector('.t1b'), t1d=row.querySelector('.t1d');
-    const eMa=row.querySelector('.eMa'), eMb=row.querySelector('.eMb'), eMd=row.querySelector('.eMd');
-    const tMa=row.querySelector('.tMa'), tMb=row.querySelector('.tMb'), tMd=row.querySelector('.tMd');
-    const lvNowEl=row.querySelector('.lvNow'); const lvNextEl=row.querySelector('.lvNext');
-
-    const nMax = maxAffordableUnits(g, state.power);
-    const sumU = totalCostUnits(g, nMax);
-    btnBuy1.disabled = state.power < nextUnitCost(g);
-    btnBuyM.disabled = (nMax <= 0);
-    btnBuy1.textContent = `購入（${fmt(nextUnitCost(g))}）`;
-    btnBuyM.textContent = `最大購入 ×${nMax}（${fmt(sumU)}）`;
-
-    const up1  = nextUpgradeCost(g);
-    const kMax = maxAffordableUpgrades(g, state.power);
-    const sumK = totalCostUpgrades(g, kMax);
-    btnUp1.disabled = state.power < up1;
-    btnUpM.disabled = (kMax <= 0);
-    btnUp1.textContent = `強化＋1（${fmt(up1)}）`;
-    btnUpM.textContent = `最大強化 ×${kMax}（${fmt(sumK)}）`;
-    // Lv/Delta info update
-    const lvNowEl = row.querySelector('.lvNow');
-    const lvNextEl = row.querySelector('.lvNext');
-    const deltaEl  = row.querySelector('.deltaVal');
-    if (lvNowEl) lvNowEl.textContent = String(g.level|0);
-    if (lvNextEl) lvNextEl.textContent = String((g.level|0)+1);
-    try {
-      const cur = g.basePps * g.count * (Math.pow(1.1, g.level|0) * Math.pow(2, Math.floor((g.level|0)/10)));
-      const nxt = g.basePps * g.count * (Math.pow(1.1, (g.level|0)+1) * Math.pow(2, Math.floor(((g.level|0)+1)/10)));
-      const d = Math.max(0, (nxt - cur));
-      if (deltaEl) deltaEl.textContent = fmt(d);
-    } catch {}
-
-  });
-}
-
-
-/* ===== 表記モードトグル ===== */
 export function bindFormatToggle(){
   const btn = document.getElementById('fmtToggle');
   if(!btn) return;
   const apply = ()=>{ btn.textContent = (getFormatMode()==='eng' ? '表記：工学式' : '表記：日本式'); };
   btn.addEventListener('click', ()=>{ setFormatMode(getFormatMode()==='eng' ? 'jp' : 'eng'); apply(); });
   apply();
+}
+
+
+export function lightRefresh(state){
+  // クリック強化（最大）
+  const bm = document.getElementById('upgradeClickMax');
+  const b1 = document.getElementById('upgradeClick');
+  if (bm && b1){
+    const cost1 = clickNextCost(state.clickLv);
+    b1.disabled = state.power < cost1;
+    const nMax = maxAffordableClick(state);
+    bm.disabled = (nMax <= 0);
+    bm.textContent = `最大強化 ×${nMax}`;
+  }
+  // ジェネ各行
+  const rows = Array.from(document.querySelectorAll('#genlist .gen'));
+  rows.forEach((row, idx)=>{
+    const g = state.gens[idx];
+    if (!g) return;
+    const btnBuy1=row.querySelector('.buy1');
+    const btnBuyM=row.querySelector('.buyMax');
+    const btnUp1 =row.querySelector('.up1');
+    const btnUpM =row.querySelector('.upMax');
+    if (!(btnBuy1 && btnBuyM && btnUp1 && btnUpM)) return;
+
+    const nMax=maxAffordableUnits(g,state.power);
+    const sumU=totalCostUnits(g,nMax);
+    btnBuy1.disabled = state.power<nextUnitCost(g);
+    btnBuyM.disabled = (nMax<=0);
+    btnBuy1.textContent = `購入（${fmt(nextUnitCost(g))}）`;
+    btnBuyM.textContent = `まとめ購入 ×${nMax}（${fmt(sumU)}）`;
+
+    const up1=nextUpgradeCost(g);
+    const kMax=maxAffordableUpgrades(g,state.power);
+    const sumK=totalCostUpgrades(g,kMax);
+    btnUp1.disabled = state.power<up1;
+    btnUpM.disabled = (kMax<=0);
+    btnUp1.textContent = `強化＋1（${fmt(up1)}）`;
+    btnUpM.textContent = `まとめ強化 ×${kMax}（${fmt(sumK)}）`;
+
+    const willHit10 = (((g.level|0)+1) % 10) === 0;
+    const cross10 = Math.floor(((g.level|0)+Math.max(kMax,0))/10) > Math.floor((g.level|0)/10);
+    btnUp1.classList.toggle('milestone', willHit10);
+    btnUpM.classList.toggle('milestone', cross10);
+
+    // 左側 Lv と差分（+1 / 最大）
+    const lvNowEl=row.querySelector('.lvNow');
+    const lvNextEl=row.querySelector('.lvNext');
+    if (lvNowEl) lvNowEl.textContent = String(g.level|0);
+    if (lvNextEl) lvNextEl.textContent = String((g.level|0)+1);
+
+    const e1a=row.querySelector('.e1a'), e1b=row.querySelector('.e1b'), e1d=row.querySelector('.e1d');
+    const t1a=row.querySelector('.t1a'), t1b=row.querySelector('.t1b'), t1d=row.querySelector('.t1d');
+    const eMa=row.querySelector('.eMa'), eMb=row.querySelector('.eMb'), eMd=row.querySelector('.eMd');
+    const tMa=row.querySelector('.tMa'), tMb=row.querySelector('.tMb'), tMd=row.querySelector('.tMd');
+
+    try{
+      const curEach = powerFor(g);
+      const nextEach = powerFor({...g, level:(g.level|0)+1});
+      const dEach = Math.max(0, nextEach - curEach);
+      if (e1a) e1a.textContent = fmt(curEach);
+      if (e1b) e1b.textContent = fmt(nextEach);
+      if (e1d) e1d.textContent = fmt(dEach);
+
+      const currTot = (totalPps(state) * globalMultiplier(state.clickLv));
+      const afterTot = (totalPps({...state, gens: state.gens.map(x=> x.id===g.id ? {...g, level:(g.level|0)+1 } : x)}) * globalMultiplier(state.clickLv));
+      if (t1a) t1a.textContent = fmt(currTot);
+      if (t1b) t1b.textContent = fmt(afterTot);
+      if (t1d) t1d.textContent = fmt(Math.max(0, afterTot - currTot));
+
+      const kAfter = (g.level|0)+kMax;
+      const nextEachM = powerFor({...g, level:kAfter});
+      if (eMa) eMa.textContent = fmt(curEach);
+      if (eMb) eMb.textContent = fmt(nextEachM);
+      if (eMd) eMd.textContent = fmt(Math.max(0, nextEachM - curEach));
+
+      const afterTotM = (totalPps({...state, gens: state.gens.map(x=> x.id===g.id ? {...g, level:kAfter } : x)}) * globalMultiplier(state.clickLv));
+      if (tMa) tMa.textContent = fmt(currTot);
+      if (tMb) tMb.textContent = fmt(afterTotM);
+      if (tMd) tMd.textContent = fmt(Math.max(0, afterTotM - currTot));
+    }catch{}
+  });
 }
