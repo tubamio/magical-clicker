@@ -43,17 +43,34 @@ function formatJP(x){
 
 // ENG: 有効3桁、指数は3の倍数（e±3, e±6, ...）、e表記は|exp|>=3から
 function formatENG(x){
-  const n=Number(x); if(!Number.isFinite(n)) return String(n);
-  if(n===0) return '0.00';
-  const s=n<0?'-':''; const a=Math.abs(n);
-  const rawExp = a>0 ? Math.floor(Math.log10(a)) : 0;
-  if (a>0 && Math.abs(rawExp) < 3){
-    // Plain (no e) with 3 significant digits
-    if (a>=1){
-      const d = a>=100?3:(a>=10?2:1);
-      const dec = Math.max(0, 3-d);
+  const n = Number(x);
+  if (!Number.isFinite(n)) return String(n);
+  if (n === 0) return "0.00";
+  const s = n < 0 ? "-" : "";
+  const a = Math.abs(n);
+  const rawExp = a > 0 ? Math.floor(Math.log10(a)) : 0;
+
+  // e表記は |exp|>=3 から。それ未満は指数なしで有効3桁
+  if (a > 0 && Math.abs(rawExp) < 3) {
+    if (a >= 1) {
+      const d = a >= 100 ? 3 : (a >= 10 ? 2 : 1);
+      const dec = Math.max(0, 3 - d);
       return s + strRound(a, dec);
     } else {
+      const exp = Math.floor(Math.log10(a));
+      const scale = 3 - 1 - exp;
+      return s + strRound(a, Math.max(0, scale));
+    }
+  }
+
+  // 工学式 e(±3n)
+  const e3 = Math.floor(rawExp / 3) * 3;
+  const mant = a / (10 ** e3);
+  const di = mant >= 100 ? 3 : (mant >= 10 ? 2 : 1);
+  const dec = Math.max(0, 3 - di);
+  const rounded = Math.round(mant * 10 ** dec) / 10 ** dec;
+  return s + rounded.toFixed(dec) + "e" + e3;
+} else {
       const exp = Math.floor(Math.log10(a));
       const scale = 3 - 1 - exp;
       return s + strRound(a, Math.max(0, scale));
