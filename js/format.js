@@ -78,20 +78,6 @@ function formatENG(x){
       return s + strRound(a, Math.max(0, scale));
     }
   }
-
-  // 工学式 e(±3n)
-  const e3 = Math.floor(rawExp / 3) * 3;
-  const mant = a / (10 ** e3);
-  const di = mant >= 100 ? 3 : (mant >= 10 ? 2 : 1);
-  const dec = Math.max(0, 3 - di);
-  const rounded = Math.round(mant * 10 ** dec) / 10 ** dec;
-  return s + rounded.toFixed(dec) + "e" + e3;
-} else {
-      const exp = Math.floor(Math.log10(a));
-      const scale = 3 - 1 - exp;
-      return s + strRound(a, Math.max(0, scale));
-    }
-  }
   const e3 = Math.floor(rawExp/3)*3;
   const mant = a / 10**e3;
   const di = mant>=100?3:(mant>=10?2:1);
