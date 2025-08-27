@@ -102,3 +102,20 @@ footer.center{ text-align:center; padding:12px 0; color:#bfb7e8 }
   .gen{ grid-template-columns:1fr; }
   .right{ min-width:0 }
 }
+
+
+/* === 0.1.1.9 UI color refinements === */
+:root{
+  --buy:#2a78ff;
+  --buy-deep:#1d56b8;
+  --upg:#9b5cff;
+  --upg-deep:#6a39c2;
+  --disabled:#4e4a63;
+}
+.btn-buy{ background: linear-gradient(180deg, var(--buy) 0%, var(--buy-deep) 100%); color:#fff; }
+.btn-buy-agg{ background: linear-gradient(180deg, var(--buy-deep) 0%, #143a74 100%); color:#fff; }
+.btn-upg{ background: linear-gradient(180deg, var(--upg) 0%, var(--upg-deep) 100%); color:#fff; }
+.btn-upg-agg{ background: linear-gradient(180deg, var(--upg-deep) 0%, #3f1d84 100%); color:#fff; }
+.btn:disabled,.btn.is-disabled{ cursor:not-allowed; filter: grayscale(.2) brightness(.85); }
+.milestone{ box-shadow: 0 0 0 2px rgba(255,255,255,.07) inset, 0 0 22px rgba(212,146,255,.35); animation: pulse 1.5s ease-in-out infinite; }
+@keyframes pulse{ 0%,100%{ filter: drop-shadow(0 0 0 rgba(212,146,255,0)); } 50%{ filter: drop-shadow(0 0 10px rgba(212,146,255,.45)); } }

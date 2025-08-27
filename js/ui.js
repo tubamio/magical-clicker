@@ -29,7 +29,7 @@ export function renderClick(state){
   b1.disabled = state.power < clickNextCost(state.clickLv);
   const nMax = maxAffordableClick(state);
   bm.disabled = (nMax <= 0);
-  bm.textContent = `最大強化 ×${nMax}`;
+  bm.textContent = `まとめ強化 ×${nMax}`;
 }
 
 export function renderKPI(state){
@@ -67,7 +67,7 @@ function genRow(state, g, onUpdate){
         強化+1効果：単体 <span class="e1a"></span> → <span class="e1b"></span>（+<span class="e1d"></span>）｜全体 <span class="t1a"></span> → <span class="t1b"></span>（+<span class="t1d"></span>）
       </div>
       <div class="desc upEffectMax">
-        最大強化効果：単体 <span class="eMa"></span> → <span class="eMb"></span>（+<span class="eMd"></span>）｜全体 <span class="tMa"></span> → <span class="tMb"></span>（+<span class="tMd"></span>）
+        まとめ強化効果：単体 <span class="eMa"></span> → <span class="eMb"></span>（+<span class="eMd"></span>）｜全体 <span class="tMa"></span> → <span class="tMb"></span>（+<span class="tMd"></span>）
       </div>
     </div>
     <div class="right">
@@ -120,7 +120,7 @@ function genRow(state, g, onUpdate){
     btnUp1.classList.toggle('milestone', willHit10);
     btnUpM.classList.toggle('milestone', cross10);
 
-    btnUpM.textContent=`最大強化 ×${kMax}（${fmt(sumK)}）`;
+    btnUpM.textContent=`まとめ強化 ×${kMax}（${fmt(sumK)}）`;
 
     // 強化効果（PPSは全体倍率込みで評価）
     const s1=simulateTotalAfterUpgrade(state,g,1);
@@ -168,7 +168,7 @@ export function lightRefresh(state){
       const wrap = document.createElement('div');
       wrap.innerHTML = '<div class="desc lvline">Lv <span class="lvNowClick">0</span> → <span class="lvNextClick">1</span></div>'
         + '<div class="desc upEffect">強化+1効果：クリック <span class="c1a"></span> → <span class="c1b"></span>（+<span class="c1d"></span>）</div>'
-        + '<div class="desc upEffectMax">最大強化効果：クリック <span class="cMa"></span> → <span class="cMb"></span>（+<span class="cMd"></span>）</div>';
+        + '<div class="desc upEffectMax">まとめ強化効果：クリック <span class="cMa"></span> → <span class="cMb"></span>（+<span class="cMd"></span>）</div>';
       info.appendChild(wrap);
     }
     const lvNow = state.clickLv|0;
@@ -198,7 +198,7 @@ export function lightRefresh(state){
     b1.disabled = state.power < cost1;
     const nMax = maxAffordableClick(state);
     bm.disabled = (nMax <= 0);
-    bm.textContent = `最大強化 ×${nMax}`;
+    bm.textContent = `まとめ強化 ×${nMax}`;
   }
   // ジェネ各行
   const rows = Array.from(document.querySelectorAll('#genlist .gen'));
