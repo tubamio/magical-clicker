@@ -23,7 +23,6 @@ export function renderClick(state){
   document.getElementById('clickDelta').textContent = (clickNextDelta(state.clickLv)).toFixed(2);
   document.getElementById('clickCost').textContent  = fmt(clickNextCost(state.clickLv));
   document.getElementById('clickAfter').textContent = '+' + clickGainByLevel(state.clickLv+1).toFixed(2);
-  const cf = document.getElementById('clickFactor'); if (cf) cf.textContent = '×4 ×1.03';
 
   const b1 = document.getElementById('upgradeClick');
   const bm = document.getElementById('upgradeClickMax');
@@ -92,11 +91,6 @@ function genRow(state, g, onUpdate){
   const btnBuy1=row.querySelector('.buy1');
   const btnBuyM=row.querySelector('.buyMax');
   const btnUp1 =row.querySelector('.up1');
-  // color classes
-  btnBuy1.classList.add('btn-buy');
-  btnBuyM.classList.add('btn-buy-agg');
-  btnUp1.classList.add('btn-upg');
-  btnUpM.classList.add('btn-upg-agg');
   const btnUpM =row.querySelector('.upMax');
 
   const e1a=row.querySelector('.e1a'), e1b=row.querySelector('.e1b'), e1d=row.querySelector('.e1d');
@@ -113,18 +107,18 @@ function genRow(state, g, onUpdate){
     const sumU=totalCostUnits(g,nMax);
     btnBuy1.disabled = state.power<nextUnitCost(g);
     btnBuyM.disabled = (nMax<=0);
-    btnBuy1.textContent = `単体購入（${fmt(nextUnitCost(g))}）`;
+    btnBuy1.textContent = `購入（${fmt(nextUnitCost(g))}）`;
     btnBuyM.textContent=`まとめ購入 ×${nMax}（${fmt(sumU)}）`;
 
     // 強化
     const up1=nextUpgradeCost(g);
     const kMax=maxAffordableUpgrades(g,state.power);
     const sumK=totalCostUpgrades(g,kMax);
-    btnUp1.textContent = `単体強化（${fmt(nextUpgradeCost(g))}）`;
+    btnUp1.textContent = `強化＋1（${fmt(nextUpgradeCost(g))}）`;
     const willHit10 = (((g.level|0)+1) % 10) === 0;
     const needToNext = (10 - ((g.level|0)%10)) % 10; const cross10 = needToNext>0 && kMax >= needToNext;
     btnUp1.classList.toggle('milestone', willHit10);
-    btnUpM.classList.toggle('milestone', false);
+    if (btnUpM) btnUpM.classList.toggle('milestone', cross10);
 
     btnUpM.textContent=`まとめ強化 ×${kMax}（${fmt(sumK)}）`;
 
@@ -214,11 +208,6 @@ export function lightRefresh(state){
     const btnBuy1=row.querySelector('.buy1');
     const btnBuyM=row.querySelector('.buyMax');
     const btnUp1 =row.querySelector('.up1');
-  // color classes
-  btnBuy1.classList.add('btn-buy');
-  btnBuyM.classList.add('btn-buy-agg');
-  btnUp1.classList.add('btn-upg');
-  btnUpM.classList.add('btn-upg-agg');
     const btnUpM =row.querySelector('.upMax');
     if (!(btnBuy1 && btnBuyM && btnUp1 && btnUpM)) return;
 
@@ -226,7 +215,7 @@ export function lightRefresh(state){
     const sumU=totalCostUnits(g,nMax);
     btnBuy1.disabled = state.power<nextUnitCost(g);
     btnBuyM.disabled = (nMax<=0);
-    btnBuy1.textContent = `単体購入（${fmt(nextUnitCost(g))}）`;
+    btnBuy1.textContent = `購入（${fmt(nextUnitCost(g))}）`;
     btnBuyM.textContent = `まとめ購入 ×${nMax}（${fmt(sumU)}）`;
 
     const up1=nextUpgradeCost(g);
@@ -240,7 +229,7 @@ export function lightRefresh(state){
     const willHit10 = (((g.level|0)+1) % 10) === 0;
     const needToNext = (10 - ((g.level|0)%10)) % 10; const cross10 = needToNext>0 && kMax >= needToNext;
     btnUp1.classList.toggle('milestone', willHit10);
-    btnUpM.classList.toggle('milestone', false);
+    if (btnUpM) btnUpM.classList.toggle('milestone', cross10);
 
     // 左側 Lv と差分（+1 / 最大）
     const lvNowEl=row.querySelector('.lvNow');
