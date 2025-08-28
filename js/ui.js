@@ -33,9 +33,9 @@ export function renderClick(state){
 }
 
 export function renderKPI(state){
-  document.getElementById('power').textContent = fmt(state.power);
+  document.getElementById('powerText').textContent = fmt(fmt(state.power));
   const pps = totalPps(state) * globalMultiplier(state.clickLv);
-  document.getElementById('pps').textContent   = fmt(pps);
+  document.getElementById('ppsText').textContent = fmt(fmt(pps));
 }
 
 /* ===== ジェネ ===== */
@@ -60,8 +60,8 @@ function genRow(state, g, onUpdate){
   row.className = 'gen';
   row.innerHTML = `
     <div class="left">
-      <div class="name">${g.name} <span class="muted">x<span class="own">${g.count|0}</span></span></div>
-      <div class="desc">単体/sec: <span class="eachPps">${fmt(powerFor(g))}</span></div>
+      <div class="name">${g.name} <span class="muted">x<span class="own">${fmt(g.count|0)}</span></span></div>
+      <div class="desc">単体/sec: <span class="eachPps">${fmt(fmt(powerFor(g)))}</span></div>
       <div class="desc lvline">Lv <span class="lvNow">0</span> → <span class="lvNext">1</span></div>
       <div class="desc upEffect">
         強化+1効果：単体 <span class="e1a"></span> → <span class="e1b"></span>（+<span class="e1d"></span>）｜全体 <span class="t1a"></span> → <span class="t1b"></span>（+<span class="t1d"></span>）
@@ -93,7 +93,12 @@ function genRow(state, g, onUpdate){
   const btnUp1 =row.querySelector('.up1');
   const btnUpM =row.querySelector('.upMax');
 
-  const e1a=row.querySelector('.e1a'), e1b=row.querySelector('.e1b'), e1d=row.querySelector('.e1d');
+  
+  if (btnBuy1) btnBuy1.classList.add('btn','btn-buy');
+  if (btnBuyM) btnBuyM.classList.add('btn','btn-buy-agg');
+  if (btnUp1)  btnUp1.classList.add('btn','btn-upg');
+  if (btnUpM)  btnUpM.classList.add('btn','btn-upg-agg');
+const e1a=row.querySelector('.e1a'), e1b=row.querySelector('.e1b'), e1d=row.querySelector('.e1d');
   const t1a=row.querySelector('.t1a'), t1b=row.querySelector('.t1b'), t1d=row.querySelector('.t1d');
   const eMa=row.querySelector('.eMa'), eMb=row.querySelector('.eMb'), eMd=row.querySelector('.eMd');
   const tMa=row.querySelector('.tMa'), tMb=row.querySelector('.tMb'), tMd=row.querySelector('.tMd');
@@ -115,10 +120,10 @@ function genRow(state, g, onUpdate){
     const kMax=maxAffordableUpgrades(g,state.power);
     const sumK=totalCostUpgrades(g,kMax);
     btnUp1.textContent = `強化＋1（${fmt(nextUpgradeCost(g))}）`;
-    const willHit10 = (((g.level|0)+1) % 10) === 0;
+    const willHit10 = ((lvl + 1) % 10 === 0);
     const needToNext = (10 - ((g.level|0)%10)) % 10; const cross10 = needToNext>0 && kMax >= needToNext;
     btnUp1.classList.toggle('milestone', willHit10);
-    if (btnUpM) btnUpM.classList.toggle('milestone', cross10);
+    if (btnUpM) if (btnUpM) btnUpM.classList.toggle('milestone', false);
 
     btnUpM.textContent=`まとめ強化 ×${kMax}（${fmt(sumK)}）`;
 
@@ -209,7 +214,12 @@ export function lightRefresh(state){
     const btnBuyM=row.querySelector('.buyMax');
     const btnUp1 =row.querySelector('.up1');
     const btnUpM =row.querySelector('.upMax');
-    if (!(btnBuy1 && btnBuyM && btnUp1 && btnUpM)) return;
+    
+  if (btnBuy1) btnBuy1.classList.add('btn','btn-buy');
+  if (btnBuyM) btnBuyM.classList.add('btn','btn-buy-agg');
+  if (btnUp1)  btnUp1.classList.add('btn','btn-upg');
+  if (btnUpM)  btnUpM.classList.add('btn','btn-upg-agg');
+if (!(btnBuy1 && btnBuyM && btnUp1 && btnUpM)) return;
 
     const nMax=maxAffordableUnits(g,state.power);
     const sumU=totalCostUnits(g,nMax);
@@ -226,10 +236,10 @@ export function lightRefresh(state){
     btnUp1.textContent = `強化＋1（${fmt(up1)}）`;
     btnUpM.textContent = `まとめ強化 ×${kMax}（${fmt(sumK)}）`;
 
-    const willHit10 = (((g.level|0)+1) % 10) === 0;
+    const willHit10 = ((lvl + 1) % 10 === 0);
     const needToNext = (10 - ((g.level|0)%10)) % 10; const cross10 = needToNext>0 && kMax >= needToNext;
     btnUp1.classList.toggle('milestone', willHit10);
-    if (btnUpM) btnUpM.classList.toggle('milestone', cross10);
+    if (btnUpM) if (btnUpM) btnUpM.classList.toggle('milestone', false);
 
     // 左側 Lv と差分（+1 / 最大）
     const lvNowEl=row.querySelector('.lvNow');
