@@ -110,7 +110,7 @@ function genRow(state, g, onUpdate){
   const costUp1  = nextUpgradeCost(g);
   const canUp1   = state.money >= costUp1;
 
-  const needToNext = (10 - ((g.level|0)%10)) % 10;
+  let needToNext = (10 - ((g.level|0)%10)) % 10;
   const canUpM = canUp1 && (needToNext > 1 ? (state.money >= costUp1 * needToNext) : canUp1);
 
   // choose a simple bulk rule for buyMax (at least 2 units with current money)
@@ -151,8 +151,7 @@ const e1a=row.querySelector('.e1a'), e1b=row.querySelector('.e1b'), e1d=row.quer
     const kMax=maxAffordableUpgrades(g,state.power);
     const sumK=totalCostUpgrades(g,kMax);
     btnUp1.textContent = `強化＋1（${fmt(nextUpgradeCost(g))}）`;
-    const willHit10 = (((g.level|0) + 1) % 10 === 0);
-    const needToNext = (10 - ((g.level|0)%10)) % 10; const cross10 = false;
+    const willHit10 = (((g.level|0) + 1) % 10 === 0);needToNext = (10 - ((g.level|0)%10)) % 10; const cross10 = false;
     btnUp1.classList.toggle('milestone', willHit10);
     if (btnUpM) btnUpM.classList.toggle('milestone', cross10);
 
@@ -258,9 +257,7 @@ export function lightRefresh(state){
   const canBuy1  = state.money >= costBuy1;
 
   const costUp1  = nextUpgradeCost(g);
-  const canUp1   = state.money >= costUp1;
-
-  const needToNext = (10 - ((g.level|0)%10)) % 10;
+  const canUp1   = state.money >= costUp1;needToNext = (10 - ((g.level|0)%10)) % 10;
   const canUpM = canUp1 && (needToNext > 1 ? (state.money >= costUp1 * needToNext) : canUp1);
 
   // choose a simple bulk rule for buyMax (at least 2 units with current money)
@@ -296,8 +293,7 @@ if (!(btnBuy1 && btnBuyM && btnUp1 && btnUpM)) return;
     btnUp1.textContent = `強化＋1（${fmt(up1)}）`;
     btnUpM.textContent = `まとめ強化 ×${kMax}（${fmt(sumK)}）`;
 
-    const willHit10 = (((g.level|0) + 1) % 10 === 0);
-    const needToNext = (10 - ((g.level|0)%10)) % 10; const cross10 = false;
+    const willHit10 = (((g.level|0) + 1) % 10 === 0);needToNext = (10 - ((g.level|0)%10)) % 10; const cross10 = false;
     btnUp1.classList.toggle('milestone', willHit10);
     if (btnUpM) btnUpM.classList.toggle('milestone', cross10);
 
