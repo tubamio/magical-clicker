@@ -17,12 +17,12 @@ function maxAffordableClick(state){
 
 export function renderClick(state){
   const gain = clickGainByLevel(state.clickLv);
-  document.getElementById('tapGain').textContent = '+' + (gain<10?gain.toFixed(2):gain.toFixed(0));
+  setText('tapGain', '+' + (gain<10?gain.toFixed(2):gain.toFixed(0)));
 
-  document.getElementById('clickLvInfo').textContent = `Lv ${state.clickLv}`;
-  document.getElementById('clickDelta').textContent = (clickNextDelta(state.clickLv)).toFixed(2);
-  document.getElementById('clickCost').textContent  = fmt(clickNextCost(state.clickLv));
-  document.getElementById('clickAfter').textContent = '+' + clickGainByLevel(state.clickLv+1).toFixed(2);
+  setText('clickLvInfo', `Lv ${state.clickLv}`);
+  setText('clickDelta', (clickNextDelta(state.clickLv)).toFixed(2));
+  setText('clickCost', fmt(clickNextCost(state.clickLv)));
+  setText('clickAfter', '+' + clickGainByLevel(state.clickLv+1).toFixed(2));
 
   const b1 = document.getElementById('upgradeClick');
   const bm = document.getElementById('upgradeClickMax');
@@ -32,10 +32,11 @@ export function renderClick(state){
   bm.textContent = `まとめ強化 ×${nMax}`;
 }
 
+function setText(id, value){ const n=document.getElementById(id); if(n) n.textContent = value; }
 export function renderKPI(state){
-  document.getElementById('powerText').textContent = fmt(fmt(state.power));
+  setText('power', fmt(state.power));
   const pps = totalPps(state) * globalMultiplier(state.clickLv);
-  document.getElementById('ppsText').textContent = fmt(fmt(pps));
+  setText('pps', fmt(pps));
 }
 
 /* ===== ジェネ ===== */
@@ -60,8 +61,8 @@ function genRow(state, g, onUpdate){
   row.className = 'gen';
   row.innerHTML = `
     <div class="left">
-      <div class="name">${g.name} <span class="muted">x<span class="own">${fmt(g.count|0)}</span></span></div>
-      <div class="desc">単体/sec: <span class="eachPps">${fmt(fmt(powerFor(g)))}</span></div>
+      <div class="name">${g.name} <span class="muted">x<span class="own">${g.count|0}</span></span></div>
+      <div class="desc">単体/sec: <span class="eachPps">${fmt(powerFor(g))}</span></div>
       <div class="desc lvline">Lv <span class="lvNow">0</span> → <span class="lvNext">1</span></div>
       <div class="desc upEffect">
         強化+1効果：単体 <span class="e1a"></span> → <span class="e1b"></span>（+<span class="e1d"></span>）｜全体 <span class="t1a"></span> → <span class="t1b"></span>（+<span class="t1d"></span>）
@@ -123,7 +124,7 @@ const e1a=row.querySelector('.e1a'), e1b=row.querySelector('.e1b'), e1d=row.quer
     const willHit10 = ((lvl + 1) % 10 === 0);
     const needToNext = (10 - ((g.level|0)%10)) % 10; const cross10 = needToNext>0 && kMax >= needToNext;
     btnUp1.classList.toggle('milestone', willHit10);
-    if (btnUpM) if (btnUpM) btnUpM.classList.toggle('milestone', false);
+    if (btnUpM) btnUpM.classList.toggle('milestone', cross10);
 
     btnUpM.textContent=`まとめ強化 ×${kMax}（${fmt(sumK)}）`;
 
@@ -239,7 +240,7 @@ if (!(btnBuy1 && btnBuyM && btnUp1 && btnUpM)) return;
     const willHit10 = ((lvl + 1) % 10 === 0);
     const needToNext = (10 - ((g.level|0)%10)) % 10; const cross10 = needToNext>0 && kMax >= needToNext;
     btnUp1.classList.toggle('milestone', willHit10);
-    if (btnUpM) if (btnUpM) btnUpM.classList.toggle('milestone', false);
+    if (btnUpM) btnUpM.classList.toggle('milestone', cross10);
 
     // 左側 Lv と差分（+1 / 最大）
     const lvNowEl=row.querySelector('.lvNow');
