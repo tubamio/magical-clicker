@@ -1,3 +1,4 @@
+function setBtnState(btn, enabled){ if(!btn) return; btn.disabled=!enabled; btn.classList.toggle('is-disabled', !enabled); }
 import { fmt, getFormatMode, setFormatMode } from './format.js';
 import { clickGainByLevel, clickNextCost, clickNextDelta, globalMultiplier } from './click.js';
 import {
@@ -95,7 +96,36 @@ function genRow(state, g, onUpdate){
   const btnUpM =row.querySelector('.upMax');
 
   
+  
+  // assign colors
   if (btnBuy1) btnBuy1.classList.add('btn','btn-buy');
+  if (btnBuyM) btnBuyM.classList.add('btn','btn-buy-agg');
+  if (btnUp1)  btnUp1.classList.add('btn','btn-upg');
+  if (btnUpM)  btnUpM.classList.add('btn','btn-upg-agg');
+
+  // compute affordability atomically to avoid transient flash
+  const costBuy1 = nextUnitCost(g);
+  const canBuy1  = state.money >= costBuy1;
+
+  const costUp1  = nextUpgradeCost(g);
+  const canUp1   = state.money >= costUp1;
+
+  const needToNext = (10 - ((g.level|0)%10)) % 10;
+  const canUpM = canUp1 && (needToNext > 1 ? (state.money >= costUp1 * needToNext) : canUp1);
+
+  // choose a simple bulk rule for buyMax (at least 2 units with current money)
+  let canBuyM = false;
+  if (canBuy1) {
+    const price1 = costBuy1;
+    const maxN = Math.floor(state.money / price1);
+    canBuyM = maxN >= 2;
+  }
+
+  setBtnState(btnBuy1, canBuy1);
+  setBtnState(btnBuyM, canBuyM);
+  setBtnState(btnUp1,  canUp1);
+  setBtnState(btnUpM,  canUpM);
+if (btnBuy1) btnBuy1.classList.add('btn','btn-buy');
   if (btnBuyM) btnBuyM.classList.add('btn','btn-buy-agg');
   if (btnUp1)  btnUp1.classList.add('btn','btn-upg');
   if (btnUpM)  btnUpM.classList.add('btn','btn-upg-agg');
@@ -216,7 +246,36 @@ export function lightRefresh(state){
     const btnUp1 =row.querySelector('.up1');
     const btnUpM =row.querySelector('.upMax');
     
+  
+  // assign colors
   if (btnBuy1) btnBuy1.classList.add('btn','btn-buy');
+  if (btnBuyM) btnBuyM.classList.add('btn','btn-buy-agg');
+  if (btnUp1)  btnUp1.classList.add('btn','btn-upg');
+  if (btnUpM)  btnUpM.classList.add('btn','btn-upg-agg');
+
+  // compute affordability atomically to avoid transient flash
+  const costBuy1 = nextUnitCost(g);
+  const canBuy1  = state.money >= costBuy1;
+
+  const costUp1  = nextUpgradeCost(g);
+  const canUp1   = state.money >= costUp1;
+
+  const needToNext = (10 - ((g.level|0)%10)) % 10;
+  const canUpM = canUp1 && (needToNext > 1 ? (state.money >= costUp1 * needToNext) : canUp1);
+
+  // choose a simple bulk rule for buyMax (at least 2 units with current money)
+  let canBuyM = false;
+  if (canBuy1) {
+    const price1 = costBuy1;
+    const maxN = Math.floor(state.money / price1);
+    canBuyM = maxN >= 2;
+  }
+
+  setBtnState(btnBuy1, canBuy1);
+  setBtnState(btnBuyM, canBuyM);
+  setBtnState(btnUp1,  canUp1);
+  setBtnState(btnUpM,  canUpM);
+if (btnBuy1) btnBuy1.classList.add('btn','btn-buy');
   if (btnBuyM) btnBuyM.classList.add('btn','btn-buy-agg');
   if (btnUp1)  btnUp1.classList.add('btn','btn-upg');
   if (btnUpM)  btnUpM.classList.add('btn','btn-upg-agg');

@@ -1,4 +1,4 @@
-export const VERSION = 'Ver.0.1.1.7';
+export const VERSION = 'Ver.0.1.1.12';
 import { GENERATORS } from './data.js';
 import { save, load, reset } from './save.js';
 import { renderAll, renderKPI, lightRefresh, bindFormatToggle } from './ui.js';
@@ -76,3 +76,5 @@ function __loop(ts){
 }
 requestAnimationFrame(__loop);
 
+
+try{ const v=document.getElementById('verText'); if(v) v.textContent='0.1.1.12'; }catch(e){}
