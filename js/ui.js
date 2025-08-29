@@ -121,8 +121,8 @@ const e1a=row.querySelector('.e1a'), e1b=row.querySelector('.e1b'), e1d=row.quer
     const kMax=maxAffordableUpgrades(g,state.power);
     const sumK=totalCostUpgrades(g,kMax);
     btnUp1.textContent = `強化＋1（${fmt(nextUpgradeCost(g))}）`;
-    const willHit10 = ((lvl + 1) % 10 === 0);
-    const needToNext = (10 - ((g.level|0)%10)) % 10; const cross10 = needToNext>0 && kMax >= needToNext;
+    const willHit10 = (((g.level|0) + 1) % 10 === 0);
+    const needToNext = (10 - ((g.level|0)%10)) % 10; const cross10 = false;
     btnUp1.classList.toggle('milestone', willHit10);
     if (btnUpM) btnUpM.classList.toggle('milestone', cross10);
 
@@ -237,8 +237,8 @@ if (!(btnBuy1 && btnBuyM && btnUp1 && btnUpM)) return;
     btnUp1.textContent = `強化＋1（${fmt(up1)}）`;
     btnUpM.textContent = `まとめ強化 ×${kMax}（${fmt(sumK)}）`;
 
-    const willHit10 = ((lvl + 1) % 10 === 0);
-    const needToNext = (10 - ((g.level|0)%10)) % 10; const cross10 = needToNext>0 && kMax >= needToNext;
+    const willHit10 = (((g.level|0) + 1) % 10 === 0);
+    const needToNext = (10 - ((g.level|0)%10)) % 10; const cross10 = false;
     btnUp1.classList.toggle('milestone', willHit10);
     if (btnUpM) btnUpM.classList.toggle('milestone', cross10);
 
