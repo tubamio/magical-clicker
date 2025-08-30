@@ -63,7 +63,7 @@ function genRow(state, g, onUpdate){
   row.className = 'gen';
   row.innerHTML = `
     <div class="left">
-      <div class="name">${g.name} <span class="muted">x<span class="own">${g.count|0}</span></span></div>
+      <div class="name">${g.name} <span class="muted">x<span class="own">${fmt(g.count)}</span></span></div>
       <div class="desc">単体/sec: <span class="eachPps">${fmt(powerFor(g))}</span></div>
       <div class="desc lvline">Lv <span class="lvNow">0</span> → <span class="lvNext">1</span></div>
       <div class="desc upEffect">
@@ -136,7 +136,7 @@ const e1a=row.querySelector('.e1a'), e1b=row.querySelector('.e1b'), e1d=row.quer
   const tMa=row.querySelector('.tMa'), tMb=row.querySelector('.tMb'), tMd=row.querySelector('.tMd');
 
   function refresh(){
-    ownEl.textContent = g.count|0;
+    ownEl.textContent = fmt(g.count);
     eachEl.textContent= fmt(powerFor(g));
     
     // 購入

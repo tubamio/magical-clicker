@@ -18,20 +18,27 @@ function roundSig3(n){
   const scale=10**(exp-2);
   return Math.round(n/scale)*scale;
 }
-function trimFixed(num, maxDec=2){
-  const s=num.toFixed(maxDec);
+function trimFixed(num, dec){
+  const s=num.toFixed(dec);
   return s.indexOf('.')>=0? s.replace(/\.0+$/,'').replace(/\.$/,'') : s;
 }
 
 /* ===== ENG ===== */
 function fmtENG(n){
-  const sgn=n<0?'-':''; const a=Math.abs(n);
+  const sgn = n<0?'-':''; const a=Math.abs(n);
   if(a===0) return '0';
-  if(a>=0.01 && a<1000){ return sgn+trimFixed(a,2); }
+  if(a>=0.01 && a<1000){
+    const r=roundSig3(a);
+    const dec=Math.max(0,2-abs10exp(r));
+    return sgn+r.toFixed(dec);
+  }
   const exp=abs10exp(a);
-  const mant=a/10**exp;
-  const mstr=(Math.round(mant*100)/100).toFixed(2).replace(/\.0+$/,'');
-  return sgn+mstr+'e'+exp;
+  const exp3=Math.floor(exp/3)*3;
+  const mant=a/10**exp3;
+  const mr=roundSig3(mant);
+  const dec=Math.max(0,2-abs10exp(mr));
+  const mstr=mr.toFixed(dec);
+  return sgn+mstr+'e'+exp3;
 }
 
 /* ===== JP ===== */
@@ -44,7 +51,10 @@ function fmtJP(n){
   const sgn=n<0?'-':''; let a=Math.abs(n);
   if(a===0) return '0';
   a=roundSig3(a);
-  if(a<10000){ return sgn+trimFixed(a,2); }
+  if(a<10000){
+    const dec=Math.max(0,2-abs10exp(a));
+    return sgn+trimFixed(a,dec);
+  }
   const exp=abs10exp(a);
   const g=Math.floor(exp/4);
   if(g>=JP_UNITS.length){ return sgn+fmtENG(a); }
