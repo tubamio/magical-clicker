@@ -31,7 +31,7 @@ export function renderClick(state){
   b1.disabled = state.power < clickNextCost(state.clickLv);
   const nMax = maxAffordableClick(state);
   bm.disabled = (nMax <= 0);
-  bm.textContent = `まとめ強化 ×${nMax}`;
+  bm.textContent = `まとめ強化 ×${fmt(nMax)}`;
 }
 
 function setText(id, value){ const n=document.getElementById(id); if(n) n.textContent = value; }
@@ -145,7 +145,7 @@ const e1a=row.querySelector('.e1a'), e1b=row.querySelector('.e1b'), e1d=row.quer
     btnBuy1.disabled = state.power<nextUnitCost(g);
     btnBuyM.disabled = (nMax<=0);
     btnBuy1.textContent = `購入（${fmt(nextUnitCost(g))}）`;
-    btnBuyM.textContent=`まとめ購入 ×${nMax}（${fmt(sumU)}）`;
+    btnBuyM.textContent=`まとめ購入 ×${fmt(nMax)}（${fmt(sumU)}）`;
 
     // 強化
     const up1=nextUpgradeCost(g);
@@ -156,7 +156,7 @@ const e1a=row.querySelector('.e1a'), e1b=row.querySelector('.e1b'), e1d=row.quer
     btnUp1.classList.toggle('milestone', willHit10);
     if (btnUpM) btnUpM.classList.toggle('milestone', cross10);
 
-    btnUpM.textContent=`まとめ強化 ×${kMax}（${fmt(sumK)}）`;
+    btnUpM.textContent=`まとめ強化 ×${fmt(kMax)}（${fmt(sumK)}）`;
 
     // 強化効果（PPSは全体倍率込みで評価）
     const s1=simulateTotalAfterUpgrade(state,g,1);
@@ -238,7 +238,7 @@ export function lightRefresh(state){
     b1.disabled = state.power < cost1;
     const nMax = maxAffordableClick(state);
     bm.disabled = (nMax <= 0);
-    bm.textContent = `まとめ強化 ×${nMax}`;
+    bm.textContent = `まとめ強化 ×${fmt(nMax)}`;
   }
   // ジェネ各行
   const rows = Array.from(document.querySelectorAll('#genlist .gen'));
@@ -288,7 +288,7 @@ if (!(btnBuy1 && btnBuyM && btnUp1 && btnUpM)) return;
     btnBuy1.disabled = state.power<nextUnitCost(g);
     btnBuyM.disabled = (nMax<=0);
     btnBuy1.textContent = `購入（${fmt(nextUnitCost(g))}）`;
-    btnBuyM.textContent = `まとめ購入 ×${nMax}（${fmt(sumU)}）`;
+    btnBuyM.textContent = `まとめ購入 ×${fmt(nMax)}（${fmt(sumU)}）`;
 
     const up1=nextUpgradeCost(g);
     const kMax=maxAffordableUpgrades(g,state.power);
@@ -296,7 +296,7 @@ if (!(btnBuy1 && btnBuyM && btnUp1 && btnUpM)) return;
     btnUp1.disabled = state.power<up1;
     btnUpM.disabled = (kMax<=0);
     btnUp1.textContent = `強化＋1（${fmt(up1)}）`;
-    btnUpM.textContent = `まとめ強化 ×${kMax}（${fmt(sumK)}）`;
+    btnUpM.textContent = `まとめ強化 ×${fmt(kMax)}（${fmt(sumK)}）`;
 
     const willHit10 = (((g.level|0) + 1) % 10 === 0);needToNext = (10 - ((g.level|0)%10)) % 10; const cross10 = false;
     btnUp1.classList.toggle('milestone', willHit10);
