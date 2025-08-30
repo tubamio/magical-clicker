@@ -18,12 +18,13 @@ function maxAffordableClick(state){
 
 export function renderClick(state){
   const gain = clickGainByLevel(state.clickLv);
-  setText('tapGain', '+' + (gain<10?gain.toFixed(2):gain.toFixed(0)));
+  setText('tapGain', '+' + fmt(gain));
 
   setText('clickLvInfo', `Lv ${state.clickLv}`);
-  setText('clickDelta', (clickNextDelta(state.clickLv)).toFixed(2));
+  const delta = clickNextDelta(state.clickLv);
+  setText('clickDelta', (delta>=0?'+':'') + fmt(delta));
   setText('clickCost', fmt(clickNextCost(state.clickLv)));
-  setText('clickAfter', '+' + clickGainByLevel(state.clickLv+1).toFixed(2));
+  setText('clickAfter', '+' + fmt(clickGainByLevel(state.clickLv+1)));
 
   const b1 = document.getElementById('upgradeClick');
   const bm = document.getElementById('upgradeClickMax');
