@@ -1,4 +1,4 @@
-/* format.js — Ver.0.1.1.11 日本式/ENGフォーマット */
+/* format.js — Ver.0.1.1.15 日本式/ENGフォーマット */
 
 let __mode = 'jp';
 export function setFormatMode(mode){ if(mode==='jp'||mode==='eng') __mode=mode; }

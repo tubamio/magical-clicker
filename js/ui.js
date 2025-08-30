@@ -106,19 +106,19 @@ function genRow(state, g, onUpdate){
 
   // compute affordability atomically to avoid transient flash
   const costBuy1 = nextUnitCost(g);
-  const canBuy1  = state.money >= costBuy1;
+  const canBuy1  = state.power >= costBuy1;
 
   const costUp1  = nextUpgradeCost(g);
-  const canUp1   = state.money >= costUp1;
+  const canUp1   = state.power >= costUp1;
 
   let needToNext = (10 - ((g.level|0)%10)) % 10;
-  const canUpM = canUp1 && (needToNext > 1 ? (state.money >= costUp1 * needToNext) : canUp1);
+  const canUpM = canUp1 && (needToNext > 1 ? (state.power >= costUp1 * needToNext) : canUp1);
 
   // choose a simple bulk rule for buyMax (at least 2 units with current money)
   let canBuyM = false;
   if (canBuy1) {
     const price1 = costBuy1;
-    const maxN = Math.floor(state.money / price1);
+    const maxN = Math.floor(state.power / price1);
     canBuyM = maxN >= 2;
   }
 
@@ -186,11 +186,15 @@ export function renderAll(state){
   renderKPI(state); renderClick(state); renderGens(state);
 }
 
-export function bindFormatToggle(){
+export function bindFormatToggle(state){
   const btn = document.getElementById('fmtToggle');
   if(!btn) return;
   const apply = ()=>{ btn.textContent = (getFormatMode()==='eng' ? '表記：工学式' : '表記：日本式'); };
-  btn.addEventListener('click', ()=>{ setFormatMode(getFormatMode()==='eng' ? 'jp' : 'eng'); apply(); });
+  btn.addEventListener('click', ()=>{
+    setFormatMode(getFormatMode()==='eng' ? 'jp' : 'eng');
+    apply();
+    if(state) renderAll(state);
+  });
   apply();
 }
 
@@ -255,17 +259,17 @@ export function lightRefresh(state){
 
   // compute affordability atomically to avoid transient flash
   const costBuy1 = nextUnitCost(g);
-  const canBuy1  = state.money >= costBuy1;
+  const canBuy1  = state.power >= costBuy1;
 
   const costUp1  = nextUpgradeCost(g);
-  const canUp1   = state.money >= costUp1;needToNext = (10 - ((g.level|0)%10)) % 10;
-  const canUpM = canUp1 && (needToNext > 1 ? (state.money >= costUp1 * needToNext) : canUp1);
+  const canUp1   = state.power >= costUp1;needToNext = (10 - ((g.level|0)%10)) % 10;
+  const canUpM = canUp1 && (needToNext > 1 ? (state.power >= costUp1 * needToNext) : canUp1);
 
   // choose a simple bulk rule for buyMax (at least 2 units with current money)
   let canBuyM = false;
   if (canBuy1) {
     const price1 = costBuy1;
-    const maxN = Math.floor(state.money / price1);
+    const maxN = Math.floor(state.power / price1);
     canBuyM = maxN >= 2;
   }
 
