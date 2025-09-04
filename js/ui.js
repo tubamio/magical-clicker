@@ -6,9 +6,9 @@ import {
   nextUpgradeCost, totalCostUpgrades, maxAffordableUpgrades, upgrade,
   powerFor, totalPps
 } from './economy.js';
-import { prestigeGain } from './prestige.js';
+import { prestigeGain, REBIRTHS } from './prestige.js';
 
-/* ===== クリック強化（最大回数） ===== */
+/* ===== メイドスマイル強化（最大回数） ===== */
 export function renderClick(state){
     const gain = clickGainByLevel(state.clickLv);
     setText('tapGain', '+' + fmt(gain));
@@ -65,6 +65,22 @@ export function renderKPI(state){
   setText('pps', fmt(pps));
   setText('prestigeCurr', fmt(state.prestige||0));
   setText('prestigeGain', fmt(prestigeGain(state.power)));
+}
+
+export function renderRebirths(){
+  const list = document.getElementById('rebirthList');
+  if(!list) return;
+  list.innerHTML='';
+  REBIRTHS.forEach(r=>{
+    const div=document.createElement('div');
+    div.className='rebirth-item';
+    div.innerHTML = `
+      <button class="btn ghost">L${r.level} ${r.name}</button>
+      <div class="cond muted">条件：${r.req}</div>
+      <div class="eff">効果：${r.effect}</div>
+    `;
+    list.appendChild(div);
+  });
 }
 
 /* ===== ジェネ ===== */
@@ -192,7 +208,7 @@ export function renderGens(state){
 }
 
 export function renderAll(state){
-  renderKPI(state); renderClick(state); renderGens(state);
+  renderKPI(state); renderClick(state); renderGens(state); renderRebirths();
 }
 
 export function bindFormatToggle(state){

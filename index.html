@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Magical Clicker Ver.0.1.2.1</title>
+  <title>Magical Maid Angel Idol Clicker Ver.0.1.3.0</title>
   <link rel="stylesheet" href="./style.css">
   <style>
     .milestone{outline:2px solid gold;box-shadow:0 0 10px rgba(255,215,0,.7);}
@@ -14,40 +14,40 @@
 <body>
   <div class="container">
     <header class="title">
-      <h1>魔法少女インフレクリッカー <span id="version" class="pill"></span></h1>
+      <h1>魔法少女メイドエンジェルアイドルクリッカー <span id="version" class="pill"></span></h1>
       
       <div class="spacer"></div>
       <button id="fmtToggle" class="btn small">表記：日本式</button>
     </header>
 
     <div class="col main">
-      <!-- タップ（クリックする場所） -->
+      <!-- タップ（ハートを獲得する場所） -->
       <div class="panel">
-        <div class="hd frill"><strong>キラキラタップ</strong><span class="muted">（タップでキラキラを獲得）</span></div>
+        <div class="hd frill frill-pink"><strong>エンジェルハートタップ</strong><span class="muted">（タップでエンジェルハートを獲得）</span></div>
         <div class="bd">
           <div class="stat">
-            <span>キラキラ：</span><span class="big" id="power">0</span>
+            <span>エンジェルハート：</span><span class="big" id="power">0</span>
           </div>
-          <div class="pill mt8">キラキラ/秒：<span id="pps">0</span></div>
+          <div class="pill mt8">ハート/秒：<span id="pps">0</span></div>
           <div class="tap mt12">
             <div>現在のタップ：<span class="big" id="tapGain">+1.00</span></div>
             <div class="row center mt8">
-              <button id="tapBtn" class="btn tapbtn">タップ！</button>
+              <button id="tapBtn" class="btn tapbtn">ハートタップ！</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- クリック強化（位置を分離） -->
+      <!-- メイドスマイル強化（位置を分離） -->
       <div class="panel">
-        <div class="hd frill"><strong>クリック強化</strong></div>
+        <div class="hd frill frill-lav"><strong>メイドスマイル強化</strong></div>
         <div class="bd">
           <div class="desc lvline">Lv <span id="clickLvNow">0</span> → <span id="clickLvNext">1</span></div>
           <div class="desc upEffect">
-            強化+1効果：クリック <span id="c1a"></span> → <span id="c1b"></span>（+<span id="c1d"></span>）｜全体倍率 <span id="m1a"></span> → <span id="m1b"></span>（+<span id="m1d"></span>）
+            強化+1効果：スマイル <span id="c1a"></span> → <span id="c1b"></span>（+<span id="c1d"></span>）｜全体倍率 <span id="m1a"></span> → <span id="m1b"></span>（+<span id="m1d"></span>）
           </div>
           <div class="desc upEffectMax">
-            まとめ強化効果：クリック <span id="cMa"></span> → <span id="cMb"></span>（+<span id="cMd"></span>）｜全体倍率 <span id="mMa"></span> → <span id="mMb"></span>（+<span id="mMd"></span>）
+            まとめ強化効果：スマイル <span id="cMa"></span> → <span id="cMb"></span>（+<span id="cMd"></span>）｜全体倍率 <span id="mMa"></span> → <span id="mMb"></span>（+<span id="mMd"></span>）
           </div>
           <div class="row center mt12">
             <button id="upgradeClick" class="btn up">単体強化</button>
@@ -56,10 +56,10 @@
         </div>
       </div>
 
-      <!-- ジェネレーター -->
+      <!-- ユニット -->
       <div class="panel">
-          <div class="hd frill">
-            <strong>マジカルフレンズ</strong>
+          <div class="hd frill frill-mint">
+            <strong>エンジェルメイドユニット</strong>
             <span class="muted">購入＝ピンク系、強化＝ラベンダー系。無効時は灰色で反応なし。</span>
           </div>
         <div class="bd">
@@ -70,24 +70,18 @@
 
     <aside class="right">
         <div class="panel">
-          <div class="hd frill"><strong>きらめき転生</strong></div>
+          <div class="hd frill frill-pink double"><strong>アイドル覚醒</strong></div>
           <div class="bd">
-            <div class="box muted">所持：<span id="prestigeCurr">0</span></div>
-            <div class="box mt8">次転生で獲得：<span id="prestigeGain">0</span>
-              <div class="row mt8"><button id="prestigeBtn" class="btn warn">転生する</button></div>
+            <div class="box muted">所持ハートスター：<span id="prestigeCurr">0</span></div>
+            <div class="box mt8">次覚醒で獲得：<span id="prestigeGain">0</span>
+              <div class="row mt8"><button id="prestigeBtn" class="btn warn">覚醒する</button></div>
             </div>
-            <div class="grid2 mt8">
-              <button class="btn ghost">L1 スイートスプラッシュ</button>
-              <button class="btn ghost">L2 プリズムドレス</button>
-              <button class="btn ghost">L3 メルティシンフォニー</button>
-              <button class="btn ghost">L4 スターリーループ</button>
-              <button class="btn ghost">L5 エンジェリックブロッサム</button>
-            </div>
+            <div class="rebirths" id="rebirthList"></div>
           </div>
         </div>
 
       <div class="panel">
-        <div class="hd frill"><strong>システム</strong></div>
+        <div class="hd frill frill-lav"><strong>システム</strong></div>
         <div class="bd">
           <div class="row">
             <button id="saveBtn" class="btn good">保存</button>

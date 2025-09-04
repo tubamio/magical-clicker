@@ -1,4 +1,4 @@
-// クリック強化仕様：タップ威力 = base * 4^Lv、全体倍率 = 1.03^Lv
+// メイドスマイル強化仕様：タップ威力 = base * 4^Lv、全体倍率 = 1.03^Lv
 // コスト：125 * 5^Lv
 export const CLICK = {
   baseClick: 1,
