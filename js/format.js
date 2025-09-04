@@ -5,7 +5,9 @@ export function setFormatMode(mode){ if(mode==='jp'||mode==='eng') __mode=mode; 
 export function getFormatMode(){ return __mode; }
 export function fmt(x){
   if (typeof Decimal !== 'undefined' && x instanceof Decimal){
-    if (!x.isFinite()) return x.toString();
+    // Break Infinity's Decimal lacks an isFinite() method. Inspect the raw
+    // mantissa/exponent to detect non-finite values before converting.
+    if (!Number.isFinite(x.exponent) || !Number.isFinite(x.mantissa)) return x.toString();
     if (x.exponent >= 308) return x.toString();
     x = x.toNumber();
   }
