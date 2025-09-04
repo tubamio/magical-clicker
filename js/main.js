@@ -1,4 +1,4 @@
-export const VERSION = 'Ver.0.1.2.0';
+export const VERSION = '0.1.2.0';
 import { GENERATORS } from './data.js';
 import { save, load, reset } from './save.js';
 import { renderAll, renderKPI, lightRefresh, bindFormatToggle } from './ui.js';
@@ -53,7 +53,10 @@ document.getElementById('resetBtn').addEventListener('click', ()=>{
 
 // initial render
 update();
-try{ const v=document.getElementById('version'); if(v) v.textContent = VERSION; }catch{}
+try{
+  const v=document.getElementById('version');
+  if(v) v.textContent = `Ver.${VERSION}`;
+}catch{}
 try{ bindFormatToggle && bindFormatToggle(state); }catch{}
 
 
@@ -75,6 +78,3 @@ function __loop(ts){
   requestAnimationFrame(__loop);
 }
 requestAnimationFrame(__loop);
-
-
-try{ const v=document.getElementById('verText'); if(v) v.textContent='0.1.2.0'; }catch(e){}
