@@ -11,24 +11,24 @@ import { FEATURES } from './features.js';
 
 /* ===== メイドスマイル強化（最大回数） ===== */
 export function renderClick(state){
-    const gain = clickGainByLevel(state.clickLv) * rebirthMultiplier(state.rebirth);
+    const gain = clickGainByLevel(state.clickLv).times(rebirthMultiplier(state.rebirth));
     setText('tapGain', '+' + fmt(gain));
 
     setText('clickLvNow', String(state.clickLv));
     setText('clickLvNext', String(state.clickLv + 1));
 
     function sim(n){
-      const beforeClick = clickGainByLevel(state.clickLv) * rebirthMultiplier(state.rebirth);
-      const afterClick  = clickGainByLevel(state.clickLv + n) * rebirthMultiplier(state.rebirth);
+      const beforeClick = clickGainByLevel(state.clickLv).times(rebirthMultiplier(state.rebirth));
+      const afterClick  = clickGainByLevel(state.clickLv + n).times(rebirthMultiplier(state.rebirth));
       const beforeMult  = globalMultiplier(state.clickLv);
       const afterMult   = globalMultiplier(state.clickLv + n);
       return {
         beforeClick,
         afterClick,
-        deltaClick: afterClick - beforeClick,
+        deltaClick: afterClick.minus(beforeClick),
         beforeMult,
         afterMult,
-        deltaMult: afterMult - beforeMult,
+        deltaMult: afterMult.minus(beforeMult),
       };
     }
 
@@ -44,16 +44,16 @@ export function renderClick(state){
     const sM = sim(nMax);
     setText('cMa', fmt(sM.beforeClick));
     setText('cMb', fmt(sM.afterClick));
-    setText('cMd', fmt(nMax>0 ? sM.deltaClick : 0));
+    setText('cMd', fmt(nMax>0 ? sM.deltaClick : new Decimal(0)));
     setText('mMa', fmt(sM.beforeMult));
     setText('mMb', fmt(sM.afterMult));
-    setText('mMd', fmt(nMax>0 ? sM.deltaMult : 0));
+    setText('mMd', fmt(nMax>0 ? sM.deltaMult : new Decimal(0)));
 
     const b1 = document.getElementById('upgradeClick');
     const bm = document.getElementById('upgradeClickMax');
     const cost1 = clickNextCost(state.clickLv);
     const sumCost = clickTotalCost(state.clickLv, nMax);
-    b1.disabled = state.power < cost1;
+    b1.disabled = state.power.lt(cost1);
     b1.textContent = `単体強化（${fmt(cost1)}）`;
     bm.disabled = (nMax <= 0);
     bm.textContent = `まとめ強化 ×${fmt(nMax)}（${fmt(sumCost)}）`;
@@ -62,7 +62,7 @@ export function renderClick(state){
 function setText(id, value){ const n=document.getElementById(id); if(n) n.textContent = value; }
 export function renderKPI(state){
   setText('power', fmt(state.power));
-  const pps = totalPps(state) * globalMultiplier(state.clickLv) * rebirthMultiplier(state.rebirth);
+  const pps = totalPps(state).times(globalMultiplier(state.clickLv)).times(rebirthMultiplier(state.rebirth));
   setText('pps', fmt(pps));
   setText('prestigeCurr', fmt(state.prestige||0));
   setText('prestigeGain', fmt(prestigeGain(state.power)));
@@ -90,7 +90,7 @@ export function renderRebirths(state, onRebirth){
     div.appendChild(btn);
     const cond=document.createElement('div');
     cond.className='cond muted';
-    cond.textContent = `条件：ハートスター ${r.req}`;
+    cond.textContent = `条件：ハートスター ${fmt(r.req)}`;
     div.appendChild(cond);
     const eff=document.createElement('div');
     eff.className='eff';
@@ -119,11 +119,9 @@ export function renderFeatures(state, handlers){
     if(f.id==='autoTap'){
       btn.textContent = state.autoTap ? `${f.name}：ON` : `${f.name}：OFF`;
       btn.addEventListener('click', ()=>handlers&&handlers.toggleAutoTap&&handlers.toggleAutoTap());
-    }else if(f.id==='burst'){
-      const cd=Math.ceil(state.burstCooldown||0);
-      btn.textContent = cd>0 ? `${f.name}（${cd}s）` : f.name;
-      btn.disabled = cd>0;
-      btn.addEventListener('click', ()=>handlers&&handlers.doBurst&&handlers.doBurst());
+    }else if(f.id==='genRebirth'){
+      btn.textContent = `${f.name}（${state.genRebirths||0}回）`;
+      btn.addEventListener('click', ()=>handlers&&handlers.doGenRebirth&&handlers.doGenRebirth());
     }else if(f.id==='autoGen'){
       btn.textContent = state.autoGen ? `${f.name}：ON` : `${f.name}：OFF`;
       btn.addEventListener('click', ()=>handlers&&handlers.toggleAutoGen&&handlers.toggleAutoGen());
@@ -160,17 +158,17 @@ export function renderFeatures(state, handlers){
 /* ===== ジェネ ===== */
 function simulateTotalAfterUpgrade(state, g, n){
   const mult = rebirthMultiplier(state.rebirth);
-  const curr = totalPps(state) * globalMultiplier(state.clickLv) * mult;
-  const beforeEach = powerFor(g) * mult;
-  const afterEach  = powerFor({...g, level:(g.level|0)+n}) * mult;
-  const deltaEach  = afterEach - beforeEach;
+  const curr = totalPps(state).times(globalMultiplier(state.clickLv)).times(mult);
+  const beforeEach = powerFor(g).times(mult);
+  const afterEach  = powerFor({...g, level:(g.level|0)+n}).times(mult);
+  const deltaEach  = afterEach.minus(beforeEach);
 
   const beforeTotal = curr;
-  const afterTotal  = (totalPps({
+  const afterTotal  = totalPps({
     ...state,
     gens: state.gens.map(x=> x.id===g.id ? {...g, level:(g.level|0)+n } : x)
-  }) * globalMultiplier(state.clickLv) * mult);
-  const deltaTotal  = afterTotal - beforeTotal;
+  }).times(globalMultiplier(state.clickLv)).times(mult);
+  const deltaTotal  = afterTotal.minus(beforeTotal);
 
   return { beforeEach, afterEach, deltaEach, beforeTotal, afterTotal, deltaTotal };
 }
@@ -226,11 +224,11 @@ function genRow(state, g, onUpdate){
     ownEl.textContent = fmt(g.count);
     eachEl.textContent = fmt(powerFor(g));
 
-      const nMax = maxAffordableUnits(g, state.power);
+    const nMax = maxAffordableUnits(g, state.power);
     const sumU = totalCostUnits(g, nMax);
     if (btnBuy1){
       const price1 = nextUnitCost(g);
-      btnBuy1.disabled = state.power < price1;
+      btnBuy1.disabled = state.power.lt(price1);
       btnBuy1.textContent = `購入（${fmt(price1)}）`;
     }
     if (btnBuyM){
@@ -238,21 +236,21 @@ function genRow(state, g, onUpdate){
       btnBuyM.textContent = `まとめ購入 ×${fmt(nMax)}（${fmt(sumU)}）`;
     }
 
-      const up1 = nextUpgradeCost(g);
-      const kMax = (g.count>0) ? maxAffordableUpgrades(g, state.power) : 0;
-      const sumK = totalCostUpgrades(g, kMax);
-      if (btnUp1){
-        btnUp1.disabled = state.power < up1 || (g.count|0) <= 0;
-        btnUp1.textContent = `強化＋1（${fmt(up1)}）`;
-        const willHit10 = (((g.level|0) + 1) % 10 === 0);
-        btnUp1.classList.toggle('milestone', willHit10);
-      }
-      if (btnUpM){
-        btnUpM.disabled = (kMax<=0);
-        btnUpM.textContent = `まとめ強化 ×${fmt(kMax)}（${fmt(sumK)}）`;
-        const cross10 = ((g.level|0)%10) + kMax >= 10;
-        btnUpM.classList.toggle('milestone', cross10);
-      }
+    const up1 = nextUpgradeCost(g);
+    const kMax = (g.count>0) ? maxAffordableUpgrades(g, state.power) : 0;
+    const sumK = totalCostUpgrades(g, kMax);
+    if (btnUp1){
+      btnUp1.disabled = state.power.lt(up1) || (g.count|0) <= 0;
+      btnUp1.textContent = `強化＋1（${fmt(up1)}）`;
+      const willHit10 = (((g.level|0) + 1) % 10 === 0);
+      btnUp1.classList.toggle('milestone', willHit10);
+    }
+    if (btnUpM){
+      btnUpM.disabled = (kMax<=0);
+      btnUpM.textContent = `まとめ強化 ×${fmt(kMax)}（${fmt(sumK)}）`;
+      const cross10 = ((g.level|0)%10) + kMax >= 10;
+      btnUpM.classList.toggle('milestone', cross10);
+    }
 
     const s1 = simulateTotalAfterUpgrade(state,g,1);
     e1a.textContent=fmt(s1.beforeEach); e1b.textContent=fmt(s1.afterEach); e1d.textContent=fmt(s1.deltaEach);
@@ -320,7 +318,7 @@ export function lightRefresh(state, onRebirth, handlers){
     const sumU = totalCostUnits(g,nMax);
     if(btnBuy1){
       const price1 = nextUnitCost(g);
-      btnBuy1.disabled = state.power < price1;
+      btnBuy1.disabled = state.power.lt(price1);
       btnBuy1.textContent = `購入（${fmt(price1)}）`;
     }
     if(btnBuyM){
@@ -332,7 +330,7 @@ export function lightRefresh(state, onRebirth, handlers){
     const kMax = (g.count>0) ? maxAffordableUpgrades(g,state.power) : 0;
     const sumK = totalCostUpgrades(g,kMax);
     if(btnUp1){
-      btnUp1.disabled = state.power < up1 || (g.count|0) <= 0;
+      btnUp1.disabled = state.power.lt(up1) || (g.count|0) <= 0;
       btnUp1.textContent = `強化＋1（${fmt(up1)}）`;
       const willHit10 = (((g.level|0)+1)%10===0);
       btnUp1.classList.toggle('milestone', willHit10);

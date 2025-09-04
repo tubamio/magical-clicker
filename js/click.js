@@ -1,34 +1,41 @@
 // メイドスマイル強化仕様：タップ威力 = base * 4^Lv、全体倍率 = 1.03^Lv
 // コスト：125 * 5^Lv
 export const CLICK = {
-  baseClick: 1,
+  baseClick: new Decimal(1),
 };
 
 export function clickGainByLevel(lv){
-  return CLICK.baseClick * Math.pow(4, lv);
+  return CLICK.baseClick.times(Decimal.pow(4, lv));
 }
 export function globalMultiplier(lv){
-  return Math.pow(1.03, lv);
+  return Decimal.pow(1.03, lv);
 }
 export function clickNextCost(lv){
-  return 125 * Math.pow(5, lv);
+  return new Decimal(125).times(Decimal.pow(5, lv));
 }
 export function clickNextDelta(lv){
-  return clickGainByLevel(lv+1) - clickGainByLevel(lv);
+  return clickGainByLevel(lv+1).minus(clickGainByLevel(lv));
 }
 
 export function clickTotalCost(lv, n){
-  if (n <= 0) return 0;
-  const c0 = clickNextCost(lv);
-  const r = 5;
-  return c0 * (Math.pow(r, n) - 1) / (r - 1);
+  if (n <= 0) return new Decimal(0);
+  let total = new Decimal(0);
+  let cost = clickNextCost(lv);
+  for(let i=0;i<n;i++){
+    total = total.plus(cost);
+    cost = cost.times(5);
+  }
+  return total;
 }
 
 export function maxAffordableClicks(lv, budget){
-  let n = 0, cost = 0;
-  while (budget >= (cost = clickNextCost(lv + n)) && n < 1e6){
-    budget -= cost;
+  budget = new Decimal(budget);
+  let n = 0;
+  let cost = clickNextCost(lv);
+  while (budget.gte(cost) && n < 1e6){
+    budget = budget.minus(cost);
     n++;
+    cost = cost.times(5);
   }
   return n;
 }
