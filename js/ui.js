@@ -6,19 +6,20 @@ import {
   nextUpgradeCost, totalCostUpgrades, maxAffordableUpgrades, upgrade,
   powerFor, totalPps
 } from './economy.js';
-import { prestigeGain, REBIRTHS } from './prestige.js';
+import { prestigeGain, REBIRTHS, rebirthMultiplier } from './prestige.js';
+import { FEATURES } from './features.js';
 
 /* ===== メイドスマイル強化（最大回数） ===== */
 export function renderClick(state){
-    const gain = clickGainByLevel(state.clickLv);
+    const gain = clickGainByLevel(state.clickLv) * rebirthMultiplier(state.rebirth);
     setText('tapGain', '+' + fmt(gain));
 
     setText('clickLvNow', String(state.clickLv));
     setText('clickLvNext', String(state.clickLv + 1));
 
     function sim(n){
-      const beforeClick = clickGainByLevel(state.clickLv);
-      const afterClick  = clickGainByLevel(state.clickLv + n);
+      const beforeClick = clickGainByLevel(state.clickLv) * rebirthMultiplier(state.rebirth);
+      const afterClick  = clickGainByLevel(state.clickLv + n) * rebirthMultiplier(state.rebirth);
       const beforeMult  = globalMultiplier(state.clickLv);
       const afterMult   = globalMultiplier(state.clickLv + n);
       return {
@@ -61,40 +62,114 @@ export function renderClick(state){
 function setText(id, value){ const n=document.getElementById(id); if(n) n.textContent = value; }
 export function renderKPI(state){
   setText('power', fmt(state.power));
-  const pps = totalPps(state) * globalMultiplier(state.clickLv);
+  const pps = totalPps(state) * globalMultiplier(state.clickLv) * rebirthMultiplier(state.rebirth);
   setText('pps', fmt(pps));
   setText('prestigeCurr', fmt(state.prestige||0));
   setText('prestigeGain', fmt(prestigeGain(state.power)));
 }
 
-export function renderRebirths(){
+export function renderRebirths(state, onRebirth){
   const list = document.getElementById('rebirthList');
   if(!list) return;
   list.innerHTML='';
   REBIRTHS.forEach(r=>{
     const div=document.createElement('div');
     div.className='rebirth-item';
-    div.innerHTML = `
-      <button class="btn ghost">L${r.level} ${r.name}</button>
-      <div class="cond muted">条件：${r.req}</div>
-      <div class="eff">効果：${r.effect}</div>
-    `;
+    const owned = (state.rebirth >= r.level);
+    const next  = (state.rebirth + 1 === r.level);
+    const btn = document.createElement('button');
+    btn.className = owned ? 'btn good' : 'btn ghost';
+    btn.textContent = owned ? `L${r.level} ${r.name}✓` : `L${r.level} ${r.name}`;
+    if(next){
+      btn.className = 'btn warn';
+      btn.disabled = state.prestige < r.req;
+      btn.addEventListener('click', ()=>{ if(!btn.disabled && onRebirth) onRebirth(); });
+    }else{
+      btn.disabled = true;
+    }
+    div.appendChild(btn);
+    const cond=document.createElement('div');
+    cond.className='cond muted';
+    cond.textContent = `条件：ハートスター ${r.req}`;
+    div.appendChild(cond);
+    const eff=document.createElement('div');
+    eff.className='eff';
+    eff.textContent = `効果：${r.effect}`;
+    div.appendChild(eff);
+    if(r.feature){
+      const feat=document.createElement('div');
+      feat.className='feat';
+      feat.textContent = `新要素：${r.feature}`;
+      div.appendChild(feat);
+    }
     list.appendChild(div);
+  });
+}
+
+export function renderFeatures(state, handlers){
+  const panel=document.getElementById('featurePanel');
+  if(!panel) return;
+  panel.innerHTML='';
+  FEATURES.forEach(f=>{
+    if(state.rebirth < f.level) return;
+    const item=document.createElement('div');
+    item.className='feature-item';
+    const btn=document.createElement('button');
+    btn.className='btn';
+    if(f.id==='autoTap'){
+      btn.textContent = state.autoTap ? `${f.name}：ON` : `${f.name}：OFF`;
+      btn.addEventListener('click', ()=>handlers&&handlers.toggleAutoTap&&handlers.toggleAutoTap());
+    }else if(f.id==='burst'){
+      const cd=Math.ceil(state.burstCooldown||0);
+      btn.textContent = cd>0 ? `${f.name}（${cd}s）` : f.name;
+      btn.disabled = cd>0;
+      btn.addEventListener('click', ()=>handlers&&handlers.doBurst&&handlers.doBurst());
+    }else if(f.id==='autoGen'){
+      btn.textContent = state.autoGen ? `${f.name}：ON` : `${f.name}：OFF`;
+      btn.addEventListener('click', ()=>handlers&&handlers.toggleAutoGen&&handlers.toggleAutoGen());
+    }else if(f.id==='convert'){
+      btn.textContent = f.name;
+      btn.addEventListener('click', ()=>handlers&&handlers.convertPrestige&&handlers.convertPrestige());
+    }else if(f.id==='hyper'){
+      if(state.hyperActive){
+        btn.textContent = `${f.name}［${Math.ceil(state.hyperTime)}s］`;
+      }else{
+        const cd=Math.ceil(state.hyperCooldown||0);
+        btn.textContent = cd>0 ? `${f.name}（${cd}s）` : f.name;
+        btn.disabled = cd>0;
+      }
+      btn.addEventListener('click', ()=>handlers&&handlers.activateHyper&&handlers.activateHyper());
+    }else if(f.id==='autoClickUp'){
+      btn.textContent = state.autoClickUp ? `${f.name}：ON` : `${f.name}：OFF`;
+      btn.addEventListener('click', ()=>handlers&&handlers.toggleAutoClickUp&&handlers.toggleAutoClickUp());
+    }else if(f.id==='surge'){
+      const cd=Math.ceil(state.surgeCooldown||0);
+      btn.textContent = cd>0 ? `${f.name}（${cd}s）` : f.name;
+      btn.disabled = cd>0;
+      btn.addEventListener('click', ()=>handlers&&handlers.activateSurge&&handlers.activateSurge());
+    }
+    item.appendChild(btn);
+    const d=document.createElement('div');
+    d.className='desc';
+    d.textContent = f.desc;
+    item.appendChild(d);
+    panel.appendChild(item);
   });
 }
 
 /* ===== ジェネ ===== */
 function simulateTotalAfterUpgrade(state, g, n){
-  const curr = totalPps(state) * globalMultiplier(state.clickLv);
-  const beforeEach = powerFor(g);
-  const afterEach  = powerFor({...g, level:(g.level|0)+n});
+  const mult = rebirthMultiplier(state.rebirth);
+  const curr = totalPps(state) * globalMultiplier(state.clickLv) * mult;
+  const beforeEach = powerFor(g) * mult;
+  const afterEach  = powerFor({...g, level:(g.level|0)+n}) * mult;
   const deltaEach  = afterEach - beforeEach;
 
   const beforeTotal = curr;
   const afterTotal  = (totalPps({
     ...state,
     gens: state.gens.map(x=> x.id===g.id ? {...g, level:(g.level|0)+n } : x)
-  }) * globalMultiplier(state.clickLv));
+  }) * globalMultiplier(state.clickLv) * mult);
   const deltaTotal  = afterTotal - beforeTotal;
 
   return { beforeEach, afterEach, deltaEach, beforeTotal, afterTotal, deltaTotal };
@@ -207,27 +282,28 @@ export function renderGens(state){
   state.gens.forEach(g=> list.appendChild(genRow(state,g,()=>renderKPI(state))));
 }
 
-export function renderAll(state){
-  renderKPI(state); renderClick(state); renderGens(state); renderRebirths();
+export function renderAll(state, onRebirth, handlers){
+  renderKPI(state); renderClick(state); renderGens(state); renderRebirths(state, onRebirth); renderFeatures(state, handlers);
 }
 
-export function bindFormatToggle(state){
+export function bindFormatToggle(state, handlers){
   const btn = document.getElementById('fmtToggle');
   if(!btn) return;
   const apply = ()=>{ btn.textContent = (getFormatMode()==='eng' ? '表記：工学式' : '表記：日本式'); };
   btn.addEventListener('click', ()=>{
     setFormatMode(getFormatMode()==='eng' ? 'jp' : 'eng');
     apply();
-    if(state) renderAll(state);
+    if(state) renderAll(state, null, handlers);
   });
   apply();
 }
 
 
-export function lightRefresh(state){
-  // update click info and buttons
+export function lightRefresh(state, onRebirth, handlers){
+  // update click info, features and buttons
   try{
     renderClick(state);
+    renderFeatures(state, handlers);
   }catch{}
 
   // update generator rows
@@ -293,4 +369,5 @@ export function lightRefresh(state){
     if (lvNowEl) lvNowEl.textContent = String(g.level|0);
     if (lvNextEl) lvNextEl.textContent = String((g.level|0)+1);
   });
+  try{ renderRebirths(state, onRebirth); }catch{}
 }
