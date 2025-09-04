@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Magical Clicker Ver.0.1.1.16</title>
+  <title>Magical Clicker Ver.0.1.2.0</title>
   <link rel="stylesheet" href="./style.css">
   <style>
     .milestone{outline:2px solid gold;box-shadow:0 0 10px rgba(255,215,0,.7);}
@@ -23,12 +23,12 @@
     <div class="col main">
       <!-- タップ（クリックする場所） -->
       <div class="panel">
-        <div class="hd"><strong>タップ</strong><span class="muted">（クリックで通貨を獲得）</span></div>
+        <div class="hd"><strong>キラキラタップ</strong><span class="muted">（タップでキラキラを獲得）</span></div>
         <div class="bd">
           <div class="stat">
-            <span>所持：</span><span class="big" id="power">0</span>
+            <span>キラキラ：</span><span class="big" id="power">0</span>
           </div>
-          <div class="pill mt8">生成/秒：<span id="pps">0</span></div>
+          <div class="pill mt8">キラキラ/秒：<span id="pps">0</span></div>
           <div class="tap mt12">
             <div>現在のタップ：<span class="big" id="tapGain">+1.00</span></div>
             <div class="row center mt8">
@@ -42,11 +42,12 @@
       <div class="panel">
         <div class="hd"><strong>クリック強化</strong></div>
         <div class="bd">
-          <div class="row wrap">
-            <span class="pill" id="clickLvInfo">Lv 0</span>
-            <span class="pill">次レベル効果：<span id="clickDelta">+0</span></span>
-            <span class="pill">次レベル費用：<span id="clickCost">0</span></span>
-            <span class="pill">適用後タップ：<span id="clickAfter">+0</span></span>
+          <div class="desc lvline">Lv <span id="clickLvNow">0</span> → <span id="clickLvNext">1</span></div>
+          <div class="desc upEffect">
+            強化+1効果：クリック <span id="c1a"></span> → <span id="c1b"></span>（+<span id="c1d"></span>）｜全体倍率 <span id="m1a"></span> → <span id="m1b"></span>（+<span id="m1d"></span>）
+          </div>
+          <div class="desc upEffectMax">
+            まとめ強化効果：クリック <span id="cMa"></span> → <span id="cMb"></span>（+<span id="cMd"></span>）｜全体倍率 <span id="mMa"></span> → <span id="mMb"></span>（+<span id="mMd"></span>）
           </div>
           <div class="row center mt12">
             <button id="upgradeClick" class="btn up">単体強化</button>
@@ -58,7 +59,7 @@
       <!-- ジェネレーター -->
       <div class="panel">
         <div class="hd">
-          <strong>仲間（ジェネレーター）</strong>
+          <strong>おともだち</strong>
           <span class="muted">購入＝青系、強化＝紫系。無効時は灰色で反応なし。</span>
         </div>
         <div class="bd">

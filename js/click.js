@@ -16,3 +16,10 @@ export function clickNextCost(lv){
 export function clickNextDelta(lv){
   return clickGainByLevel(lv+1) - clickGainByLevel(lv);
 }
+
+export function clickTotalCost(lv, n){
+  if (n <= 0) return 0;
+  const c0 = clickNextCost(lv);
+  const r = 5;
+  return c0 * (Math.pow(r, n) - 1) / (r - 1);
+}
