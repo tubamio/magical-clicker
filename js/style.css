@@ -96,7 +96,12 @@ body{
 .rebirths{ display:flex; flex-direction:column; gap:12px }
 .rebirth-item{ display:flex; flex-direction:column; gap:4px }
 .rebirth-item .cond{ font-size:18px }
+.rebirth-item .feat{ font-size:18px }
 
+
+/* ====== Feature panel ====== */
+#featurePanel .feature-item{ display:flex; flex-direction:column; gap:4px; margin-bottom:12px }
+#featurePanel .feature-item .desc{ font-size:18px; color:#c6c0ea }
 
 /* ====== Misc ====== */
 .box{ border:1px solid #2c2950; border-radius:12px; padding:14px; background:rgba(255,255,255,.02) }
@@ -110,23 +115,25 @@ footer.center{ text-align:center; padding:12px 0; color:#bfb7e8 }
 }
 
 
-/* === 0.1.3.0 UI color refinements === */
+/* === 0.1.4.0 UI color refinements === */
 :root{
   --buy:#ff6dc3; --buy-deep:#e054ad;
   --upg:#b67aff; --upg-deep:#8c5ebf;
   --frill-pink:#ffbde4;
-  --frill-lav:#d6ccff;
-  --frill-mint:#c7f5cf;
+  --frill-green:#c7f5cf;
+  --frill-yellow:#fff5b3;
   --mint:#a7f3d0;
 }
 .btn-buy{background:linear-gradient(180deg,var(--buy) 0%,var(--buy-deep) 100%);color:#fff;}
 .btn-buy-agg{background:linear-gradient(180deg,var(--buy-deep) 0%,#a6008c 100%);color:#fff;}
 .btn-upg{background:linear-gradient(180deg,var(--upg) 0%,var(--upg-deep) 100%);color:#fff;}
 .btn-upg-agg{background:linear-gradient(180deg,var(--upg-deep) 0%,#4b1a99 100%);color:#fff;}
+
 .hd.frill{position:relative; --frill-color:var(--frill-pink);}
-.hd.frill.frill-lav{--frill-color:var(--frill-lav);}
-.hd.frill.frill-mint{--frill-color:var(--frill-mint);}
 .hd.frill.frill-pink{--frill-color:var(--frill-pink);}
+.hd.frill.frill-green{--frill-color:var(--frill-green);}
+.hd.frill.frill-yellow{--frill-color:var(--frill-yellow);}
+
 .hd.frill::after{
   content:'';
   position:absolute;
@@ -135,11 +142,47 @@ footer.center{ text-align:center; padding:12px 0; color:#bfb7e8 }
   background:radial-gradient(circle at 8px 0,var(--frill-color) 8px,transparent 8px) repeat-x;
   background-size:16px 8px;
 }
-.hd.frill.double::before{
+
+.hd.frill.frill-top::after{
+  top:-6px; bottom:auto;
+  background:radial-gradient(circle at 8px 100%,var(--frill-color) 8px,transparent 8px) repeat-x;
+  background-size:16px 8px;
+}
+
+.hd.frill.frill-double::before{
   content:'';
   position:absolute;
   left:0; right:0; top:-6px;
   height:6px;
   background:radial-gradient(circle at 8px 100%,var(--frill-color) 8px,transparent 8px) repeat-x;
   background-size:16px 8px;
+}
+
+.hd.frill.frill-zigzag::after{
+  bottom:-6px;
+  height:6px;
+  background:
+    linear-gradient(-45deg,var(--frill-color) 4px,transparent 0) 0 0/8px 8px repeat-x,
+    linear-gradient(45deg,var(--frill-color) 4px,transparent 0) 4px 0/8px 8px repeat-x;
+}
+
+.hd.frill.frill-wave::after{
+  bottom:-6px;
+  height:6px;
+  background:radial-gradient(50% 50% at 8px 6px,var(--frill-color) 8px,transparent 8px) repeat-x;
+  background-size:16px 8px;
+}
+
+body.rebirth-flash::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:radial-gradient(circle, rgba(255,245,179,.9), rgba(255,189,228,.4), transparent 70%);
+  animation:rebirthFlash 1s ease-out forwards;
+  pointer-events:none;
+  z-index:9999;
+}
+@keyframes rebirthFlash{
+  from{opacity:1;}
+  to{opacity:0;}
 }
