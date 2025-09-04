@@ -18,7 +18,7 @@
     <div class="col main">
       <!-- タップ（クリックする場所） -->
       <div class="panel">
-        <div class="hd"><strong>タップ</strong><span class="muted">（クリックで通貨を獲得）</span></div>
+        <div class="hd frill"><strong>タップ</strong><span class="muted">（クリックで通貨を獲得）</span></div>
         <div class="bd">
           <div class="stat">
             <span>所持：</span><span class="big" id="power">0</span>
@@ -35,7 +35,7 @@
 
       <!-- クリック強化（位置を分離） -->
       <div class="panel">
-        <div class="hd"><strong>クリック強化</strong></div>
+        <div class="hd frill"><strong>クリック強化</strong></div>
         <div class="bd">
           <div class="row wrap">
             <span class="pill" id="clickLvInfo">Lv 0</span>
@@ -52,7 +52,7 @@
 
       <!-- ジェネレーター -->
         <div class="panel">
-          <div class="hd">
+          <div class="hd frill">
             <strong>マジカルフレンズ</strong>
             <span class="muted">購入＝ピンク系、強化＝ラベンダー系。無効時は灰色で反応なし。</span>
           </div>
@@ -64,9 +64,12 @@
 
     <aside class="right">
         <div class="panel">
-          <div class="hd"><strong>きらめき転生</strong></div>
+          <div class="hd frill"><strong>きらめき転生</strong></div>
           <div class="bd">
             <div class="box muted">所持：<span id="prestigeCurr">0</span></div>
+            <div class="box mt8">次転生で獲得：<span id="prestigeGain">0</span>
+              <div class="row mt8"><button id="prestigeBtn" class="btn warn">転生する</button></div>
+            </div>
             <div class="grid2 mt8">
               <button class="btn ghost">L1 スイートスプラッシュ</button>
               <button class="btn ghost">L2 プリズムドレス</button>
@@ -78,7 +81,7 @@
         </div>
 
       <div class="panel">
-        <div class="hd"><strong>システム</strong></div>
+        <div class="hd frill"><strong>システム</strong></div>
         <div class="bd">
           <div class="row">
             <button id="saveBtn" class="btn good">保存</button>
