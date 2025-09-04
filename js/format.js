@@ -1,4 +1,4 @@
-/* format.js — Ver.0.1.1.15 日本式/ENGフォーマット */
+/* format.js — Ver.0.1.1.16 日本式/ENGフォーマット */
 
 let __mode = 'jp';
 export function setFormatMode(mode){ if(mode==='jp'||mode==='eng') __mode=mode; }
@@ -25,20 +25,26 @@ function trimFixed(num, dec){
 
 /* ===== ENG ===== */
 function fmtENG(n){
-  const sgn = n<0?'-':''; const a=Math.abs(n);
+  const sgn = n<0?'-':''; let a=Math.abs(n);
   if(a===0) return '0';
-  if(a>=0.01 && a<1000){
-    const r=roundSig3(a);
-    const dec=Math.max(0,2-abs10exp(r));
-    return sgn+r.toFixed(dec);
+
+  // try normal notation (0.01 <= x < 100)
+  const normal = Math.round(a*100)/100;
+  if(normal >= 0.01 && normal < 100){
+    const dec = Math.min(2, Math.max(0, 2-abs10exp(normal)));
+    return sgn + normal.toFixed(dec);
   }
-  const exp=abs10exp(a);
-  const exp3=Math.floor(exp/3)*3;
-  const mant=a/10**exp3;
-  const mr=roundSig3(mant);
-  const dec=Math.max(0,2-abs10exp(mr));
-  const mstr=mr.toFixed(dec);
-  return sgn+mstr+'e'+exp3;
+  if(normal >=100 && normal < 1000){
+    return sgn + normal.toFixed(0);
+  }
+
+  // engineering notation
+  const r = roundSig3(a);
+  const exp = abs10exp(r);
+  const exp3 = Math.floor(exp/3)*3;
+  const mant = r / 10**exp3;
+  const dec = Math.min(2, Math.max(0, 2-abs10exp(mant)));
+  return sgn + mant.toFixed(dec) + 'e' + exp3;
 }
 
 /* ===== JP ===== */
@@ -52,7 +58,7 @@ function fmtJP(n){
   if(a===0) return '0';
   a=roundSig3(a);
   if(a<10000){
-    const dec=Math.max(0,2-abs10exp(a));
+    const dec=Math.min(2, Math.max(0,2-abs10exp(a)));
     return sgn+trimFixed(a,dec);
   }
   const exp=abs10exp(a);
