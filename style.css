@@ -3,8 +3,8 @@
 html,body{ height:100% }
 body{
   margin:0;
-  background:radial-gradient(1200px 800px at 20% 0%,#1b1536 0%,#0f0d1a 60%),#0f0d1a;
-  color:#f0ecff;
+  background:radial-gradient(1200px 800px at 20% 0%,#4d1a52 0%,#2b0d3c 60%),#2b0d3c;
+  color:#ffe9f9;
   font-family:system-ui,-apple-system,'Segoe UI',Roboto,'Noto Sans JP',sans-serif;
   font-size:22px; line-height:1.45;
 }
@@ -19,13 +19,13 @@ body{
 
 /* ====== Panels ====== */
 .panel{
-  background:linear-gradient(180deg,#1a1730,#221e3c);
-  border:1px solid #2c2950; border-radius:16px;
+  background:linear-gradient(180deg,#3a0d3e,#4c1252);
+  border:1px solid #7d2d91; border-radius:16px;
   box-shadow:0 10px 28px rgba(0,0,0,.35); overflow:hidden;
 }
 .hd{
   display:flex; justify-content:space-between; align-items:center;
-  padding:16px 18px; border-bottom:1px solid #2c2950; background:rgba(255,255,255,.03);
+  padding:16px 18px; border-bottom:1px solid #7d2d91; background:rgba(255,255,255,.05);
   font-weight:700;
 }
 .bd{ padding:18px 18px 20px }
@@ -44,7 +44,7 @@ body{
 /* ====== Typography / Pills ====== */
 .stat{ display:flex; gap:10px; align-items:baseline }
 .big{ font-size:48px; font-weight:900; letter-spacing:.3px }
-.muted{ color:#bfb7e8 }
+.muted{ color:#f2b6e0 }
 .pill{
   background:rgba(255,255,255,.07); border:1px solid #2c2950;
   padding:10px 16px; border-radius:999px; font-size:20px;
@@ -52,7 +52,7 @@ body{
 
 /* ====== Buttons ====== */
 .btn{
-  background:#3ea0ff; color:#fff; border:none; border-radius:16px;
+  background:#ff77cc; color:#fff; border:none; border-radius:16px;
   padding:18px 28px; cursor:pointer; font-weight:700; font-size:22px;
   transition:filter .15s ease;
 }
@@ -60,14 +60,14 @@ body{
 .btn.good{ background:#22c55e }
 .btn.warn{ background:#f59e0b }
 .btn.danger{ background:#ef4444 }
-.btn.ghost{ background:transparent; color:#f0ecff; border:1px solid #2c2950 }
+.btn.ghost{ background:transparent; color:#ffe9f9; border:1px solid #7d2d91 }
 
 /* 操作用ボタン色系統（完全分離） */
-.btn.tapbtn{ background:#00b3ad }  /* タップ */
-.btn.buy{ background:#3ea0ff }     /* 購入（青系） */
-.btn.buy.alt{ background:#2b79c7 } /* 最大購入（青・濃） */
-.btn.up{ background:#a275ff }      /* 強化（紫系） */
-.btn.up.alt{ background:#7a57d9 }  /* 最大強化（紫・濃） */
+.btn.tapbtn{ background:#ff9bdd }  /* タップ */
+.btn.buy{ background:#ff77cc }     /* 購入（ピンク系） */
+.btn.buy.alt{ background:#ff5fbf } /* 最大購入（ピンク・濃） */
+.btn.up{ background:#c48dff }      /* 強化（ラベンダー系） */
+.btn.up.alt{ background:#a46ad9 }  /* 最大強化（ラベンダー・濃） */
 
 /* 無効ボタン：灰色・非反応・カーソル通常 */
 .btn:disabled{
@@ -77,8 +77,8 @@ body{
 
 /* ====== Tap block ====== */
 .tap{
-  background:linear-gradient(180deg,#2a49ff,#2b2db5);
-  border:1px solid #2f3fdb; border-radius:16px;
+  background:linear-gradient(180deg,#ff9bdd,#ff77cc);
+  border:1px solid #ff5fbf; border-radius:16px;
   padding:18px; text-align:center; color:#fff; font-weight:800;
 }
 .tap .big{ font-size:36px }
@@ -106,10 +106,10 @@ footer.center{ text-align:center; padding:12px 0; color:#bfb7e8 }
 
 /* === 0.1.1.16 UI color refinements === */
 :root{
-  --buy:#2a78ff; --buy-deep:#1d56b8;
-  --upg:#9b5cff; --upg-deep:#6a39c2;
+  --buy:#ff77cc; --buy-deep:#ff5fbf;
+  --upg:#c48dff; --upg-deep:#a46ad9;
 }
 .btn-buy{background:linear-gradient(180deg,var(--buy) 0%,var(--buy-deep) 100%);color:#fff;}
-.btn-buy-agg{background:linear-gradient(180deg,var(--buy-deep) 0%,#143a74 100%);color:#fff;}
+.btn-buy-agg{background:linear-gradient(180deg,var(--buy-deep) 0%,#a6008c 100%);color:#fff;}
 .btn-upg{background:linear-gradient(180deg,var(--upg) 0%,var(--upg-deep) 100%);color:#fff;}
-.btn-upg-agg{background:linear-gradient(180deg,var(--upg-deep) 0%,#3f1d84 100%);color:#fff;}
+.btn-upg-agg{background:linear-gradient(180deg,var(--upg-deep) 0%,#4b1a99 100%);color:#fff;}
