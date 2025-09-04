@@ -1,15 +1,15 @@
 // 既定パラメータ（必要最小）
-const DEFAULTS = {
-  g1:{ basePps:0.15,   baseCost:  15, costMul:1.15, upBaseCost:  60, upCostMul:1.17 },
-  g2:{ basePps:1.50,   baseCost: 100, costMul:1.17, upBaseCost: 300, upCostMul:1.18 },
-  g3:{ basePps:12.0,   baseCost: 850, costMul:1.18, upBaseCost:1200, upCostMul:1.19 },
-  g4:{ basePps:96.0,   baseCost:6500, costMul:1.20, upBaseCost:4800, upCostMul:1.20 },
-  g5:{ basePps:780.0,  baseCost:4.8e4,costMul:1.21, upBaseCost:2.1e4,upCostMul:1.21 },
-  g6:{ basePps:6300,   baseCost:3.6e5,costMul:1.22, upBaseCost:9.6e4,upCostMul:1.22 },
-  g7:{ basePps:5.1e4,  baseCost:2.7e6,costMul:1.23, upBaseCost:4.5e5,upCostMul:1.23 },
-  g8:{ basePps:4.05e5, baseCost:2.0e7,costMul:1.24, upBaseCost:2.1e6,upCostMul:1.24 },
-  g9:{ basePps:3.15e6, baseCost:1.5e8,costMul:1.25, upBaseCost:9.0e6,upCostMul:1.25 },
-};
+  const DEFAULTS = {
+    g1:{ basePps:0.18,   baseCost:  12, costMul:1.14, upBaseCost:  50, upCostMul:1.16 },
+    g2:{ basePps:1.80,   baseCost:  80, costMul:1.16, upBaseCost: 250, upCostMul:1.17 },
+    g3:{ basePps:14.4,   baseCost: 700, costMul:1.17, upBaseCost:1000, upCostMul:1.18 },
+    g4:{ basePps:115.2,  baseCost:5400, costMul:1.19, upBaseCost:4000, upCostMul:1.19 },
+    g5:{ basePps:936.0,  baseCost:4.0e4,costMul:1.20, upBaseCost:1.7e4,upCostMul:1.20 },
+    g6:{ basePps:7560,   baseCost:3.0e5,costMul:1.21, upBaseCost:8.0e4,upCostMul:1.21 },
+    g7:{ basePps:6.12e4, baseCost:2.2e6,costMul:1.22, upBaseCost:3.7e5,upCostMul:1.22 },
+    g8:{ basePps:4.86e5, baseCost:1.7e7,costMul:1.23, upBaseCost:1.7e6,upCostMul:1.23 },
+    g9:{ basePps:3.78e6, baseCost:1.2e8,costMul:1.24, upBaseCost:7.5e6,upCostMul:1.24 },
+  };
 
 function ensureParams(gen){
   const d = DEFAULTS[gen.id] || DEFAULTS.g1;
