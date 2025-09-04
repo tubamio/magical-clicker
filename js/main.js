@@ -1,4 +1,4 @@
-export const VERSION = 'Ver.0.1.2.1';
+export const VERSION = 'Ver.0.1.3.0';
 import { GENERATORS } from './data.js';
 import { save, load, reset } from './save.js';
 import { renderAll, renderKPI, lightRefresh, bindFormatToggle } from './ui.js';
@@ -66,8 +66,8 @@ document.getElementById('resetBtn').addEventListener('click', ()=>{
 
 document.getElementById('prestigeBtn').addEventListener('click', ()=>{
   const gain = prestigeGain(state.power);
-  if (gain <= 0) return alert('転生にはもっとキラキラが必要です');
-  if (!confirm(`転生して ${gain} きらめきを得ますか？`)) return;
+  if (gain <= 0) return alert('覚醒にはもっとエンジェルハートが必要です');
+  if (!confirm(`覚醒して ${gain} ハートスターを得ますか？`)) return;
   state.prestige += gain;
   state.power = 0;
   state.clickLv = 0;
@@ -101,4 +101,4 @@ function __loop(ts){
 requestAnimationFrame(__loop);
 
 
-try{ const v=document.getElementById('verText'); if(v) v.textContent='0.1.2.1'; }catch(e){}
+try{ const v=document.getElementById('verText'); if(v) v.textContent='0.1.3.0'; }catch(e){}
