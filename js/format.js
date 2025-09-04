@@ -4,6 +4,11 @@ let __mode = 'jp';
 export function setFormatMode(mode){ if(mode==='jp'||mode==='eng') __mode=mode; }
 export function getFormatMode(){ return __mode; }
 export function fmt(x){
+  if (typeof Decimal !== 'undefined' && x instanceof Decimal){
+    if (!x.isFinite()) return x.toString();
+    if (x.exponent >= 308) return x.toString();
+    x = x.toNumber();
+  }
   if (Number.isNaN(x)) return 'NaN';
   if (!Number.isFinite(x)) return String(x);
   if (Object.is(x,-0)) x = 0;
