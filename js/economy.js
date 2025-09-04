@@ -1,14 +1,14 @@
 // 既定パラメータ（必要最小）
 const DEFAULTS = {
-  g1:{ basePps:0.10,  baseCost:  15, costMul:1.15, upBaseCost:  60, upCostMul:1.17 },
-  g2:{ basePps:1.00,  baseCost: 100, costMul:1.17, upBaseCost: 300, upCostMul:1.18 },
-  g3:{ basePps:8.00,  baseCost: 850, costMul:1.18, upBaseCost:1200, upCostMul:1.19 },
-  g4:{ basePps:64.0,  baseCost:6500, costMul:1.20, upBaseCost:4800, upCostMul:1.20 },
-  g5:{ basePps:520.0, baseCost:4.8e4,costMul:1.21, upBaseCost:2.1e4,upCostMul:1.21 },
-  g6:{ basePps:4200,  baseCost:3.6e5,costMul:1.22, upBaseCost:9.6e4,upCostMul:1.22 },
-  g7:{ basePps:3.4e4, baseCost:2.7e6,costMul:1.23, upBaseCost:4.5e5,upCostMul:1.23 },
-  g8:{ basePps:2.7e5, baseCost:2.0e7,costMul:1.24, upBaseCost:2.1e6,upCostMul:1.24 },
-  g9:{ basePps:2.1e6, baseCost:1.5e8,costMul:1.25, upBaseCost:9.0e6,upCostMul:1.25 },
+  g1:{ basePps:0.18,   baseCost:  12, costMul:1.14, upBaseCost:  48, upCostMul:1.16 },
+  g2:{ basePps:1.80,   baseCost:  80, costMul:1.16, upBaseCost: 240, upCostMul:1.17 },
+  g3:{ basePps:14.4,   baseCost: 680, costMul:1.17, upBaseCost: 960, upCostMul:1.18 },
+  g4:{ basePps:115.2,  baseCost:5200, costMul:1.19, upBaseCost:3840, upCostMul:1.19 },
+  g5:{ basePps:936.0,  baseCost:3.84e4,costMul:1.20, upBaseCost:1.68e4,upCostMul:1.20 },
+  g6:{ basePps:7560,   baseCost:2.88e5,costMul:1.21, upBaseCost:7.68e4,upCostMul:1.21 },
+  g7:{ basePps:6.12e4, baseCost:2.16e6,costMul:1.22, upBaseCost:3.6e5, upCostMul:1.22 },
+  g8:{ basePps:4.86e5, baseCost:1.6e7,costMul:1.23, upBaseCost:1.68e6,upCostMul:1.23 },
+  g9:{ basePps:3.78e6, baseCost:1.2e8,costMul:1.24, upBaseCost:7.2e6,upCostMul:1.24 },
 };
 
 function ensureParams(gen){
@@ -101,6 +101,7 @@ export function totalCostUpgrades(gen, n){
 }
 export function maxAffordableUpgrades(gen, budget){
   ensureParams(gen);
+  if ((gen.count|0) <= 0) return 0;
   const r  = gen.upCostMul;
   const c0 = gen.upBaseCost * Math.pow(r, gen.level|0);
   if (budget < c0) return 0;
@@ -118,6 +119,7 @@ export function upgrade(state, id, mode='1'){
   const g = state.gens.find(x=>x.id===id);
   if (!g) return false;
   ensureParams(g);
+   if ((g.count|0) <= 0) return false;
   let n = (mode==='max') ? maxAffordableUpgrades(g, state.power) : 1;
   if (n <= 0) return false;
   const cost = totalCostUpgrades(g, n);
