@@ -1,0 +1,8 @@
+{
+  "name": "magical-clicker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node -e \"Promise.all([import('./js/data.js'),import('./js/economy.js'),import('./js/click.js'),import('./js/ui.js')]).then(()=>console.log('ok'))\""
+  }
+}

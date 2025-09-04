@@ -74,19 +74,27 @@ export function renderKPI(state){
 
 /* ===== ジェネ ===== */
 function simulateTotalAfterUpgrade(state, g, n){
-  const curr = totalPps(state) * globalMultiplier(state.clickLv);
-  const beforeEach = powerFor(g);
-  const afterEach  = powerFor({...g, level:(g.level|0)+n});
-  const deltaEach  = afterEach - beforeEach;
-
-  const beforeTotal = curr;
-  const afterTotal  = (totalPps({
+  const baseLevel = g.level|0;
+  const normalized = {
     ...state,
-    gens: state.gens.map(x=> x.id===g.id ? {...g, level:(g.level|0)+n } : x)
-  }) * globalMultiplier(state.clickLv));
-  const deltaTotal  = afterTotal - beforeTotal;
-
-  return { beforeEach, afterEach, deltaEach, beforeTotal, afterTotal, deltaTotal };
+    gens: state.gens.map(x=> ({ ...x, level:(x.level|0) }))
+  };
+  const beforeTotal = totalPps(normalized) * globalMultiplier(state.clickLv);
+  const beforeEach  = powerFor({ ...g, level: baseLevel });
+  const afterEach   = powerFor({ ...g, level: baseLevel + n });
+  const afterState  = {
+    ...normalized,
+    gens: normalized.gens.map(x=> x.id===g.id ? { ...x, level: baseLevel + n } : x)
+  };
+  const afterTotal  = totalPps(afterState) * globalMultiplier(state.clickLv);
+  return {
+    beforeEach,
+    afterEach,
+    deltaEach: afterEach - beforeEach,
+    beforeTotal,
+    afterTotal,
+    deltaTotal: afterTotal - beforeTotal,
+  };
 }
 
 function genRow(state, g, onUpdate){
