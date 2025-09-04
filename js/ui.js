@@ -1,21 +1,14 @@
 function setBtnState(btn, enabled){ if(!btn) return; btn.disabled=!enabled; btn.classList.toggle('is-disabled', !enabled); }
 import { fmt, getFormatMode, setFormatMode } from './format.js';
-import { clickGainByLevel, clickNextCost, globalMultiplier, clickTotalCost } from './click.js';
+import { clickGainByLevel, clickNextCost, globalMultiplier, clickTotalCost, maxAffordableClicks } from './click.js';
 import {
   nextUnitCost, totalCostUnits, maxAffordableUnits, buyUnits,
   nextUpgradeCost, totalCostUpgrades, maxAffordableUpgrades, upgrade,
   powerFor, totalPps
 } from './economy.js';
+import { prestigeGain } from './prestige.js';
 
 /* ===== クリック強化（最大回数） ===== */
-function maxAffordableClick(state){
-  let lv = state.clickLv, money = state.power, n = 0;
-  while (money >= clickNextCost(lv) && n < 1e6) {
-    money -= clickNextCost(lv); lv++; n++;
-  }
-  return n;
-}
-
 export function renderClick(state){
     const gain = clickGainByLevel(state.clickLv);
     setText('tapGain', '+' + fmt(gain));
@@ -46,7 +39,7 @@ export function renderClick(state){
     setText('m1b', fmt(s1.afterMult));
     setText('m1d', fmt(s1.deltaMult));
 
-    const nMax = maxAffordableClick(state);
+    const nMax = maxAffordableClicks(state.clickLv, state.power);
     const sM = sim(nMax);
     setText('cMa', fmt(sM.beforeClick));
     setText('cMb', fmt(sM.afterClick));
@@ -70,6 +63,8 @@ export function renderKPI(state){
   setText('power', fmt(state.power));
   const pps = totalPps(state) * globalMultiplier(state.clickLv);
   setText('pps', fmt(pps));
+  setText('prestigeCurr', fmt(state.prestige||0));
+  setText('prestigeGain', fmt(prestigeGain(state.power)));
 }
 
 /* ===== ジェネ ===== */
@@ -256,6 +251,26 @@ export function lightRefresh(state){
       const cross10 = ((g.level|0)%10) + kMax >= 10;
       btnUpM.classList.toggle('milestone', cross10);
     }
+
+    const e1a=row.querySelector('.e1a'), e1b=row.querySelector('.e1b'), e1d=row.querySelector('.e1d');
+    const t1a=row.querySelector('.t1a'), t1b=row.querySelector('.t1b'), t1d=row.querySelector('.t1d');
+    const eMa=row.querySelector('.eMa'), eMb=row.querySelector('.eMb'), eMd=row.querySelector('.eMd');
+    const tMa=row.querySelector('.tMa'), tMb=row.querySelector('.tMb'), tMd=row.querySelector('.tMd');
+    const s1 = simulateTotalAfterUpgrade(state,g,1);
+    if(e1a) e1a.textContent=fmt(s1.beforeEach);
+    if(e1b) e1b.textContent=fmt(s1.afterEach);
+    if(e1d) e1d.textContent=fmt(s1.deltaEach);
+    if(t1a) t1a.textContent=fmt(s1.beforeTotal);
+    if(t1b) t1b.textContent=fmt(s1.afterTotal);
+    if(t1d) t1d.textContent=fmt(s1.deltaTotal);
+
+    const sM = simulateTotalAfterUpgrade(state,g,kMax);
+    if(eMa) eMa.textContent=fmt(sM.beforeEach);
+    if(eMb) eMb.textContent=fmt(sM.afterEach);
+    if(eMd) eMd.textContent=fmt(kMax>0 ? sM.deltaEach : 0);
+    if(tMa) tMa.textContent=fmt(sM.beforeTotal);
+    if(tMb) tMb.textContent=fmt(sM.afterTotal);
+    if(tMd) tMd.textContent=fmt(kMax>0 ? sM.deltaTotal : 0);
 
     const lvNowEl=row.querySelector('.lvNow');
     const lvNextEl=row.querySelector('.lvNext');

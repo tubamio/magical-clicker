@@ -1,13 +1,15 @@
-export const VERSION = 'Ver.0.1.2.0';
+export const VERSION = 'Ver.0.1.2.1';
 import { GENERATORS } from './data.js';
 import { save, load, reset } from './save.js';
 import { renderAll, renderKPI, lightRefresh, bindFormatToggle } from './ui.js';
-import { clickGainByLevel, clickNextCost, globalMultiplier } from './click.js';
+import { clickGainByLevel, clickNextCost, globalMultiplier, clickTotalCost, maxAffordableClicks } from './click.js';
+import { prestigeGain } from './prestige.js';
 
 const state = {
   power: 0,
   clickLv: 0,
   gens: JSON.parse(JSON.stringify(GENERATORS)),
+  prestige: 0,
 };
 
 // Restore
@@ -15,6 +17,7 @@ const saved = load();
 if (saved){
   state.power = saved.power ?? 0;
   state.clickLv = saved.clickLv ?? 0;
+  state.prestige = saved.prestige ?? 0;
   if (Array.isArray(saved.gens)){
     state.gens = saved.gens;
   }
@@ -38,16 +41,37 @@ document.getElementById('upgradeClick').addEventListener('click', ()=>{
   }
 });
 
+document.getElementById('upgradeClickMax').addEventListener('click', ()=>{
+  const n = maxAffordableClicks(state.clickLv, state.power);
+  const cost = clickTotalCost(state.clickLv, n);
+  if (n>0 && state.power >= cost){
+    state.power -= cost;
+    state.clickLv += n;
+    update();
+  }
+});
+
 document.getElementById('saveBtn').addEventListener('click', ()=>{ save(state); alert('保存しました'); });
 document.getElementById('loadBtn').addEventListener('click', ()=>{
   const s = load(); if (!s) return alert('保存がありません');
-  state.power = s.power ?? 0; state.clickLv = s.clickLv ?? 0; state.gens = Array.isArray(s.gens)? s.gens: state.gens;
+  state.power = s.power ?? 0; state.clickLv = s.clickLv ?? 0; state.prestige = s.prestige ?? 0; state.gens = Array.isArray(s.gens)? s.gens: state.gens;
   update(); alert('読込しました');
 });
 document.getElementById('resetBtn').addEventListener('click', ()=>{
   if (!confirm('ハードリセットしますか？')) return;
   reset();
-  state.power=0; state.clickLv=0; state.gens = JSON.parse(JSON.stringify(GENERATORS));
+  state.power=0; state.clickLv=0; state.prestige=0; state.gens = JSON.parse(JSON.stringify(GENERATORS));
+  update();
+});
+
+document.getElementById('prestigeBtn').addEventListener('click', ()=>{
+  const gain = prestigeGain(state.power);
+  if (gain <= 0) return alert('転生にはもっとキラキラが必要です');
+  if (!confirm(`転生して ${gain} きらめきを得ますか？`)) return;
+  state.prestige += gain;
+  state.power = 0;
+  state.clickLv = 0;
+  state.gens = JSON.parse(JSON.stringify(GENERATORS));
   update();
 });
 
@@ -77,4 +101,4 @@ function __loop(ts){
 requestAnimationFrame(__loop);
 
 
-try{ const v=document.getElementById('verText'); if(v) v.textContent='0.1.2.0'; }catch(e){}
+try{ const v=document.getElementById('verText'); if(v) v.textContent='0.1.2.1'; }catch(e){}

@@ -3,8 +3,8 @@
 html,body{ height:100% }
 body{
   margin:0;
-  background:radial-gradient(1200px 800px at 20% 0%,#4d1a52 0%,#2b0d3c 60%),#2b0d3c;
-  color:#ffe9f9;
+  background:radial-gradient(1200px 800px at 20% 0%,#40204d 0%,#1f0a2c 60%),#1f0a2c;
+  color:#ffeefa;
   font-family:system-ui,-apple-system,'Segoe UI',Roboto,'Noto Sans JP',sans-serif;
   font-size:22px; line-height:1.45;
 }
@@ -19,13 +19,13 @@ body{
 
 /* ====== Panels ====== */
 .panel{
-  background:linear-gradient(180deg,#3a0d3e,#4c1252);
-  border:1px solid #7d2d91; border-radius:16px;
+  background:linear-gradient(180deg,#542058,#6d2773);
+  border:1px solid #9a3ab8; border-radius:16px;
   box-shadow:0 10px 28px rgba(0,0,0,.35); overflow:hidden;
 }
 .hd{
   display:flex; justify-content:space-between; align-items:center;
-  padding:16px 18px; border-bottom:1px solid #7d2d91; background:rgba(255,255,255,.05);
+  padding:16px 18px; border-bottom:1px solid #9a3ab8; background:rgba(255,255,255,.07);
   font-weight:700;
 }
 .bd{ padding:18px 18px 20px }
@@ -52,7 +52,7 @@ body{
 
 /* ====== Buttons ====== */
 .btn{
-  background:#ff77cc; color:#fff; border:none; border-radius:16px;
+  background:#ff6dc3; color:#fff; border:none; border-radius:16px;
   padding:18px 28px; cursor:pointer; font-weight:700; font-size:22px;
   transition:filter .15s ease;
 }
@@ -63,11 +63,11 @@ body{
 .btn.ghost{ background:transparent; color:#ffe9f9; border:1px solid #7d2d91 }
 
 /* 操作用ボタン色系統（完全分離） */
-.btn.tapbtn{ background:#ff9bdd }  /* タップ */
-.btn.buy{ background:#ff77cc }     /* 購入（ピンク系） */
-.btn.buy.alt{ background:#ff5fbf } /* 最大購入（ピンク・濃） */
-.btn.up{ background:#c48dff }      /* 強化（ラベンダー系） */
-.btn.up.alt{ background:#a46ad9 }  /* 最大強化（ラベンダー・濃） */
+.btn.tapbtn{ background:#ffb3e6 }  /* タップ */
+.btn.buy{ background:#ff6dc3 }     /* 購入（ピンク系） */
+.btn.buy.alt{ background:#e054ad } /* 最大購入（ピンク・濃） */
+.btn.up{ background:#b67aff }      /* 強化（ラベンダー系） */
+.btn.up.alt{ background:#8c5ebf }  /* 最大強化（ラベンダー・濃） */
 
 /* 無効ボタン：灰色・非反応・カーソル通常 */
 .btn:disabled{
@@ -77,8 +77,8 @@ body{
 
 /* ====== Tap block ====== */
 .tap{
-  background:linear-gradient(180deg,#ff9bdd,#ff77cc);
-  border:1px solid #ff5fbf; border-radius:16px;
+  background:linear-gradient(180deg,#ffb3e6,#ff85d1);
+  border:1px solid #ff6dc3; border-radius:16px;
   padding:18px; text-align:center; color:#fff; font-weight:800;
 }
 .tap .big{ font-size:36px }
@@ -104,12 +104,23 @@ footer.center{ text-align:center; padding:12px 0; color:#bfb7e8 }
 }
 
 
-/* === 0.1.1.16 UI color refinements === */
+/* === 0.1.2.1 UI color refinements === */
 :root{
-  --buy:#ff77cc; --buy-deep:#ff5fbf;
-  --upg:#c48dff; --upg-deep:#a46ad9;
+  --buy:#ff6dc3; --buy-deep:#e054ad;
+  --upg:#b67aff; --upg-deep:#8c5ebf;
+  --frill:#ffbde4;
 }
 .btn-buy{background:linear-gradient(180deg,var(--buy) 0%,var(--buy-deep) 100%);color:#fff;}
 .btn-buy-agg{background:linear-gradient(180deg,var(--buy-deep) 0%,#a6008c 100%);color:#fff;}
 .btn-upg{background:linear-gradient(180deg,var(--upg) 0%,var(--upg-deep) 100%);color:#fff;}
 .btn-upg-agg{background:linear-gradient(180deg,var(--upg-deep) 0%,#4b1a99 100%);color:#fff;}
+
+.hd.frill{position:relative;}
+.hd.frill::after{
+  content:'';
+  position:absolute;
+  left:0; right:0; bottom:-6px;
+  height:6px;
+  background:radial-gradient(circle at 8px 0,var(--frill) 8px,transparent 8px) repeat-x;
+  background-size:16px 8px;
+}

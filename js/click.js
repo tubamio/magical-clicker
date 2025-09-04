@@ -23,3 +23,12 @@ export function clickTotalCost(lv, n){
   const r = 5;
   return c0 * (Math.pow(r, n) - 1) / (r - 1);
 }
+
+export function maxAffordableClicks(lv, budget){
+  let n = 0, cost = 0;
+  while (budget >= (cost = clickNextCost(lv + n)) && n < 1e6){
+    budget -= cost;
+    n++;
+  }
+  return n;
+}
