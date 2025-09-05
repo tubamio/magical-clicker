@@ -1,5 +1,6 @@
 function setBtnState(btn, enabled){ if(!btn) return; btn.disabled=!enabled; btn.classList.toggle('is-disabled', !enabled); }
 import { fmt, getFormatMode, setFormatMode } from './format.js';
+import { JOBS, getJobBonuses } from './jobs.js';
 import { clickGainByLevel, clickNextCost, globalMultiplier, clickTotalCost, maxAffordableClicks } from './click.js';
 import {
   nextUnitCost, totalCostUnits, maxAffordableUnits, buyUnits,
@@ -11,15 +12,16 @@ import { FEATURES } from './features.js';
 
 /* ===== メイドスマイル強化（最大回数） ===== */
 export function renderClick(state){
-    const gain = clickGainByLevel(state.clickLv).times(rebirthMultiplier(state.rebirth));
+    const jb = getJobBonuses(state.job);
+    const gain = clickGainByLevel(state.clickLv).times(rebirthMultiplier(state.rebirth)).times(jb.tap);
     setText('tapGain', '+' + fmt(gain));
 
     setText('clickLvNow', String(state.clickLv));
     setText('clickLvNext', String(state.clickLv + 1));
 
     function sim(n){
-      const beforeClick = clickGainByLevel(state.clickLv).times(rebirthMultiplier(state.rebirth));
-      const afterClick  = clickGainByLevel(state.clickLv + n).times(rebirthMultiplier(state.rebirth));
+      const beforeClick = clickGainByLevel(state.clickLv).times(rebirthMultiplier(state.rebirth)).times(jb.tap);
+      const afterClick  = clickGainByLevel(state.clickLv + n).times(rebirthMultiplier(state.rebirth)).times(jb.tap);
       const beforeMult  = globalMultiplier(state.clickLv);
       const afterMult   = globalMultiplier(state.clickLv + n);
       return {
@@ -61,11 +63,12 @@ export function renderClick(state){
 
 function setText(id, value){ const n=document.getElementById(id); if(n) n.textContent = value; }
 export function renderKPI(state){
+  const jb = getJobBonuses(state.job);
   setText('power', fmt(state.power));
-  const pps = totalPps(state).times(globalMultiplier(state.clickLv)).times(rebirthMultiplier(state.rebirth));
+  const pps = totalPps(state).times(globalMultiplier(state.clickLv)).times(rebirthMultiplier(state.rebirth)).times(jb.gen);
   setText('pps', fmt(pps));
   setText('prestigeCurr', fmt(state.prestige||0));
-  setText('prestigeGain', fmt(prestigeGain(state.power)));
+  setText('prestigeGain', fmt(prestigeGain(state.power) * jb.prestige));
 }
 
 export function renderRebirths(state, onRebirth){
@@ -155,9 +158,30 @@ export function renderFeatures(state, handlers){
   });
 }
 
+export function renderJobs(state, onChange){
+  const panel=document.getElementById('jobPanel');
+  if(!panel) return;
+  panel.innerHTML='';
+  JOBS.forEach(j=>{
+    const item=document.createElement('div');
+    item.className='job-item';
+    const btn=document.createElement('button');
+    btn.className = state.job===j.id ? 'btn good' : 'btn';
+    btn.textContent = state.job===j.id ? `${j.name}✓` : j.name;
+    btn.addEventListener('click', ()=>{ if(onChange) onChange(j.id); });
+    item.appendChild(btn);
+    const d=document.createElement('div');
+    d.className='desc';
+    d.textContent = j.desc;
+    item.appendChild(d);
+    panel.appendChild(item);
+  });
+}
+
 /* ===== ジェネ ===== */
 function simulateTotalAfterUpgrade(state, g, n){
-  const mult = rebirthMultiplier(state.rebirth);
+  const jb = getJobBonuses(state.job);
+  const mult = rebirthMultiplier(state.rebirth) * jb.gen;
   const curr = totalPps(state).times(globalMultiplier(state.clickLv)).times(mult);
   const beforeEach = powerFor(g).times(mult);
   const afterEach  = powerFor({...g, level:(g.level|0)+n}).times(mult);
@@ -222,7 +246,7 @@ function genRow(state, g, onUpdate){
 
   function refresh(){
     ownEl.textContent = fmt(g.count);
-    eachEl.textContent = fmt(powerFor(g));
+    eachEl.textContent = fmt(powerFor(g).times(getJobBonuses(state.job).gen));
 
     const nMax = maxAffordableUnits(g, state.power);
     const sumU = totalCostUnits(g, nMax);
@@ -281,7 +305,7 @@ export function renderGens(state){
 }
 
 export function renderAll(state, onRebirth, handlers){
-  renderKPI(state); renderClick(state); renderGens(state); renderRebirths(state, onRebirth); renderFeatures(state, handlers);
+  renderKPI(state); renderClick(state); renderGens(state); renderRebirths(state, onRebirth); renderFeatures(state, handlers); renderJobs(state, handlers && handlers.changeJob);
 }
 
 export function bindFormatToggle(state, handlers){
