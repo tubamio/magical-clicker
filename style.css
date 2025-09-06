@@ -9,10 +9,14 @@ body{
   font-size:22px; line-height:1.45;
 }
 .container{
-  max-width:1400px; margin:24px auto; padding:0 20px;
+  max-width:2380px; margin:24px auto; padding:0 20px;
   display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px;
+  grid-template-areas:
+    "title title title"
+    "left left right"
+    "genpanel genpanel right";
 }
-.title{ grid-column:1 / span 3; display:flex; align-items:center; gap:14px }
+.title{ grid-area:title; display:flex; align-items:center; gap:14px }
 .title h1{ margin:0; font-size:32px; font-weight:800 }
 .badge{ font-size:16px; color:#bdb7e7; background:rgba(255,255,255,.06); padding:4px 10px; border-radius:999px; border:1px solid #2c2950 }
 .spacer{ flex:1 }
@@ -32,9 +36,9 @@ body{
 
 /* ====== Grids / Flex ====== */
 .col{ display:flex; flex-direction:column; gap:16px }
-.left{ grid-column:1 / span 2; }
-.genpanel{ grid-column:1 / span 3; }
-.right{ grid-column:3; display:flex; flex-direction:column; gap:12px; min-width:320px }
+.left{ grid-area:left; }
+.genpanel{ grid-area:genpanel; }
+.right{ grid-area:right; display:flex; flex-direction:column; gap:12px; min-width:320px }
 .row{ display:flex; gap:20px; align-items:center; flex-wrap:wrap }
 .wrap{ flex-wrap:wrap } .center{ justify-content:center }
 .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:16px }
@@ -114,12 +118,17 @@ footer.center{ text-align:center; padding:12px 0; color:#bfb7e8 }
 
 /* ====== Responsive ====== */
 @media (max-width: 1100px){
-  .container{ grid-template-columns:1fr; }
+  .container{
+    grid-template-columns:1fr;
+    grid-template-areas:
+      "title"
+      "left"
+      "right"
+      "genpanel";
+  }
   .gen{ grid-template-columns:1fr; }
-  .genpanel{ grid-column:1; }
   .genlist{ grid-template-columns:1fr; grid-auto-flow:row }
-  .left{ grid-column:1; grid-row:auto; }
-  .right{ grid-column:1; grid-row:auto; min-width:0 }
+  .right{ min-width:0 }
 }
 
 
