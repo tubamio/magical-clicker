@@ -93,7 +93,7 @@ export function renderRebirths(state, onRebirth){
     div.appendChild(btn);
     const cond=document.createElement('div');
     cond.className='cond muted';
-    cond.textContent = `条件：ハートスター ${fmt(r.req)}`;
+    cond.textContent = `条件：スタークリスタル ${fmt(r.req)}`;
     div.appendChild(cond);
     const eff=document.createElement('div');
     eff.className='eff';
@@ -186,10 +186,16 @@ export function renderJobs(state, onChange){
     const item=document.createElement('div');
     item.className='job-item';
     const btn=document.createElement('button');
+    const enough = state.prestige >= (j.req||0);
     btn.className = state.job===j.id ? 'btn good' : 'btn';
+    btn.disabled = !enough;
     btn.textContent = state.job===j.id ? `${j.name}✓` : j.name;
-    btn.addEventListener('click', ()=>{ if(onChange) onChange(j.id); });
+    btn.addEventListener('click', ()=>{ if(onChange && enough) onChange(j.id); });
     item.appendChild(btn);
+    const cond=document.createElement('div');
+    cond.className='desc';
+    cond.textContent = j.req ? `条件：スタークリスタル ${fmt(j.req)}` : '条件：なし';
+    item.appendChild(cond);
     const d=document.createElement('div');
     d.className='desc';
     d.textContent = j.desc;

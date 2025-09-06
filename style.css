@@ -90,9 +90,9 @@ body{
 .tap .big{ font-size:36px }
 
 /* ====== Generator list ====== */
-.genlist{ display:grid; grid-template-columns:1fr; gap:20px; grid-auto-flow:row }
+.genlist{ display:grid; grid-template-columns:repeat(2,1fr); gap:20px; grid-auto-flow:row }
 .gen{
-  display:grid; grid-template-columns:1fr auto; gap:16px;
+  display:flex; flex-direction:column; gap:16px;
   padding:14px; border:1px solid #2c2950; border-radius:14px; background:rgba(255,255,255,.03);
 }
 .gen:nth-child(odd){ background:rgba(255,255,255,.03) }
@@ -128,13 +128,12 @@ footer.center{ text-align:center; padding:12px 0; color:#bfb7e8 }
       "right"
       "genpanel";
   }
-  .gen{ grid-template-columns:1fr; }
   .genlist{ grid-template-columns:1fr; grid-auto-flow:row }
   .right{ min-width:0 }
 }
 
 
-/* === 0.1.6.2 UI color refinements === */
+/* === 0.1.7.0 UI color refinements === */
 :root{
   --buy:#ff6dc3; --buy-deep:#e054ad;
   --upg:#b67aff; --upg-deep:#8c5ebf;

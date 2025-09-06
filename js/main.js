@@ -1,6 +1,6 @@
-export const VERSION = 'Ver.0.1.6.2';
+export const VERSION = 'Ver.0.1.7.0';
 import { GENERATORS } from './data.js';
-import { getJobBonuses } from './jobs.js';
+import { getJobBonuses, JOB_MAP } from './jobs.js';
 import { save, load, reset } from './save.js';
 import { renderAll, renderKPI, lightRefresh, bindFormatToggle } from './ui.js';
 import { clickGainByLevel, clickNextCost, globalMultiplier, clickTotalCost, maxAffordableClicks } from './click.js';
@@ -87,6 +87,8 @@ const featureHandlers = {
     update();
   },
   changeJob(id){
+    const j = JOB_MAP[id];
+    if(!j || state.prestige < (j.req||0)) return;
     state.job = id;
     state.jobPoints[id] = (state.jobPoints[id]||0) + 1;
     update();
@@ -148,7 +150,7 @@ document.getElementById('resetBtn').addEventListener('click', ()=>{
 document.getElementById('prestigeBtn').addEventListener('click', ()=>{
   const gain = Math.floor(prestigeGain(state.power) * getJobBonuses(state.job).prestige);
   if (gain <= 0) return alert('覚醒にはもっとエンジェルハートが必要です');
-  if (!confirm(`覚醒して ${gain} ハートスターを得ますか？`)) return;
+  if (!confirm(`覚醒して ${gain} スタークリスタルを得ますか？`)) return;
   state.prestige += gain;
   state.power = new Decimal(0);
   state.clickLv = 0;
@@ -201,7 +203,7 @@ function __loop(ts){
 requestAnimationFrame(__loop);
 
 
-try{ const v=document.getElementById('verText'); if(v) v.textContent='0.1.6.2'; }catch(e){}
+try{ const v=document.getElementById('verText'); if(v) v.textContent='0.1.7.0'; }catch(e){}
 
 function flashRebirth(){
   try{
@@ -213,7 +215,7 @@ function flashRebirth(){
 function performRebirth(){
   const next = REBIRTHS[state.rebirth];
   if(!next) return alert('これ以上の転生はありません');
-  if(state.prestige < next.req) return alert('転生にはもっとハートスターが必要です');
+  if(state.prestige < next.req) return alert('転生にはもっとスタークリスタルが必要です');
   if(!confirm(`L${next.level} ${next.name} に転生しますか？`)) return;
   state.rebirth += 1;
   state.prestige = 0;
