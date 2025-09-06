@@ -282,8 +282,9 @@ function genRow(state, g, onUpdate){
   const tMa=row.querySelector('.tMa'), tMb=row.querySelector('.tMb'), tMd=row.querySelector('.tMd');
 
   function refresh(){
+    const jb = getJobBonuses(state.job);
     ownEl.textContent = fmt(g.count);
-    eachEl.textContent = fmt(powerFor(g).times(getJobBonuses(state.job).gen));
+    eachEl.textContent = fmt(powerFor(g).times(jb.gen));
 
     const nMax = maxAffordableUnits(g, state.power);
     const sumU = totalCostUnits(g, nMax);
@@ -297,9 +298,9 @@ function genRow(state, g, onUpdate){
       btnBuyM.textContent = `まとめ購入 ×${fmt(nMax)}（${fmt(sumU)}）`;
     }
 
-    const up1 = nextUpgradeCost(g);
-    const kMax = (g.count>0) ? maxAffordableUpgrades(g, state.power) : 0;
-    const sumK = totalCostUpgrades(g, kMax);
+    const up1 = nextUpgradeCost(g, jb);
+    const kMax = (g.count>0) ? maxAffordableUpgrades(g, state.power, jb) : 0;
+    const sumK = totalCostUpgrades(g, kMax, jb);
     if (btnUp1){
       btnUp1.disabled = state.power.lt(up1) || (g.count|0) <= 0;
       btnUp1.textContent = `強化＋1（${fmt(up1)}）`;
@@ -375,6 +376,7 @@ export function lightRefresh(state, onRebirth, handlers){
     const btnUp1 =row.querySelector('.up1');
     const btnUpM =row.querySelector('.upMax');
 
+    const jb = getJobBonuses(state.job);
     const nMax = maxAffordableUnits(g,state.power);
     const sumU = totalCostUnits(g,nMax);
     if(btnBuy1){
@@ -387,9 +389,9 @@ export function lightRefresh(state, onRebirth, handlers){
       btnBuyM.textContent = `まとめ購入 ×${fmt(nMax)}（${fmt(sumU)}）`;
     }
 
-    const up1 = nextUpgradeCost(g);
-    const kMax = (g.count>0) ? maxAffordableUpgrades(g,state.power) : 0;
-    const sumK = totalCostUpgrades(g,kMax);
+    const up1 = nextUpgradeCost(g, jb);
+    const kMax = (g.count>0) ? maxAffordableUpgrades(g,state.power, jb) : 0;
+    const sumK = totalCostUpgrades(g,kMax, jb);
     if(btnUp1){
       btnUp1.disabled = state.power.lt(up1) || (g.count|0) <= 0;
       btnUp1.textContent = `強化＋1（${fmt(up1)}）`;

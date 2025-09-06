@@ -126,7 +126,7 @@ footer.center{ text-align:center; padding:12px 0; color:#bfb7e8 }
 }
 
 
-/* === 0.1.7.0 UI color refinements === */
+/* === 0.1.8.0 UI color refinements === */
 :root{
   --buy:#ff6dc3; --buy-deep:#e054ad;
   --upg:#b67aff; --upg-deep:#8c5ebf;

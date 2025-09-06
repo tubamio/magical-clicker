@@ -1,3 +1,4 @@
+import { getJobBonuses } from './jobs.js';
 const D = (x)=> new Decimal(x);
 
 export const DEFAULTS = {
@@ -84,32 +85,36 @@ export function buyUnits(state, id, mode='1'){
   return true;
 }
 
-export function nextUpgradeCost(gen){
+export function nextUpgradeCost(gen, jb={}){
   ensureParams(gen);
-  return gen.upBaseCost.times(Decimal.pow(gen.upCostMul, gen.level|0));
+  let cost = gen.upBaseCost.times(Decimal.pow(gen.upCostMul, gen.level|0));
+  if(jb.upgCost) cost = cost.times(jb.upgCost);
+  return cost;
 }
 
-export function totalCostUpgrades(gen, n){
+export function totalCostUpgrades(gen, n, jb={}){
   ensureParams(gen);
   let total = new Decimal(0);
-  let cost = nextUpgradeCost(gen);
+  let cost = nextUpgradeCost(gen, jb);
   for(let i=0;i<n;i++){
     total = total.plus(cost);
     cost = cost.times(gen.upCostMul);
+    if(jb.upgCost) cost = cost.times(jb.upgCost);
   }
   return total;
 }
 
-export function maxAffordableUpgrades(gen, budget){
+export function maxAffordableUpgrades(gen, budget, jb={}){
   ensureParams(gen);
   if ((gen.count|0) <= 0) return 0;
   let n=0;
-  let cost = nextUpgradeCost(gen);
+  let cost = nextUpgradeCost(gen, jb);
   let total = new Decimal(0);
   while (budget.gte(total.plus(cost))){
     total = total.plus(cost);
     n++;
     cost = cost.times(gen.upCostMul);
+    if(jb.upgCost) cost = cost.times(jb.upgCost);
     if (n>1e6) break;
   }
   return n;
@@ -120,9 +125,10 @@ export function upgrade(state, id, mode='1'){
   if (!g) return false;
   ensureParams(g);
   if ((g.count|0) <= 0) return false;
-  let n = (mode==='max') ? maxAffordableUpgrades(g, state.power) : 1;
+  const jb = getJobBonuses ? getJobBonuses(state.job) : {};
+  let n = (mode==='max') ? maxAffordableUpgrades(g, state.power, jb) : 1;
   if (n <= 0) return false;
-  const cost = totalCostUpgrades(g, n);
+  const cost = totalCostUpgrades(g, n, jb);
   if (state.power.lt(cost)) return false;
   state.power = state.power.minus(cost);
   g.level = (g.level|0) + n;
