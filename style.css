@@ -8,15 +8,15 @@ body{
   font-family:system-ui,-apple-system,'Segoe UI',Roboto,'Noto Sans JP',sans-serif;
   font-size:22px; line-height:1.45;
 }
-.container{
-  max-width:2380px; margin:12px auto; padding:0 10px;
-  display:grid; grid-template-columns:1fr 1fr 1fr;
-  column-gap:12px; row-gap:8px;
-  grid-template-areas:
-    "title title title"
-    "tap tap right"
-    "genpanel genpanel right";
-}
+  .container{
+    max-width:2380px; margin:12px auto; padding:0 10px;
+    display:grid; grid-template-columns:2fr 1fr;
+    column-gap:12px; row-gap:8px;
+    grid-template-areas:
+      "title title"
+      "tap right"
+      "genpanel right";
+  }
 .title{ grid-area:title; display:flex; align-items:center; gap:14px }
 .title h1{ margin:0; font-size:32px; font-weight:800 }
 .badge{ font-size:16px; color:#bdb7e7; background:rgba(255,255,255,.06); padding:4px 10px; border-radius:999px; border:1px solid #2c2950 }

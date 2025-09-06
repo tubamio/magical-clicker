@@ -35,27 +35,34 @@
               <button id="tapBtn" class="btn tapbtn">ハートタップ！</button>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- メイドスマイル強化（位置を分離） -->
-      <div class="panel">
-        <div class="hd frill frill-green frill-top"><strong>メイドスマイル強化</strong></div>
-        <div class="bd">
-          <div class="desc lvline">Lv <span id="clickLvNow">0</span> → <span id="clickLvNext">1</span></div>
-          <div class="desc upEffect">
-            強化+1効果：スマイル <span id="c1a"></span> → <span id="c1b"></span>（+<span id="c1d"></span>）｜全体倍率 <span id="m1a"></span> → <span id="m1b"></span>（+<span id="m1d"></span>）
-          </div>
-          <div class="desc upEffectMax">
-            まとめ強化効果：スマイル <span id="cMa"></span> → <span id="cMb"></span>（+<span id="cMd"></span>）｜全体倍率 <span id="mMa"></span> → <span id="mMb"></span>（+<span id="mMd"></span>）
-          </div>
-          <div class="row center mt12">
-            <button id="upgradeClick" class="btn up">単体強化</button>
-            <button id="upgradeClickMax" class="btn up alt">まとめ強化 ×0</button>
+          <div class="mt12">
+            <div class="hd frill frill-green frill-top"><strong>メイドスマイル強化</strong></div>
+            <div class="desc lvline">Lv <span id="clickLvNow">0</span> → <span id="clickLvNext">1</span></div>
+            <div class="desc upEffect">
+              強化+1効果：スマイル <span id="c1a"></span> → <span id="c1b"></span>（+<span id="c1d"></span>）｜全体倍率 <span id="m1a"></span> → <span id="m1b"></span>（+<span id="m1d"></span>）
+            </div>
+            <div class="desc upEffectMax">
+              まとめ強化効果：スマイル <span id="cMa"></span> → <span id="cMb"></span>（+<span id="cMd"></span>）｜全体倍率 <span id="mMa"></span> → <span id="mMb"></span>（+<span id="mMd"></span>）
+            </div>
+            <div class="row center mt12">
+              <button id="upgradeClick" class="btn up">単体強化</button>
+              <button id="upgradeClickMax" class="btn up alt">まとめ強化 ×0</button>
+            </div>
           </div>
         </div>
       </div>
     </div>
+
+      <!-- ユニット -->
+      <div class="panel genpanel">
+          <div class="hd frill frill-yellow frill-zigzag">
+            <strong>エンジェルメイドユニット</strong>
+            <span class="muted">購入＝ピンク系、強化＝ラベンダー系。無効時は灰色で反応なし。</span>
+          </div>
+        <div class="bd">
+          <div class="genlist" id="genlist"></div>
+        </div>
+      </div>
 
       <aside class="right">
         <div class="panel">
@@ -90,18 +97,6 @@
         </div>
       </div>
       </aside>
-
-      <!-- ユニット -->
-      <div class="panel genpanel">
-          <div class="hd frill frill-yellow frill-zigzag">
-            <strong>エンジェルメイドユニット</strong>
-            <span class="muted">購入＝ピンク系、強化＝ラベンダー系。無効時は灰色で反応なし。</span>
-          </div>
-        <div class="bd">
-          <div class="genlist" id="genlist"></div>
-        </div>
-      </div>
-
     </div>
 
   <script src="./js/break_infinity.min.js"></script>
