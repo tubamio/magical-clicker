@@ -9,13 +9,13 @@ body{
   font-size:22px; line-height:1.45;
 }
 .container{
-  max-width:2380px; margin:24px auto; padding:0 20px;
+  max-width:2380px; margin:12px auto; padding:0 10px;
   display:grid; grid-template-columns:1fr 1fr 1fr;
-  column-gap:20px; row-gap:12px;
+  column-gap:12px; row-gap:8px;
   grid-template-areas:
     "title title title"
-    "left left right"
-    "genpanel genpanel right";
+    "genpanel genpanel right"
+    "left left right";
 }
 .title{ grid-area:title; display:flex; align-items:center; gap:14px }
 .title h1{ margin:0; font-size:32px; font-weight:800 }
@@ -37,7 +37,7 @@ body{
 
 /* ====== Grids / Flex ====== */
 .col{ display:flex; flex-direction:column; gap:16px }
-.clickgrid{ display:grid; grid-template-columns:1fr 1fr; gap:16px }
+.clickgrid{ display:grid; grid-template-columns:1fr; gap:8px }
 .left{ grid-area:left; }
 .genpanel{ grid-area:genpanel; }
 .right{ grid-area:right; display:flex; flex-direction:column; gap:12px; min-width:320px }
@@ -87,20 +87,27 @@ body{
 .tap{
   background:linear-gradient(180deg,#ffb3e6,#ff85d1);
   border:1px solid #ff6dc3; border-radius:16px;
-  padding:18px; text-align:center; color:#fff; font-weight:800;
+  padding:12px; text-align:center; color:#fff; font-weight:800;
 }
-.tap .big{ font-size:36px }
+.tap .big{ font-size:24px }
 
 /* ====== Generator list ====== */
-.genlist{ display:grid; grid-template-columns:repeat(2,1fr); gap:20px; grid-auto-flow:row }
+.genlist{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; grid-auto-flow:row }
 .gen{
-  display:flex; flex-direction:column; gap:16px;
-  padding:14px; border:1px solid #2c2950; border-radius:14px; background:rgba(255,255,255,.03);
+  display:flex; flex-direction:column; gap:10px;
+  padding:10px; border:1px solid #2c2950; border-radius:14px; background:rgba(255,255,255,.03);
 }
 .gen:nth-child(odd){ background:rgba(255,255,255,.03) }
 .gen:nth-child(even){ background:rgba(255,255,255,.06) }
-.gen .name{ font-weight:900; margin-bottom:6px; font-size:24px }
-.gen .desc{ font-size:18px; color:#c6c0ea }
+.gen .name{ font-weight:900; margin-bottom:4px; font-size:20px }
+.gen .desc{ font-size:16px; color:#c6c0ea }
+
+/* Compact panels for click and generator sections */
+.clickgrid .hd,
+.genpanel .hd{ padding:8px 12px }
+.clickgrid .bd,
+.genpanel .bd{ padding:12px }
+.clickgrid .big{ font-size:32px }
 
 /* ====== Rebirth list ====== */
 .rebirths{ display:flex; flex-direction:column; gap:12px }
@@ -126,9 +133,9 @@ footer.center{ text-align:center; padding:12px 0; color:#bfb7e8 }
     grid-template-columns:1fr;
     grid-template-areas:
       "title"
+      "genpanel"
       "left"
-      "right"
-      "genpanel";
+      "right";
   }
   .clickgrid{ grid-template-columns:1fr }
   .genlist{ grid-template-columns:1fr; grid-auto-flow:row }
