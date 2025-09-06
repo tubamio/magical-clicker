@@ -32,9 +32,9 @@ body{
 
 /* ====== Grids / Flex ====== */
 .col{ display:flex; flex-direction:column; gap:16px }
-.left{ grid-column:3; }
+.left{ grid-column:1 / span 2; grid-row:3; }
 .genpanel{ grid-column:1 / span 2; }
-.right{ grid-column:3; display:flex; flex-direction:column; gap:12px; min-width:320px }
+.right{ grid-column:3; grid-row:2; display:flex; flex-direction:column; gap:12px; min-width:320px }
 .row{ display:flex; gap:20px; align-items:center; flex-wrap:wrap }
 .wrap{ flex-wrap:wrap } .center{ justify-content:center }
 .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:16px }
@@ -117,12 +117,12 @@ footer.center{ text-align:center; padding:12px 0; color:#bfb7e8 }
   .gen{ grid-template-columns:1fr; }
   .genpanel{ grid-column:1; }
   .genlist{ grid-template-columns:1fr; grid-auto-flow:row }
-  .left{ grid-column:1; }
+  .left{ grid-column:1; grid-row:auto; }
   .right{ grid-column:1; grid-row:auto; min-width:0 }
 }
 
 
-/* === 0.1.6.0 UI color refinements === */
+/* === 0.1.6.1 UI color refinements === */
 :root{
   --buy:#ff6dc3; --buy-deep:#e054ad;
   --upg:#b67aff; --upg-deep:#8c5ebf;
