@@ -88,9 +88,17 @@ const featureHandlers = {
   },
   changeJob(id){
     const j = JOB_MAP[id];
-    if(!j || state.prestige < (j.req||0)) return;
+    if(!j) return;
+    if(j.reqType==='power'){
+      if(state.power.lt(j.req)) return;
+    }else if(j.reqType==='point'){
+      const pts = state.jobPoints && state.jobPoints[j.point] ? state.jobPoints[j.point] : 0;
+      if(pts < j.req) return;
+    }
     state.job = id;
-    state.jobPoints[id] = (state.jobPoints[id]||0) + 1;
+    if(j.point && j.point !== 'なし'){
+      state.jobPoints[j.point] = state.jobPoints[j.point] || 0;
+    }
     update();
   }
 };
@@ -186,6 +194,12 @@ function __loop(ts){
     if(state.autoClickUp){
       const cost = clickNextCost(state.clickLv);
       if(state.power.gte(cost)){ state.power = state.power.minus(cost); state.clickLv += 1; }
+    }
+    const jobInfo = JOB_MAP[state.job];
+    if(jobInfo && jobInfo.point && jobInfo.point !== 'なし'){
+      const gain = pps.times(dt).div(1e6);
+      const curr = state.jobPoints[jobInfo.point] || 0;
+      state.jobPoints[jobInfo.point] = new Decimal(curr).plus(gain).toNumber();
     }
     if(state.hyperActive){
       state.hyperTime -= dt;
