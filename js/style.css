@@ -10,7 +10,8 @@ body{
 }
 .container{
   max-width:2380px; margin:24px auto; padding:0 20px;
-  display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px;
+  display:grid; grid-template-columns:1fr 1fr 1fr;
+  column-gap:20px; row-gap:12px;
 }
 .title{ grid-column:1 / span 3; display:flex; align-items:center; gap:14px }
 .title h1{ margin:0; font-size:32px; font-weight:800 }
@@ -32,6 +33,7 @@ body{
 
 /* ====== Grids / Flex ====== */
 .col{ display:flex; flex-direction:column; gap:16px }
+.clickgrid{ display:grid; grid-template-columns:1fr 1fr; gap:16px }
 .left{ grid-column:1 / span 2; grid-row:3; }
 .genpanel{ grid-column:1 / span 2; }
 .right{ grid-column:3; grid-row:2; display:flex; flex-direction:column; gap:12px; min-width:320px }
@@ -118,6 +120,7 @@ footer.center{ text-align:center; padding:12px 0; color:#bfb7e8 }
   .container{ grid-template-columns:1fr; }
   .genpanel{ grid-column:1; }
   .genlist{ grid-template-columns:1fr; grid-auto-flow:row }
+  .clickgrid{ grid-template-columns:1fr }
   .left{ grid-column:1; grid-row:auto; }
   .right{ grid-column:1; grid-row:auto; min-width:0 }
 }
