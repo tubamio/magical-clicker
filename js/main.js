@@ -1,4 +1,4 @@
-export const VERSION = 'Ver.0.1.5.0';
+export const VERSION = 'Ver.0.1.5.1';
 import { GENERATORS } from './data.js';
 import { getJobBonuses } from './jobs.js';
 import { save, load, reset } from './save.js';
@@ -22,6 +22,7 @@ const state = {
   autoClickUp:false,
   surgeCooldown:0,
   job:'magical',
+  jobPoints:{},
 };
 
 function applyGenBoost(){
@@ -47,6 +48,7 @@ if (saved){
   state.rebirth = saved.rebirth ?? 0;
   state.genRebirths = saved.genRebirths ?? 0;
   state.job = saved.job || 'magical';
+  state.jobPoints = saved.jobPoints || {};
   if (Array.isArray(saved.gens)){
     state.gens = saved.gens;
   }
@@ -82,7 +84,11 @@ const featureHandlers = {
     state.surgeCooldown = 120;
     update();
   },
-  changeJob(id){ state.job = id; update(); }
+  changeJob(id){
+    state.job = id;
+    state.jobPoints[id] = (state.jobPoints[id]||0) + 1;
+    update();
+  }
 };
 
 function update(){
@@ -118,9 +124,10 @@ document.getElementById('upgradeClickMax').addEventListener('click', ()=>{
 document.getElementById('saveBtn').addEventListener('click', ()=>{ save(state); alert('保存しました'); });
 document.getElementById('loadBtn').addEventListener('click', ()=>{
   const s = load(); if (!s) return alert('保存がありません');
-  state.power = s.power ? new Decimal(s.power) : new Decimal(0);
-  state.clickLv = s.clickLv ?? 0; state.prestige = s.prestige ?? 0; state.rebirth = s.rebirth ?? 0; state.genRebirths = s.genRebirths ?? 0; state.job = s.job || 'magical';
-  state.gens = Array.isArray(s.gens)? s.gens: state.gens;
+    state.power = s.power ? new Decimal(s.power) : new Decimal(0);
+    state.clickLv = s.clickLv ?? 0; state.prestige = s.prestige ?? 0; state.rebirth = s.rebirth ?? 0; state.genRebirths = s.genRebirths ?? 0; state.job = s.job || 'magical';
+    state.jobPoints = s.jobPoints || {};
+    state.gens = Array.isArray(s.gens)? s.gens: state.gens;
   applyGenBoost();
   state.autoTap=false; state.autoGen=false; state.hyperActive=false; state.hyperCooldown=0; state.hyperTime=0; state.autoClickUp=false; state.surgeCooldown=0;
   update(); alert('読込しました');
@@ -128,7 +135,7 @@ document.getElementById('loadBtn').addEventListener('click', ()=>{
 document.getElementById('resetBtn').addEventListener('click', ()=>{
   if (!confirm('ハードリセットしますか？')) return;
   reset();
-  state.power=new Decimal(0); state.clickLv=0; state.prestige=0; state.rebirth=0; state.genRebirths=0; state.job='magical'; state.gens = JSON.parse(JSON.stringify(GENERATORS));
+    state.power=new Decimal(0); state.clickLv=0; state.prestige=0; state.rebirth=0; state.genRebirths=0; state.job='magical'; state.jobPoints={}; state.gens = JSON.parse(JSON.stringify(GENERATORS));
   applyGenBoost();
   state.autoTap=false; state.autoGen=false; state.hyperActive=false; state.hyperCooldown=0; state.hyperTime=0; state.autoClickUp=false; state.surgeCooldown=0;
   update();
@@ -190,7 +197,7 @@ function __loop(ts){
 requestAnimationFrame(__loop);
 
 
-try{ const v=document.getElementById('verText'); if(v) v.textContent='0.1.5.0'; }catch(e){}
+try{ const v=document.getElementById('verText'); if(v) v.textContent='0.1.5.1'; }catch(e){}
 
 function flashRebirth(){
   try{

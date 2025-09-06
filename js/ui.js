@@ -174,6 +174,11 @@ export function renderJobs(state, onChange){
     d.className='desc';
     d.textContent = j.desc;
     item.appendChild(d);
+    const p=document.createElement('div');
+    p.className='desc';
+    const pts = state.jobPoints && state.jobPoints[j.id] ? state.jobPoints[j.id] : 0;
+    p.textContent = `特殊ポイント：${j.point} ${pts}`;
+    item.appendChild(p);
     panel.appendChild(item);
   });
 }
