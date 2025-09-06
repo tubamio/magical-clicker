@@ -1,4 +1,4 @@
-export const VERSION = 'Ver.0.1.6.0';
+export const VERSION = 'Ver.0.1.6.1';
 import { GENERATORS } from './data.js';
 import { getJobBonuses } from './jobs.js';
 import { save, load, reset } from './save.js';
@@ -201,7 +201,7 @@ function __loop(ts){
 requestAnimationFrame(__loop);
 
 
-try{ const v=document.getElementById('verText'); if(v) v.textContent='0.1.6.0'; }catch(e){}
+try{ const v=document.getElementById('verText'); if(v) v.textContent='0.1.6.1'; }catch(e){}
 
 function flashRebirth(){
   try{
