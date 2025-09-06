@@ -1,4 +1,4 @@
-export const VERSION = 'Ver.0.1.5.1';
+export const VERSION = 'Ver.0.1.6.0';
 import { GENERATORS } from './data.js';
 import { getJobBonuses } from './jobs.js';
 import { save, load, reset } from './save.js';
@@ -23,6 +23,7 @@ const state = {
   surgeCooldown:0,
   job:'magical',
   jobPoints:{},
+  jobCat:'magic',
 };
 
 function applyGenBoost(){
@@ -49,6 +50,7 @@ if (saved){
   state.genRebirths = saved.genRebirths ?? 0;
   state.job = saved.job || 'magical';
   state.jobPoints = saved.jobPoints || {};
+  state.jobCat = saved.jobCat || 'magic';
   if (Array.isArray(saved.gens)){
     state.gens = saved.gens;
   }
@@ -127,6 +129,7 @@ document.getElementById('loadBtn').addEventListener('click', ()=>{
     state.power = s.power ? new Decimal(s.power) : new Decimal(0);
     state.clickLv = s.clickLv ?? 0; state.prestige = s.prestige ?? 0; state.rebirth = s.rebirth ?? 0; state.genRebirths = s.genRebirths ?? 0; state.job = s.job || 'magical';
     state.jobPoints = s.jobPoints || {};
+    state.jobCat = s.jobCat || 'magic';
     state.gens = Array.isArray(s.gens)? s.gens: state.gens;
   applyGenBoost();
   state.autoTap=false; state.autoGen=false; state.hyperActive=false; state.hyperCooldown=0; state.hyperTime=0; state.autoClickUp=false; state.surgeCooldown=0;
@@ -136,6 +139,7 @@ document.getElementById('resetBtn').addEventListener('click', ()=>{
   if (!confirm('ハードリセットしますか？')) return;
   reset();
     state.power=new Decimal(0); state.clickLv=0; state.prestige=0; state.rebirth=0; state.genRebirths=0; state.job='magical'; state.jobPoints={}; state.gens = JSON.parse(JSON.stringify(GENERATORS));
+  state.jobCat='magic';
   applyGenBoost();
   state.autoTap=false; state.autoGen=false; state.hyperActive=false; state.hyperCooldown=0; state.hyperTime=0; state.autoClickUp=false; state.surgeCooldown=0;
   update();
@@ -197,7 +201,7 @@ function __loop(ts){
 requestAnimationFrame(__loop);
 
 
-try{ const v=document.getElementById('verText'); if(v) v.textContent='0.1.5.1'; }catch(e){}
+try{ const v=document.getElementById('verText'); if(v) v.textContent='0.1.6.0'; }catch(e){}
 
 function flashRebirth(){
   try{

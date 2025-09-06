@@ -1,6 +1,6 @@
 function setBtnState(btn, enabled){ if(!btn) return; btn.disabled=!enabled; btn.classList.toggle('is-disabled', !enabled); }
 import { fmt, getFormatMode, setFormatMode } from './format.js';
-import { JOBS, getJobBonuses } from './jobs.js';
+import { JOBS, JOB_GROUPS, getJobBonuses } from './jobs.js';
 import { clickGainByLevel, clickNextCost, globalMultiplier, clickTotalCost, maxAffordableClicks } from './click.js';
 import {
   nextUnitCost, totalCostUnits, maxAffordableUnits, buyUnits,
@@ -162,7 +162,27 @@ export function renderJobs(state, onChange){
   const panel=document.getElementById('jobPanel');
   if(!panel) return;
   panel.innerHTML='';
-  JOBS.forEach(j=>{
+
+  const base = JOBS.find(j=>j.id==='magical');
+  if(base){
+    panel.appendChild(makeItem(base));
+  }
+
+  const catRow=document.createElement('div');
+  catRow.className='row';
+  JOB_GROUPS.forEach(cat=>{
+    const b=document.createElement('button');
+    b.className = state.jobCat===cat.id ? 'btn good' : 'btn';
+    b.textContent = cat.name;
+    b.addEventListener('click', ()=>{ state.jobCat = cat.id; renderJobs(state, onChange); });
+    catRow.appendChild(b);
+  });
+  panel.appendChild(catRow);
+
+  const group = JOB_GROUPS.find(c=>c.id===state.jobCat) || JOB_GROUPS[0];
+  group.jobs.forEach(j=> panel.appendChild(makeItem(j)));
+
+  function makeItem(j){
     const item=document.createElement('div');
     item.className='job-item';
     const btn=document.createElement('button');
@@ -179,8 +199,8 @@ export function renderJobs(state, onChange){
     const pts = state.jobPoints && state.jobPoints[j.id] ? state.jobPoints[j.id] : 0;
     p.textContent = `特殊ポイント：${j.point} ${pts}`;
     item.appendChild(p);
-    panel.appendChild(item);
-  });
+    return item;
+  }
 }
 
 /* ===== ジェネ ===== */
