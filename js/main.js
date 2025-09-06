@@ -1,4 +1,4 @@
-export const VERSION = 'Ver.0.1.7.0';
+export const VERSION = 'Ver.0.1.8.0';
 import { GENERATORS } from './data.js';
 import { getJobBonuses, JOB_MAP } from './jobs.js';
 import { save, load, reset } from './save.js';
@@ -197,7 +197,7 @@ function __loop(ts){
     }
     const jobInfo = JOB_MAP[state.job];
     if(jobInfo && jobInfo.point && jobInfo.point !== 'なし'){
-      const gain = pps.times(dt).div(1e6);
+      const gain = pps.times(dt).div(1e6).times(jb.pointGain);
       const curr = state.jobPoints[jobInfo.point] || 0;
       state.jobPoints[jobInfo.point] = new Decimal(curr).plus(gain).toNumber();
     }
@@ -217,7 +217,7 @@ function __loop(ts){
 requestAnimationFrame(__loop);
 
 
-try{ const v=document.getElementById('verText'); if(v) v.textContent='0.1.7.0'; }catch(e){}
+try{ const v=document.getElementById('verText'); if(v) v.textContent='0.1.8.0'; }catch(e){}
 
 function flashRebirth(){
   try{
