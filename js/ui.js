@@ -74,63 +74,68 @@ export function renderKPI(state){
 export function renderRebirths(state, onRebirth){
   const list = document.getElementById('rebirthList');
   if(!list) return;
-  list.innerHTML='';
   REBIRTHS.forEach(r=>{
-    const div=document.createElement('div');
-    div.className='rebirth-item';
+    let div = list.querySelector(`[data-level="${r.level}"]`);
+    if(!div){
+      div=document.createElement('div');
+      div.className='rebirth-item';
+      div.dataset.level = r.level;
+      const btn=document.createElement('button');
+      div.appendChild(btn);
+      const cond=document.createElement('div'); cond.className='cond muted'; div.appendChild(cond);
+      const eff=document.createElement('div'); eff.className='eff'; div.appendChild(eff);
+      if(r.feature){ const feat=document.createElement('div'); feat.className='feat'; div.appendChild(feat); }
+      list.appendChild(div);
+    }
     const owned = (state.rebirth >= r.level);
     const next  = (state.rebirth + 1 === r.level);
-    const btn = document.createElement('button');
-    btn.className = owned ? 'btn good' : 'btn ghost';
+    const btn = div.querySelector('button');
+    btn.className = owned ? 'btn good' : (next ? 'btn warn' : 'btn ghost');
     btn.textContent = owned ? `L${r.level} ${r.name}✓` : `L${r.level} ${r.name}`;
-    if(next){
-      btn.className = 'btn warn';
-      btn.disabled = state.prestige < r.req;
-      btn.addEventListener('click', ()=>{ if(!btn.disabled && onRebirth) onRebirth(); });
-    }else{
-      btn.disabled = true;
-    }
-    div.appendChild(btn);
-    const cond=document.createElement('div');
-    cond.className='cond muted';
-    cond.textContent = `条件：スタークリスタル ${fmt(r.req)}`;
-    div.appendChild(cond);
-    const eff=document.createElement('div');
-    eff.className='eff';
-    eff.textContent = `効果：${r.effect}`;
-    div.appendChild(eff);
+    btn.disabled = !(next && state.prestige >= r.req);
+    btn.onclick = null;
+    if(next){ btn.onclick = ()=>{ if(!btn.disabled && onRebirth) onRebirth(); }; }
+    const cond = div.querySelector('.cond');
+    if(cond) cond.textContent = `条件：スタークリスタル ${fmt(r.req)}`;
+    const eff = div.querySelector('.eff');
+    if(eff) eff.textContent = `効果：${r.effect}`;
     if(r.feature){
-      const feat=document.createElement('div');
-      feat.className='feat';
-      feat.textContent = `新要素：${r.feature}`;
-      div.appendChild(feat);
+      const feat = div.querySelector('.feat');
+      if(feat) feat.textContent = `新要素：${r.feature}`;
     }
-    list.appendChild(div);
   });
 }
 
 export function renderFeatures(state, handlers){
   const panel=document.getElementById('featurePanel');
   if(!panel) return;
-  panel.innerHTML='';
   FEATURES.forEach(f=>{
-    if(state.rebirth < f.level) return;
-    const item=document.createElement('div');
-    item.className='feature-item';
-    const btn=document.createElement('button');
+    let item = panel.querySelector(`[data-id="${f.id}"]`);
+    if(state.rebirth < f.level){ if(item) item.remove(); return; }
+    if(!item){
+      item=document.createElement('div');
+      item.className='feature-item';
+      item.dataset.id=f.id;
+      const btn=document.createElement('button'); btn.className='btn'; item.appendChild(btn);
+      const d=document.createElement('div'); d.className='desc'; d.textContent=f.desc; item.appendChild(d);
+      panel.appendChild(item);
+    }
+    const btn = item.querySelector('button');
     btn.className='btn';
+    btn.disabled=false;
+    btn.onclick=null;
     if(f.id==='autoTap'){
       btn.textContent = state.autoTap ? `${f.name}：ON` : `${f.name}：OFF`;
-      btn.addEventListener('click', ()=>handlers&&handlers.toggleAutoTap&&handlers.toggleAutoTap());
+      btn.onclick = ()=>handlers&&handlers.toggleAutoTap&&handlers.toggleAutoTap();
     }else if(f.id==='genRebirth'){
       btn.textContent = `${f.name}（${state.genRebirths||0}回）`;
-      btn.addEventListener('click', ()=>handlers&&handlers.doGenRebirth&&handlers.doGenRebirth());
+      btn.onclick = ()=>handlers&&handlers.doGenRebirth&&handlers.doGenRebirth();
     }else if(f.id==='autoGen'){
       btn.textContent = state.autoGen ? `${f.name}：ON` : `${f.name}：OFF`;
-      btn.addEventListener('click', ()=>handlers&&handlers.toggleAutoGen&&handlers.toggleAutoGen());
+      btn.onclick = ()=>handlers&&handlers.toggleAutoGen&&handlers.toggleAutoGen();
     }else if(f.id==='convert'){
       btn.textContent = f.name;
-      btn.addEventListener('click', ()=>handlers&&handlers.convertPrestige&&handlers.convertPrestige());
+      btn.onclick = ()=>handlers&&handlers.convertPrestige&&handlers.convertPrestige();
     }else if(f.id==='hyper'){
       if(state.hyperActive){
         btn.textContent = `${f.name}［${Math.ceil(state.hyperTime)}s］`;
@@ -139,22 +144,16 @@ export function renderFeatures(state, handlers){
         btn.textContent = cd>0 ? `${f.name}（${cd}s）` : f.name;
         btn.disabled = cd>0;
       }
-      btn.addEventListener('click', ()=>handlers&&handlers.activateHyper&&handlers.activateHyper());
+      btn.onclick = ()=>handlers&&handlers.activateHyper&&handlers.activateHyper();
     }else if(f.id==='autoClickUp'){
       btn.textContent = state.autoClickUp ? `${f.name}：ON` : `${f.name}：OFF`;
-      btn.addEventListener('click', ()=>handlers&&handlers.toggleAutoClickUp&&handlers.toggleAutoClickUp());
+      btn.onclick = ()=>handlers&&handlers.toggleAutoClickUp&&handlers.toggleAutoClickUp();
     }else if(f.id==='surge'){
       const cd=Math.ceil(state.surgeCooldown||0);
       btn.textContent = cd>0 ? `${f.name}（${cd}s）` : f.name;
       btn.disabled = cd>0;
-      btn.addEventListener('click', ()=>handlers&&handlers.activateSurge&&handlers.activateSurge());
+      btn.onclick = ()=>handlers&&handlers.activateSurge&&handlers.activateSurge();
     }
-    item.appendChild(btn);
-    const d=document.createElement('div');
-    d.className='desc';
-    d.textContent = f.desc;
-    item.appendChild(d);
-    panel.appendChild(item);
   });
 }
 
@@ -186,7 +185,15 @@ export function renderJobs(state, onChange){
     const item=document.createElement('div');
     item.className='job-item';
     const btn=document.createElement('button');
-    const enough = state.prestige >= (j.req||0);
+    const pts = state.jobPoints && state.jobPoints[j.point] ? state.jobPoints[j.point] : 0;
+    let enough=true; let condText='条件：なし';
+    if(j.reqType==='power'){
+      enough = state.power.gte(j.req);
+      condText = j.req ? `条件：エンジェルハート ${fmt(new Decimal(j.req))}` : '条件：なし';
+    }else if(j.reqType==='point'){
+      enough = pts >= j.req;
+      condText = `条件：${j.point} ${fmt(new Decimal(j.req))}`;
+    }
     btn.className = state.job===j.id ? 'btn good' : 'btn';
     btn.disabled = !enough;
     btn.textContent = state.job===j.id ? `${j.name}✓` : j.name;
@@ -194,7 +201,7 @@ export function renderJobs(state, onChange){
     item.appendChild(btn);
     const cond=document.createElement('div');
     cond.className='desc';
-    cond.textContent = j.req ? `条件：スタークリスタル ${fmt(j.req)}` : '条件：なし';
+    cond.textContent = condText;
     item.appendChild(cond);
     const d=document.createElement('div');
     d.className='desc';
@@ -202,8 +209,7 @@ export function renderJobs(state, onChange){
     item.appendChild(d);
     const p=document.createElement('div');
     p.className='desc';
-    const pts = state.jobPoints && state.jobPoints[j.id] ? state.jobPoints[j.id] : 0;
-    p.textContent = `特殊ポイント：${j.point} ${pts}`;
+    p.textContent = `特殊ポイント：${j.point} ${fmt(new Decimal(pts))}`;
     item.appendChild(p);
     return item;
   }
