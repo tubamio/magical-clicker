@@ -15,16 +15,18 @@
   <div class="container">
     <header class="title">
       <h1>魔法少女インフレクリッカー <span id="version" class="pill"></span></h1>
-      
+
       <div class="spacer"></div>
       <button id="fmtToggle" class="btn small">表記：日本式</button>
     </header>
 
-      <div class="tapgrid clickgrid">
-      <!-- タップ（ハートを獲得する場所） -->
-      <div class="panel">
-        <div class="hd frill frill-pink"><strong>エンジェルハートタップ</strong><span class="muted">（タップでエンジェルハートを獲得）</span></div>
-        <div class="bd">
+    <div class="main">
+      <div class="left">
+        <div class="tapgrid clickgrid">
+        <!-- タップ（ハートを獲得する場所） -->
+        <div class="panel">
+          <div class="hd frill frill-pink"><strong>エンジェルハートタップ</strong><span class="muted">（タップでエンジェルハートを獲得）</span></div>
+          <div class="bd">
           <div class="stat">
             <span>エンジェルハート：</span><span class="big" id="power">0</span>
           </div>
@@ -50,17 +52,17 @@
             </div>
           </div>
         </div>
-      </div>
-    </div>
+        </div>
 
-      <!-- ユニット -->
-      <div class="panel genpanel">
-          <div class="hd frill frill-yellow frill-zigzag">
-            <strong>エンジェルメイドユニット</strong>
-            <span class="muted">購入＝ピンク系、強化＝ラベンダー系。無効時は灰色で反応なし。</span>
+        <!-- ジェネレーター -->
+        <div class="panel genpanel">
+            <div class="hd frill frill-yellow frill-zigzag">
+              <strong>ジェネレーター</strong>
+              <span class="muted">購入＝ピンク系、強化＝ラベンダー系。無効時は灰色で反応なし。</span>
+            </div>
+          <div class="bd">
+            <div class="genlist" id="genlist"></div>
           </div>
-        <div class="bd">
-          <div class="genlist" id="genlist"></div>
         </div>
       </div>
 
@@ -86,18 +88,19 @@
         <div class="bd" id="featurePanel"></div>
       </div>
 
-      <div class="panel">
-        <div class="hd frill frill-yellow frill-wave"><strong>システム</strong></div>
-        <div class="bd">
-          <div class="row">
-            <button id="saveBtn" class="btn good">保存</button>
-            <button id="loadBtn" class="btn">読込</button>
-            <button id="resetBtn" class="btn danger ml-auto">ハードリセット</button>
+        <div class="panel">
+          <div class="hd frill frill-yellow frill-wave"><strong>システム</strong></div>
+          <div class="bd">
+            <div class="row">
+              <button id="saveBtn" class="btn good">保存</button>
+              <button id="loadBtn" class="btn">読込</button>
+              <button id="resetBtn" class="btn danger ml-auto">ハードリセット</button>
+            </div>
           </div>
         </div>
-      </div>
       </aside>
     </div>
+  </div>
 
   <script src="./js/break_infinity.min.js"></script>
   <script type="module" src="./js/main.js"></script>

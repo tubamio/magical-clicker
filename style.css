@@ -10,14 +10,9 @@ body{
 }
   .container{
     max-width:2380px; margin:12px auto; padding:0 10px;
-    display:grid; grid-template-columns:2fr 1fr;
-    column-gap:12px; row-gap:8px;
-    grid-template-areas:
-      "title title"
-      "tap right"
-      "genpanel right";
+    display:flex; flex-direction:column; gap:12px;
   }
-.title{ grid-area:title; display:flex; align-items:center; gap:14px }
+.title{ display:flex; align-items:center; gap:14px }
 .title h1{ margin:0; font-size:32px; font-weight:800 }
 .badge{ font-size:16px; color:#bdb7e7; background:rgba(255,255,255,.06); padding:4px 10px; border-radius:999px; border:1px solid #2c2950 }
 .spacer{ flex:1 }
@@ -38,9 +33,9 @@ body{
 /* ====== Grids / Flex ====== */
 .col{ display:flex; flex-direction:column; gap:16px }
 .clickgrid{ display:grid; grid-template-columns:1fr; gap:8px }
-.tapgrid{ grid-area:tap; }
-.genpanel{ grid-area:genpanel; }
-.right{ grid-area:right; display:flex; flex-direction:column; gap:12px; min-width:320px }
+.main{ display:flex; gap:12px }
+.left{ flex:1; display:flex; flex-direction:column; gap:8px }
+.right{ display:flex; flex-direction:column; gap:12px; min-width:320px }
 .row{ display:flex; gap:20px; align-items:center; flex-wrap:wrap }
 .wrap{ flex-wrap:wrap } .center{ justify-content:center }
 .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:16px }
@@ -92,7 +87,7 @@ body{
 .tap .big{ font-size:24px }
 
 /* ====== Generator list ====== */
-.genlist{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; grid-auto-flow:row }
+.genlist{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px; grid-auto-flow:column }
 .gen{
   display:flex; flex-direction:column; gap:10px;
   padding:10px; border:1px solid #2c2950; border-radius:14px; background:rgba(255,255,255,.03);
@@ -129,14 +124,7 @@ footer.center{ text-align:center; padding:12px 0; color:#bfb7e8 }
 
 /* ====== Responsive ====== */
 @media (max-width: 1100px){
-  .container{
-    grid-template-columns:1fr;
-    grid-template-areas:
-      "title"
-      "tap"
-      "genpanel"
-      "right";
-  }
+  .main{ flex-direction:column }
   .clickgrid{ grid-template-columns:1fr }
   .genlist{ grid-template-columns:1fr; grid-auto-flow:row }
   .right{ min-width:0 }
