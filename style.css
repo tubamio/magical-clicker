@@ -92,10 +92,12 @@ body{
 
 /* ====== Generator list ====== */
 .genlist{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px }
-.gen{
+.gen{ 
   display:flex; flex-direction:column; gap:10px;
   padding:10px; border:1px solid #2c2950; border-radius:14px; background:rgba(255,255,255,.03);
 }
+.gen-left{ flex:2; display:flex; flex-direction:column; gap:8px }
+.gen-right{ flex:1; display:flex; flex-direction:column; gap:12px }
 .gen:nth-child(odd){ background:rgba(255,255,255,.03) }
 .gen:nth-child(even){ background:rgba(255,255,255,.06) }
 .gen .name{ font-weight:900; margin-bottom:4px; font-size:20px }

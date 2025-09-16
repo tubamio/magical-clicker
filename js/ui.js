@@ -238,7 +238,7 @@ function genRow(state, g, onUpdate){
   const row = document.createElement('div');
   row.className = 'gen';
   row.innerHTML = `
-    <div class="left">
+    <div class="gen-left">
       <div class="name">${g.name} <span class="muted">x<span class="own">${fmt(g.count)}</span></span></div>
       <div class="desc">単体/sec: <span class="eachPps">${fmt(powerFor(g))}</span></div>
       <div class="desc lvline">Lv <span class="lvNow">0</span> → <span class="lvNext">1</span></div>
@@ -249,7 +249,7 @@ function genRow(state, g, onUpdate){
         まとめ強化効果：単体 <span class="eMa"></span> → <span class="eMb"></span>（+<span class="eMd"></span>）｜全体 <span class="tMa"></span> → <span class="tMb"></span>（+<span class="tMd"></span>）
       </div>
     </div>
-    <div class="right">
+    <div class="gen-right">
       <div class="buttons">
         <div class="row">
           <button class="btn buy1">購入</button>
