@@ -234,11 +234,32 @@ function simulateTotalAfterUpgrade(state, g, n){
   return { beforeEach, afterEach, deltaEach, beforeTotal, afterTotal, deltaTotal };
 }
 
+let generatorColumnStylesEnsured = false;
+function ensureGeneratorColumnStyles(){
+  if(generatorColumnStylesEnsured) return;
+  if(typeof document === 'undefined') return;
+  const head = document.head;
+  if(!head) return;
+  if(document.getElementById('gen-column-style')){
+    generatorColumnStylesEnsured = true;
+    return;
+  }
+  const style = document.createElement('style');
+  style.id = 'gen-column-style';
+  style.textContent = `
+#genlist .gen-left{flex:2;display:flex;flex-direction:column;gap:8px;min-width:0}
+#genlist .gen-right{flex:1;display:flex;flex-direction:column;gap:12px;min-width:0}
+`.trim();
+  head.appendChild(style);
+  generatorColumnStylesEnsured = true;
+}
+
 function genRow(state, g, onUpdate){
+  ensureGeneratorColumnStyles();
   const row = document.createElement('div');
   row.className = 'gen';
   row.innerHTML = `
-    <div class="left">
+    <div class="gen-left">
       <div class="name">${g.name} <span class="muted">x<span class="own">${fmt(g.count)}</span></span></div>
       <div class="desc">単体/sec: <span class="eachPps">${fmt(powerFor(g))}</span></div>
       <div class="desc lvline">Lv <span class="lvNow">0</span> → <span class="lvNext">1</span></div>
@@ -249,7 +270,7 @@ function genRow(state, g, onUpdate){
         まとめ強化効果：単体 <span class="eMa"></span> → <span class="eMb"></span>（+<span class="eMd"></span>）｜全体 <span class="tMa"></span> → <span class="tMb"></span>（+<span class="tMd"></span>）
       </div>
     </div>
-    <div class="right">
+    <div class="gen-right">
       <div class="buttons">
         <div class="row">
           <button class="btn buy1">購入</button>
