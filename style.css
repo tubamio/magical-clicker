@@ -1,208 +1,517 @@
-/* ====== Base / Layout ====== */
-*{ box-sizing:border-box }
-html,body{ height:100% }
-body{
-  margin:0;
-  background:radial-gradient(1200px 800px at 20% 0%,#40204d 0%,#1f0a2c 60%),#1f0a2c;
-  color:#ffeefa;
-  font-family:system-ui,-apple-system,'Segoe UI',Roboto,'Noto Sans JP',sans-serif;
-  font-size:22px; line-height:1.45;
+:root {
+  --bg-top: #261935;
+  --bg-bottom: #130b1d;
+  --panel-bg: rgba(24, 16, 33, 0.85);
+  --panel-border: rgba(255, 255, 255, 0.06);
+  --panel-highlight: rgba(255, 255, 255, 0.12);
+  --text-main: #fef9ff;
+  --text-muted: #c9b6e6;
+  --accent: #ff80d5;
+  --accent-strong: #ff4fb7;
+  --lavender: #b68cff;
+  --lavender-strong: #8552ff;
+  --warning: #ffb347;
+  --danger: #ff5a7d;
+  --success: #a9f0d1;
+  --success-text: #0d3d2b;
+  --ghost: rgba(255, 255, 255, 0.15);
+  --font-body: "Zen Kaku Gothic New", "Noto Sans JP", "Hiragino Kaku Gothic ProN", system-ui, sans-serif;
 }
-  .container{
-    max-width:2380px; margin:12px auto; padding:0 10px;
-    display:flex; flex-direction:column; gap:12px;
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  color: var(--text-main);
+  background: radial-gradient(circle at 20% -10%, #46235e 0%, transparent 45%),
+              radial-gradient(circle at 80% 0%, #401a66 0%, transparent 40%),
+              linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 20px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.app-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.title-group {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.app-title {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 800;
+}
+
+.version-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--ghost);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 24px;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 20px;
+  box-shadow: 0 18px 40px rgba(9, 6, 16, 0.55);
+  overflow: hidden;
+  backdrop-filter: blur(6px);
+}
+
+.panel-header {
+  padding: 20px 24px 12px;
+  border-bottom: 1px solid var(--panel-border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.panel-header h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.panel-sub {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.panel-body {
+  padding: 20px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.score-body {
+  gap: 12px;
+}
+
+.score-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-weight: 700;
+}
+
+.score-label {
+  color: var(--text-muted);
+  font-size: 16px;
+}
+
+.score-value {
+  font-size: 40px;
+  font-weight: 800;
+}
+
+.score-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--panel-border);
+  font-size: 15px;
+}
+
+.click-body {
+  gap: 24px;
+}
+
+.tap-gain {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.tap-action {
+  display: flex;
+  justify-content: center;
+}
+
+.upgrade-block {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--panel-highlight);
+}
+
+.upgrade-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.upgrade-head h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.level-line {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.upgrade-detail {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.upgrade-detail dt {
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.upgrade-detail dd {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.upgrade-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  cursor: pointer;
+  border: none;
+  border-radius: 16px;
+  padding: 14px 22px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1c1224;
+  background: var(--accent);
+  box-shadow: 0 10px 20px rgba(255, 128, 213, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 24px rgba(255, 128, 213, 0.45);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn.main {
+  font-size: 18px;
+  padding: 18px 32px;
+}
+
+.btn.sub {
+  background: linear-gradient(135deg, var(--lavender), var(--lavender-strong));
+  color: #fff;
+  box-shadow: 0 12px 26px rgba(182, 140, 255, 0.4);
+}
+
+.btn.sub.alt {
+  background: linear-gradient(135deg, var(--lavender-strong), #4f2acf);
+}
+
+.btn-buy {
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  color: #1c1224;
+  box-shadow: 0 10px 20px rgba(255, 128, 213, 0.35);
+}
+
+.btn-buy-agg {
+  background: linear-gradient(135deg, var(--accent-strong), #b00082);
+  color: #fff;
+  box-shadow: 0 12px 26px rgba(224, 84, 173, 0.45);
+}
+
+.btn-upg {
+  background: linear-gradient(135deg, var(--lavender), var(--lavender-strong));
+  color: #fff;
+  box-shadow: 0 12px 26px rgba(182, 140, 255, 0.4);
+}
+
+.btn-upg-agg {
+  background: linear-gradient(135deg, var(--lavender-strong), #4520a5);
+  color: #fff;
+  box-shadow: 0 12px 26px rgba(133, 82, 255, 0.45);
+}
+
+.btn.warn {
+  background: linear-gradient(135deg, #ffda6a, var(--warning));
+  color: #3d2200;
+  box-shadow: 0 12px 24px rgba(255, 179, 71, 0.35);
+}
+
+.btn.danger {
+  background: linear-gradient(135deg, #ff5a7d, #c2224d);
+  color: #fff;
+  box-shadow: 0 12px 24px rgba(255, 90, 125, 0.45);
+}
+
+.btn.good {
+  background: linear-gradient(135deg, var(--success), #60d4a2);
+  color: var(--success-text);
+  box-shadow: 0 12px 24px rgba(96, 212, 162, 0.35);
+}
+
+.btn.ghost {
+  background: var(--ghost);
+  color: var(--text-main);
+  box-shadow: none;
+}
+
+.btn.block {
+  width: 100%;
+  text-align: center;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+  box-shadow: none;
+  transform: none;
+}
+
+.btn:disabled:hover {
+  transform: none;
+}
+
+.info-box {
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--panel-border);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+.rebirth-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rebirth-item {
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid var(--panel-border);
+  background: rgba(255, 255, 255, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rebirth-item button {
+  align-self: flex-start;
+}
+
+.job-body,
+.feature-body {
+  gap: 12px;
+}
+
+.job-item,
+.feature-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid var(--panel-border);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.job-item .desc,
+.feature-item .desc {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.job-item .row {
+  margin-top: 8px;
+}
+
+.system-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.genlist {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.gen {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px;
+  border-radius: 16px;
+  border: 1px solid var(--panel-border);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.gen-left {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.gen-right {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.gen .name {
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.gen .desc {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.buttons .row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.lvline,
+.upEffect,
+.upEffectMax {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.milestone {
+  outline: 2px solid #ffe066;
+  box-shadow: 0 0 16px rgba(255, 224, 102, 0.6);
+}
+
+.app-footer {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  padding-bottom: 24px;
+}
+
+body.rebirth-flash::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(255, 247, 179, 0.75), rgba(255, 128, 213, 0.2) 55%, transparent 70%);
+  animation: flash 0.8s ease forwards;
+}
+
+@keyframes flash {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@media (max-width: 1024px) {
+  .layout {
+    grid-template-columns: 1fr;
   }
-.title{ display:flex; align-items:center; gap:14px }
-.title h1{ margin:0; font-size:32px; font-weight:800 }
-.badge{ font-size:16px; color:#bdb7e7; background:rgba(255,255,255,.06); padding:4px 10px; border-radius:999px; border:1px solid #2c2950 }
-.spacer{ flex:1 }
 
-/* ====== Panels ====== */
-.panel{
-  background:linear-gradient(180deg,#542058,#6d2773);
-  border:1px solid #9a3ab8; border-radius:16px;
-  box-shadow:0 10px 28px rgba(0,0,0,.35); overflow:hidden;
-}
-.hd{
-  display:flex; justify-content:space-between; align-items:center;
-  padding:16px 18px; border-bottom:1px solid #9a3ab8; background:rgba(255,255,255,.07);
-  font-weight:700;
-}
-.bd{ padding:18px 18px 20px }
-
-/* ====== Grids / Flex ====== */
-.col{ display:flex; flex-direction:column; gap:16px }
-.clickgrid{ display:grid; grid-template-columns:1fr; gap:8px }
-/*
- * メイン領域は常に2:1で横並びさせるためフレックスレイアウトを採用
- * 左ペインを2、右ペインを1の比率で伸縮させる
- */
-.main{ display:flex; gap:12px; align-items:flex-start }
-.left{ flex:2; display:flex; flex-direction:column; gap:8px }
-.right{ flex:1; display:flex; flex-direction:column; gap:12px }
-.row{ display:flex; gap:20px; align-items:center; flex-wrap:wrap }
-.wrap{ flex-wrap:wrap } .center{ justify-content:center }
-.grid2{ display:grid; grid-template-columns:1fr 1fr; gap:16px }
-
-/* Spacing helpers */
-.mt8{ margin-top:12px } .mt12{ margin-top:20px }
-.ml-auto{ margin-left:auto } .gap8{ gap:12px }
-
-/* ====== Typography / Pills ====== */
-.stat{ display:flex; gap:10px; align-items:baseline }
-.big{ font-size:48px; font-weight:900; letter-spacing:.3px }
-.muted{ color:#f2b6e0 }
-.pill{
-  background:rgba(255,255,255,.07); border:1px solid #2c2950;
-  padding:10px 16px; border-radius:999px; font-size:20px;
+  .column-left,
+  .column-right {
+    gap: 20px;
+  }
 }
 
-/* ====== Buttons ====== */
-.btn{
-  background:#ff6dc3; color:#fff; border:none; border-radius:16px;
-  padding:18px 28px; cursor:pointer; font-weight:700; font-size:22px;
-  transition:filter .15s ease;
-}
-.btn:hover{ filter:brightness(1.06) }
-.btn.good{ background:var(--mint); color:#0f5132; }
-.btn.warn{ background:#f59e0b }
-.btn.danger{ background:#ef4444 }
-.btn.ghost{ background:transparent; color:#ffe9f9; border:1px solid #7d2d91 }
+@media (max-width: 600px) {
+  .page {
+    padding: 24px 16px 32px;
+  }
 
-/* 操作用ボタン色系統（完全分離） */
-.btn.tapbtn{ background:#ffb3e6 }  /* タップ */
-.btn.buy{ background:#ff6dc3 }     /* 購入（ピンク系） */
-.btn.buy.alt{ background:#e054ad } /* 最大購入（ピンク・濃） */
-.btn.up{ background:#b67aff }      /* 強化（ラベンダー系） */
-.btn.up.alt{ background:#8c5ebf }  /* 最大強化（ラベンダー・濃） */
+  .app-title {
+    font-size: 26px;
+  }
 
-/* 無効ボタン：灰色・非反応・カーソル通常 */
-.btn:disabled{
-  opacity:.55; pointer-events:none; cursor:default; filter:none !important;
-  background:#5a607a !important; color:#e6e7ee !important; border:none !important;
-}
+  .btn {
+    width: 100%;
+  }
 
-/* ====== Tap block ====== */
-.tap{
-  background:linear-gradient(180deg,#ffb3e6,#ff85d1);
-  border:1px solid #ff6dc3; border-radius:16px;
-  padding:12px; text-align:center; color:#fff; font-weight:800;
-}
-.tap .big{ font-size:24px }
+  .upgrade-detail {
+    grid-template-columns: 1fr;
+  }
 
-/* ====== Generator list ====== */
-.genlist{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px }
-.gen{ 
-  display:flex; flex-direction:column; gap:10px;
-  padding:10px; border:1px solid #2c2950; border-radius:14px; background:rgba(255,255,255,.03);
-}
-.gen-left{ flex:2; display:flex; flex-direction:column; gap:8px }
-.gen-right{ flex:1; display:flex; flex-direction:column; gap:12px }
-.gen:nth-child(odd){ background:rgba(255,255,255,.03) }
-.gen:nth-child(even){ background:rgba(255,255,255,.06) }
-.gen .name{ font-weight:900; margin-bottom:4px; font-size:20px }
-.gen .desc{ font-size:16px; color:#c6c0ea }
-
-/* Compact panels for click and generator sections */
-.clickgrid .hd,
-.genpanel .hd{ padding:8px 12px }
-.clickgrid .bd,
-.genpanel .bd{ padding:12px }
-.clickgrid .big{ font-size:32px }
-
-/* ====== Rebirth list ====== */
-.rebirths{ display:flex; flex-direction:column; gap:12px }
-.rebirth-item{ display:flex; flex-direction:column; gap:4px }
-.rebirth-item .cond{ font-size:18px }
-.rebirth-item .feat{ font-size:18px }
-
-
-/* ====== Feature panel ====== */
-#featurePanel .feature-item{ display:flex; flex-direction:column; gap:4px; margin-bottom:12px }
-#featurePanel .feature-item .desc{ font-size:18px; color:#c6c0ea }
-#jobPanel .job-item{ display:flex; flex-direction:column; gap:4px; margin-bottom:12px }
-#jobPanel .job-item .desc{ font-size:18px; color:#c6c0ea }
-#jobPanel .row{ gap:12px; margin-bottom:12px }
-
-/* ====== Misc ====== */
-.box{ border:1px solid #2c2950; border-radius:12px; padding:14px; background:rgba(255,255,255,.02) }
-footer.center{ text-align:center; padding:12px 0; color:#bfb7e8 }
-
-/* ====== Responsive ====== */
-@media (max-width: 700px){
-  .clickgrid{ grid-template-columns:1fr }
-  .genlist{ grid-template-columns:1fr; grid-auto-flow:row }
-}
-
-
-/* === 0.1.8.0 UI color refinements === */
-:root{
-  --buy:#ff6dc3; --buy-deep:#e054ad;
-  --upg:#b67aff; --upg-deep:#8c5ebf;
-  --frill-pink:#ffbde4;
-  --frill-green:#c7f5cf;
-  --frill-yellow:#fff5b3;
-  --mint:#a7f3d0;
-}
-.btn-buy{background:linear-gradient(180deg,var(--buy) 0%,var(--buy-deep) 100%);color:#fff;}
-.btn-buy-agg{background:linear-gradient(180deg,var(--buy-deep) 0%,#a6008c 100%);color:#fff;}
-.btn-upg{background:linear-gradient(180deg,var(--upg) 0%,var(--upg-deep) 100%);color:#fff;}
-.btn-upg-agg{background:linear-gradient(180deg,var(--upg-deep) 0%,#4b1a99 100%);color:#fff;}
-
-.hd.frill{position:relative; --frill-color:var(--frill-pink);}
-.hd.frill.frill-pink{--frill-color:var(--frill-pink);}
-.hd.frill.frill-green{--frill-color:var(--frill-green);}
-.hd.frill.frill-yellow{--frill-color:var(--frill-yellow);}
-
-.hd.frill::after{
-  content:'';
-  position:absolute;
-  left:0; right:0; bottom:-6px;
-  height:6px;
-  background:radial-gradient(circle at 8px 0,var(--frill-color) 8px,transparent 8px) repeat-x;
-  background-size:16px 8px;
-}
-
-.hd.frill.frill-top::after{
-  top:-6px; bottom:auto;
-  background:radial-gradient(circle at 8px 100%,var(--frill-color) 8px,transparent 8px) repeat-x;
-  background-size:16px 8px;
-}
-
-.hd.frill.frill-double::before{
-  content:'';
-  position:absolute;
-  left:0; right:0; top:-6px;
-  height:6px;
-  background:radial-gradient(circle at 8px 100%,var(--frill-color) 8px,transparent 8px) repeat-x;
-  background-size:16px 8px;
-}
-
-.hd.frill.frill-zigzag::after{
-  bottom:-6px;
-  height:6px;
-  background:
-    linear-gradient(-45deg,var(--frill-color) 4px,transparent 0) 0 0/8px 8px repeat-x,
-    linear-gradient(45deg,var(--frill-color) 4px,transparent 0) 4px 0/8px 8px repeat-x;
-}
-
-.hd.frill.frill-wave::after{
-  bottom:-6px;
-  height:6px;
-  background:radial-gradient(50% 50% at 8px 6px,var(--frill-color) 8px,transparent 8px) repeat-x;
-  background-size:16px 8px;
-}
-
-body.rebirth-flash::before{
-  content:'';
-  position:fixed;
-  inset:0;
-  background:radial-gradient(circle, rgba(255,245,179,.9), rgba(255,189,228,.4), transparent 70%);
-  animation:rebirthFlash 1s ease-out forwards;
-  pointer-events:none;
-  z-index:9999;
-}
-@keyframes rebirthFlash{
-  from{opacity:1;}
-  to{opacity:0;}
+  .buttons .row {
+    flex-direction: column;
+  }
 }
