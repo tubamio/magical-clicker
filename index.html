@@ -1,105 +1,134 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-   <title>Magical Clicker Ver.0.1.8.0</title>
+  <title>Magical Clicker</title>
   <link rel="stylesheet" href="./style.css">
-  <style>
-    .milestone{outline:2px solid gold;box-shadow:0 0 10px rgba(255,215,0,.7);}
-    .buttons .row{display:flex;gap:.5rem}
-    .buttons .row > .btn{flex:1}
-  </style>
 </head>
 <body>
-  <div class="container">
-    <header class="title">
-      <h1>魔法少女インフレクリッカー <span id="version" class="pill"></span></h1>
-
-      <div class="spacer"></div>
-      <button id="fmtToggle" class="btn small">表記：日本式</button>
+  <div class="page">
+    <header class="app-header">
+      <div class="title-group">
+        <h1 class="app-title">魔法少女インフレクリッカー</h1>
+        <span id="version" class="version-pill">Ver.</span>
+      </div>
+      <button id="fmtToggle" class="btn ghost">表記：日本式</button>
     </header>
 
-    <div class="main">
-      <div class="left">
-        <div class="tapgrid clickgrid">
-        <!-- タップ（ハートを獲得する場所） -->
-        <div class="panel">
-          <div class="hd frill frill-pink"><strong>エンジェルハートタップ</strong><span class="muted">（タップでエンジェルハートを獲得）</span></div>
-          <div class="bd">
-          <div class="stat">
-            <span>エンジェルハート：</span><span class="big" id="power">0</span>
+    <main class="layout">
+      <section class="column column-left">
+        <section class="panel score-panel">
+          <header class="panel-header">
+            <h2>ステータス</h2>
+          </header>
+          <div class="panel-body score-body">
+            <div class="score-line">
+              <span class="score-label">エンジェルハート</span>
+              <span id="power" class="score-value">0</span>
+            </div>
+            <div class="score-pill">ハート/秒：<span id="pps">0</span></div>
           </div>
-          <div class="pill mt8">ハート/秒：<span id="pps">0</span></div>
-          <div class="tap mt12">
-            <div>現在のタップ：<span class="big" id="tapGain">+1.00</span></div>
-            <div class="row center mt8">
-              <button id="tapBtn" class="btn tapbtn">ハートタップ！</button>
-            </div>
-          </div>
-          <div class="mt12">
-            <div class="hd frill frill-green frill-top"><strong>メイドスマイル強化</strong></div>
-            <div class="desc lvline">Lv <span id="clickLvNow">0</span> → <span id="clickLvNext">1</span></div>
-            <div class="desc upEffect">
-              強化+1効果：スマイル <span id="c1a"></span> → <span id="c1b"></span>（+<span id="c1d"></span>）｜全体倍率 <span id="m1a"></span> → <span id="m1b"></span>（+<span id="m1d"></span>）
-            </div>
-            <div class="desc upEffectMax">
-              まとめ強化効果：スマイル <span id="cMa"></span> → <span id="cMb"></span>（+<span id="cMd"></span>）｜全体倍率 <span id="mMa"></span> → <span id="mMb"></span>（+<span id="mMd"></span>）
-            </div>
-            <div class="row center mt12">
-              <button id="upgradeClick" class="btn up">単体強化</button>
-              <button id="upgradeClickMax" class="btn up alt">まとめ強化 ×0</button>
-            </div>
-          </div>
-        </div>
-        </div>
+        </section>
 
-        <!-- ジェネレーター -->
-        <div class="panel genpanel">
-            <div class="hd frill frill-yellow frill-zigzag">
-              <strong>ジェネレーター</strong>
-              <span class="muted">購入＝ピンク系、強化＝ラベンダー系。無効時は灰色で反応なし。</span>
+        <section class="panel click-panel">
+          <header class="panel-header">
+            <h2>エンジェルハートタップ</h2>
+            <p class="panel-sub">タップしてエンジェルハートを獲得</p>
+          </header>
+          <div class="panel-body click-body">
+            <div class="tap-gain">現在のタップ：<span id="tapGain">+1.00</span></div>
+            <div class="tap-action">
+              <button id="tapBtn" class="btn main">ハートタップ！</button>
             </div>
-          <div class="bd">
-            <div class="genlist" id="genlist"></div>
-          </div>
-        </div>
-      </div>
 
-      <aside class="right">
-        <div class="panel">
-          <div class="hd frill frill-pink frill-double"><strong>アイドル覚醒</strong></div>
-          <div class="bd">
-            <div class="box muted">所持スタークリスタル：<span id="prestigeCurr">0</span></div>
-            <div class="box mt8">次覚醒で獲得：<span id="prestigeGain">0</span>
-              <div class="row mt8"><button id="prestigeBtn" class="btn warn">覚醒する</button></div>
-            </div>
-            <div class="rebirths" id="rebirthList"></div>
-          </div>
-        </div>
+            <div class="upgrade-block">
+              <div class="upgrade-head">
+                <h3>メイドスマイル強化</h3>
+                <div class="level-line">Lv <span id="clickLvNow">0</span> → <span id="clickLvNext">1</span></div>
+              </div>
 
-      <div class="panel">
-        <div class="hd frill frill-green frill-wave"><strong>転職</strong></div>
-        <div class="bd" id="jobPanel"></div>
-      </div>
+              <dl class="upgrade-detail">
+                <div>
+                  <dt>単体強化（+1）</dt>
+                  <dd>
+                    スマイル <span id="c1a"></span> → <span id="c1b"></span>（+<span id="c1d"></span>）<br>
+                    全体倍率 <span id="m1a"></span> → <span id="m1b"></span>（+<span id="m1d"></span>）
+                  </dd>
+                </div>
+                <div>
+                  <dt>まとめ強化</dt>
+                  <dd>
+                    スマイル <span id="cMa"></span> → <span id="cMb"></span>（+<span id="cMd"></span>）<br>
+                    全体倍率 <span id="mMa"></span> → <span id="mMb"></span>（+<span id="mMd"></span>）
+                  </dd>
+                </div>
+              </dl>
 
-      <div class="panel">
-        <div class="hd frill frill-green frill-wave"><strong>転生特典</strong></div>
-        <div class="bd" id="featurePanel"></div>
-      </div>
-
-        <div class="panel">
-          <div class="hd frill frill-yellow frill-wave"><strong>システム</strong></div>
-          <div class="bd">
-            <div class="row">
-              <button id="saveBtn" class="btn good">保存</button>
-              <button id="loadBtn" class="btn">読込</button>
-              <button id="resetBtn" class="btn danger ml-auto">ハードリセット</button>
+              <div class="upgrade-buttons">
+                <button id="upgradeClick" class="btn sub">単体強化</button>
+                <button id="upgradeClickMax" class="btn sub alt">まとめ強化 ×0</button>
+              </div>
             </div>
           </div>
-        </div>
-      </aside>
-    </div>
+        </section>
+
+        <section class="panel generator-panel">
+          <header class="panel-header">
+            <h2>ジェネレーター</h2>
+            <p class="panel-sub">購入はピンク、強化はラベンダーで表示されます</p>
+          </header>
+          <div class="panel-body">
+            <div id="genlist" class="genlist"></div>
+          </div>
+        </section>
+      </section>
+
+      <section class="column column-right">
+        <section class="panel prestige-panel">
+          <header class="panel-header">
+            <h2>アイドル覚醒</h2>
+          </header>
+          <div class="panel-body">
+            <div class="info-box muted">所持スタークリスタル：<span id="prestigeCurr">0</span></div>
+            <div class="info-box">
+              <div>次覚醒で獲得：<span id="prestigeGain">0</span></div>
+              <button id="prestigeBtn" class="btn warn block">覚醒する</button>
+            </div>
+            <div id="rebirthList" class="rebirth-list"></div>
+          </div>
+        </section>
+
+        <section class="panel job-panel">
+          <header class="panel-header">
+            <h2>転職</h2>
+          </header>
+          <div id="jobPanel" class="panel-body job-body"></div>
+        </section>
+
+        <section class="panel feature-panel">
+          <header class="panel-header">
+            <h2>転生特典</h2>
+          </header>
+          <div id="featurePanel" class="panel-body feature-body"></div>
+        </section>
+
+        <section class="panel system-panel">
+          <header class="panel-header">
+            <h2>システム</h2>
+          </header>
+          <div class="panel-body system-body">
+            <button id="saveBtn" class="btn good">保存</button>
+            <button id="loadBtn" class="btn ghost">読込</button>
+            <button id="resetBtn" class="btn danger">ハードリセット</button>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <small>Magical Clicker <span id="verText"></span></small>
+    </footer>
   </div>
 
   <script src="./js/break_infinity.min.js"></script>
