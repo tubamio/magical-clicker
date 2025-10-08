@@ -155,6 +155,30 @@ document.getElementById('resetBtn').addEventListener('click', ()=>{
   update();
 });
 
+const tabButtons = Array.from(document.querySelectorAll('[data-tab]'));
+const tabPanels = Array.from(document.querySelectorAll('[data-tab-panel]'));
+function activateTab(tabId){
+  tabButtons.forEach(btn=>{
+    const active = btn.dataset.tab === tabId;
+    btn.classList.toggle('is-active', active);
+    btn.setAttribute('aria-selected', active ? 'true' : 'false');
+  });
+  tabPanels.forEach(panel=>{
+    const active = panel.dataset.tabPanel === tabId;
+    panel.classList.toggle('is-active', active);
+    panel.hidden = !active;
+  });
+}
+if(tabButtons.length){
+  const defaultTab = tabButtons.find(btn=>btn.classList.contains('is-active')) || tabButtons[0];
+  activateTab(defaultTab.dataset.tab);
+  tabButtons.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      activateTab(btn.dataset.tab);
+    });
+  });
+}
+
 document.getElementById('prestigeBtn').addEventListener('click', ()=>{
   const gain = Math.floor(prestigeGain(state.power) * getJobBonuses(state.job).prestige);
   if (gain <= 0) return alert('覚醒にはもっとエンジェルハートが必要です');
