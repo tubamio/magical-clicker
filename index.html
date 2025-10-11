@@ -16,131 +16,113 @@
       <button id="fmtToggle" class="btn ghost">表記：日本式</button>
     </header>
 
-    <main class="main-area">
-      <section class="panel score-panel">
-        <header class="panel-header">
-          <h2>ステータス</h2>
-        </header>
-        <div class="panel-body score-body">
-          <div class="score-line">
-            <span class="score-label">エンジェルハート</span>
-            <span id="power" class="score-value">0</span>
+    <main class="layout">
+      <section class="column column-left">
+        <section class="panel score-panel">
+          <header class="panel-header">
+            <h2>ステータス</h2>
+          </header>
+          <div class="panel-body score-body">
+            <div class="score-line">
+              <span class="score-label">エンジェルハート</span>
+              <span id="power" class="score-value">0</span>
+            </div>
+            <div class="score-pill">ハート/秒：<span id="pps">0</span></div>
           </div>
-          <div class="score-pill">ハート/秒：<span id="pps">0</span></div>
-        </div>
+        </section>
+
+        <section class="panel click-panel">
+          <header class="panel-header">
+            <h2>エンジェルハートタップ</h2>
+            <p class="panel-sub">タップしてエンジェルハートを獲得</p>
+          </header>
+          <div class="panel-body click-body">
+            <div class="tap-gain">現在のタップ：<span id="tapGain">+1.00</span></div>
+            <div class="tap-action">
+              <button id="tapBtn" class="btn main">ハートタップ！</button>
+            </div>
+
+            <div class="upgrade-block">
+              <div class="upgrade-head">
+                <h3>メイドスマイル強化</h3>
+                <div class="level-line">Lv <span id="clickLvNow">0</span> → <span id="clickLvNext">1</span></div>
+              </div>
+
+              <dl class="upgrade-detail">
+                <div>
+                  <dt>単体強化（+1）</dt>
+                  <dd>
+                    スマイル <span id="c1a"></span> → <span id="c1b"></span>（+<span id="c1d"></span>）<br>
+                    全体倍率 <span id="m1a"></span> → <span id="m1b"></span>（+<span id="m1d"></span>）
+                  </dd>
+                </div>
+                <div>
+                  <dt>まとめ強化</dt>
+                  <dd>
+                    スマイル <span id="cMa"></span> → <span id="cMb"></span>（+<span id="cMd"></span>）<br>
+                    全体倍率 <span id="mMa"></span> → <span id="mMb"></span>（+<span id="mMd"></span>）
+                  </dd>
+                </div>
+              </dl>
+
+              <div class="upgrade-buttons">
+                <button id="upgradeClick" class="btn sub">単体強化</button>
+                <button id="upgradeClickMax" class="btn sub alt">まとめ強化 ×0</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel generator-panel">
+          <header class="panel-header">
+            <h2>ジェネレーター</h2>
+            <p class="panel-sub">購入はピンク、強化はラベンダーで表示されます</p>
+          </header>
+          <div class="panel-body">
+            <div id="genlist" class="genlist"></div>
+          </div>
+        </section>
       </section>
 
-      <section class="tab-container">
-        <div class="tab-nav" role="tablist">
-          <button class="tab-btn is-active" type="button" data-tab="main" role="tab" aria-selected="true">メイン</button>
-          <button class="tab-btn" type="button" data-tab="prestige" role="tab" aria-selected="false">覚醒</button>
-          <button class="tab-btn" type="button" data-tab="jobs" role="tab" aria-selected="false">転職</button>
-          <button class="tab-btn" type="button" data-tab="features" role="tab" aria-selected="false">特典</button>
-          <button class="tab-btn" type="button" data-tab="system" role="tab" aria-selected="false">システム</button>
-        </div>
-
-        <div class="tab-panels">
-          <div class="tab-panel is-active" data-tab-panel="main" role="tabpanel">
-            <section class="panel click-panel">
-              <header class="panel-header">
-                <h2>エンジェルハートタップ</h2>
-                <p class="panel-sub">タップしてエンジェルハートを獲得</p>
-              </header>
-              <div class="panel-body click-body">
-                <div class="tap-gain">現在のタップ：<span id="tapGain">+1.00</span></div>
-                <div class="tap-action">
-                  <button id="tapBtn" class="btn main">ハートタップ！</button>
-                </div>
-
-                <div class="upgrade-block">
-                  <div class="upgrade-head">
-                    <h3>メイドスマイル強化</h3>
-                    <div class="level-line">Lv <span id="clickLvNow">0</span> → <span id="clickLvNext">1</span></div>
-                  </div>
-
-                  <dl class="upgrade-detail">
-                    <div>
-                      <dt>単体強化（+1）</dt>
-                      <dd>
-                        スマイル <span id="c1a"></span> → <span id="c1b"></span>（+<span id="c1d"></span>）<br>
-                        全体倍率 <span id="m1a"></span> → <span id="m1b"></span>（+<span id="m1d"></span>）
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>まとめ強化</dt>
-                      <dd>
-                        スマイル <span id="cMa"></span> → <span id="cMb"></span>（+<span id="cMd"></span>）<br>
-                        全体倍率 <span id="mMa"></span> → <span id="mMb"></span>（+<span id="mMd"></span>）
-                      </dd>
-                    </div>
-                  </dl>
-
-                  <div class="upgrade-buttons">
-                    <button id="upgradeClick" class="btn sub">単体強化</button>
-                    <button id="upgradeClickMax" class="btn sub alt">まとめ強化 ×0</button>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <section class="panel generator-panel">
-              <header class="panel-header">
-                <h2>ジェネレーター</h2>
-                <p class="panel-sub">購入はピンク、強化はラベンダーで表示されます</p>
-              </header>
-              <div class="panel-body">
-                <div id="genlist" class="genlist"></div>
-              </div>
-            </section>
+      <section class="column column-right">
+        <section class="panel prestige-panel">
+          <header class="panel-header">
+            <h2>アイドル覚醒</h2>
+          </header>
+          <div class="panel-body">
+            <div class="info-box muted">所持スタークリスタル：<span id="prestigeCurr">0</span></div>
+            <div class="info-box">
+              <div>次覚醒で獲得：<span id="prestigeGain">0</span></div>
+              <button id="prestigeBtn" class="btn warn block">覚醒する</button>
+            </div>
+            <div id="rebirthList" class="rebirth-list"></div>
           </div>
+        </section>
 
-          <div class="tab-panel" data-tab-panel="prestige" role="tabpanel" hidden>
-            <section class="panel prestige-panel">
-              <header class="panel-header">
-                <h2>アイドル覚醒</h2>
-              </header>
-              <div class="panel-body">
-                <div class="info-box muted">所持スタークリスタル：<span id="prestigeCurr">0</span></div>
-                <div class="info-box">
-                  <div>次覚醒で獲得：<span id="prestigeGain">0</span></div>
-                  <button id="prestigeBtn" class="btn warn block">覚醒する</button>
-                </div>
-                <div id="rebirthList" class="rebirth-list"></div>
-              </div>
-            </section>
-          </div>
+        <section class="panel job-panel">
+          <header class="panel-header">
+            <h2>転職</h2>
+          </header>
+          <div id="jobPanel" class="panel-body job-body"></div>
+        </section>
 
-          <div class="tab-panel" data-tab-panel="jobs" role="tabpanel" hidden>
-            <section class="panel job-panel">
-              <header class="panel-header">
-                <h2>転職</h2>
-              </header>
-              <div id="jobPanel" class="panel-body job-body"></div>
-            </section>
-          </div>
+        <section class="panel feature-panel">
+          <header class="panel-header">
+            <h2>転生特典</h2>
+          </header>
+          <div id="featurePanel" class="panel-body feature-body"></div>
+        </section>
 
-          <div class="tab-panel" data-tab-panel="features" role="tabpanel" hidden>
-            <section class="panel feature-panel">
-              <header class="panel-header">
-                <h2>転生特典</h2>
-              </header>
-              <div id="featurePanel" class="panel-body feature-body"></div>
-            </section>
+        <section class="panel system-panel">
+          <header class="panel-header">
+            <h2>システム</h2>
+          </header>
+          <div class="panel-body system-body">
+            <button id="saveBtn" class="btn good">保存</button>
+            <button id="loadBtn" class="btn ghost">読込</button>
+            <button id="resetBtn" class="btn danger">ハードリセット</button>
           </div>
-
-          <div class="tab-panel" data-tab-panel="system" role="tabpanel" hidden>
-            <section class="panel system-panel">
-              <header class="panel-header">
-                <h2>システム</h2>
-              </header>
-              <div class="panel-body system-body">
-                <button id="saveBtn" class="btn good">保存</button>
-                <button id="loadBtn" class="btn ghost">読込</button>
-                <button id="resetBtn" class="btn danger">ハードリセット</button>
-              </div>
-            </section>
-          </div>
-        </div>
+        </section>
       </section>
     </main>
 
