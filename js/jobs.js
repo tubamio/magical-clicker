@@ -43,6 +43,17 @@ export const JOB_GROUPS = [
       { id:'gloriousdiva',  name:'グロリアスディーヴァ', tap:4,   gen:1.5, prestige:1.4, desc:'栄光のステージでタップ4倍',             point:'ファンレター', req:100000,   reqType:'point' },
     ],
   },
+  {
+    id: 'reaper',
+    name: '死神系',
+    jobs: [
+      { id:'littlereaper',      name:'リトルリーパー',       tap:1.2, gen:1,   prestige:1.2, pointGain:1.3, desc:'契約の鎌で魂ポイント獲得1.3倍',        point:'冥刻の魂珠', req:1e6,    reqType:'power' },
+      { id:'blacksavant',       name:'ブラックサーヴァント', tap:1.25,gen:1.05,prestige:1.3, pointGain:1.4, desc:'漆黒の奉仕で魂ポイント獲得1.4倍',        point:'冥刻の魂珠', req:100,      reqType:'point' },
+      { id:'gothicsister',      name:'ゴシックシスター',     tap:1.3, gen:1.1, prestige:1.4, pointGain:1.5, desc:'葬送の祈りで魂ポイント獲得1.5倍',        point:'冥刻の魂珠', req:1000,     reqType:'point' },
+      { id:'souljudgmenter',    name:'ソウルジャッジメンター', tap:1.35,gen:1.15,prestige:1.5, pointGain:1.6, desc:'断罪の秤で魂ポイント獲得1.6倍',        point:'冥刻の魂珠', req:10000,    reqType:'point' },
+      { id:'deathofnocturne',   name:'デスオブノクターン',   tap:1.4, gen:1.2, prestige:1.7, pointGain:1.8, desc:'終夜の支配で魂ポイント獲得1.8倍',        point:'冥刻の魂珠', req:100000,   reqType:'point' },
+    ],
+  },
     {
       id: 'scholar',
       name: '学者系',
