@@ -43,15 +43,32 @@ export const JOB_GROUPS = [
       { id:'gloriousdiva',  name:'グロリアスディーヴァ', tap:4,   gen:1.5, prestige:1.4, desc:'栄光のステージでタップ4倍',             point:'ファンレター', req:100000,   reqType:'point' },
     ],
   },
-    {
-      id: 'scholar',
-      name: '学者系',
-      jobs: [
-        { id:'booklover',       name:'ブックラバー',       tap:1, gen:1, prestige:1, upgCost:0.9, desc:'読書の知恵でジェネ強化コスト10%減',       point:'研究資料', req:1e6,    reqType:'power' },
-        { id:'wonderresearcher',name:'ワンダーリサーチャー', tap:1, gen:1, prestige:1, upgCost:0.85, desc:'研究の閃きでジェネ強化コスト15%減',       point:'研究資料', req:100,     reqType:'point' },
-        { id:'nobleprofessor',  name:'ノーブルプロフェッサー', tap:1, gen:1, prestige:1, upgCost:0.8, desc:'高貴な教授でジェネ強化コスト20%減',       point:'研究資料', req:1000,    reqType:'point' },
-        { id:'ancientsage',     name:'エンシェントセージ',   tap:1, gen:1, prestige:1, upgCost:0.75, desc:'古代の叡智でジェネ強化コスト25%減',       point:'研究資料', req:10000,   reqType:'point' },
-        { id:'metatron',        name:'メタトロン＝アルカナ', tap:1, gen:1, prestige:1, upgCost:0.7, desc:'究極の知恵でジェネ強化コスト30%減',         point:'研究資料', req:100000,  reqType:'point' },
+
+  {
+    id: 'reaper',
+    name: '死神系',
+    jobs: [
+      { id:'littlereaper',    name:'リトルリーパー',       tap:1.3, gen:1.2, prestige:1.1, cooldown:0.95,
+        desc:'小さな鎌で全体を底上げしハイパー/サージCT5%短縮',         point:'冥刻の砂', req:1e6,    reqType:'power' },
+      { id:'blacksavant',     name:'ブラックサーヴァント', tap:1.4, gen:1.3, prestige:1.2, cooldown:0.9,
+        desc:'黒衣の眷属で全体強化&クールタイム10%短縮',               point:'冥刻の砂', req:100,      reqType:'point' },
+      { id:'gothicsister',    name:'ゴシックシスター',     tap:1.5, gen:1.4, prestige:1.3, cooldown:0.85,
+        desc:'鎮魂の祈りで全体1.5倍&クールタイム15%短縮',               point:'冥刻の砂', req:1000,     reqType:'point' },
+      { id:'souljudgementer', name:'ソウルジャッジメンター', tap:1.6, gen:1.5, prestige:1.4, cooldown:0.8,
+        desc:'魂審問で全体1.6倍&クールタイム20%短縮',                   point:'冥刻の砂', req:10000,    reqType:'point' },
+      { id:'deathofnocturne', name:'デスオブノクターン',   tap:1.7, gen:1.6, prestige:1.5, cooldown:0.75,
+        desc:'夜の終焉で全体1.7倍&クールタイム25%短縮',                 point:'冥刻の砂', req:100000,   reqType:'point' },
+    ],
+  },
+  {
+    id: 'scholar',
+    name: '学者系',
+    jobs: [
+      { id:'booklover',       name:'ブックラバー',       tap:1, gen:1, prestige:1, upgCost:0.9, desc:'読書の知恵でジェネ強化コスト10%減',       point:'研究資料', req:1e6,    reqType:'power' },
+      { id:'wonderresearcher',name:'ワンダーリサーチャー', tap:1, gen:1, prestige:1, upgCost:0.85, desc:'研究の閃きでジェネ強化コスト15%減',       point:'研究資料', req:100,     reqType:'point' },
+      { id:'nobleprofessor',  name:'ノーブルプロフェッサー', tap:1, gen:1, prestige:1, upgCost:0.8, desc:'高貴な教授でジェネ強化コスト20%減',       point:'研究資料', req:1000,    reqType:'point' },
+      { id:'ancientsage',     name:'エンシェントセージ',   tap:1, gen:1, prestige:1, upgCost:0.75, desc:'古代の叡智でジェネ強化コスト25%減',       point:'研究資料', req:10000,   reqType:'point' },
+      { id:'metatron',        name:'メタトロン＝アルカナ', tap:1, gen:1, prestige:1, upgCost:0.7, desc:'究極の知恵でジェネ強化コスト30%減',         point:'研究資料', req:100000,  reqType:'point' },
       ],
     },
 ];
@@ -66,6 +83,6 @@ export const JOB_MAP = Object.fromEntries(JOBS.map(j => [j.id, j]));
 export function getJobBonuses(id){
   const j = JOB_MAP[id];
   return j
-    ? { tap:j.tap, gen:j.gen, prestige:j.prestige, pointGain:j.pointGain||1, upgCost:j.upgCost||1 }
-    : { tap:1, gen:1, prestige:1, pointGain:1, upgCost:1 };
+    ? { tap:j.tap, gen:j.gen, prestige:j.prestige, pointGain:j.pointGain||1, upgCost:j.upgCost||1, cooldown:j.cooldown||1 }
+    : { tap:1, gen:1, prestige:1, pointGain:1, upgCost:1, cooldown:1 };
 }

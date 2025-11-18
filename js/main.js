@@ -76,14 +76,16 @@ const featureHandlers = {
     if(state.hyperCooldown>0) return;
     state.hyperActive = true;
     state.hyperTime = 30;
-    state.hyperCooldown = 60;
+    const cooldownMod = getJobBonuses(state.job).cooldown || 1;
+    state.hyperCooldown = 60 * cooldownMod;
     update();
   },
   toggleAutoClickUp(){ state.autoClickUp = !state.autoClickUp; update(); },
   activateSurge(){
     if(state.surgeCooldown>0) return;
     state.power = state.power.times(1e6);
-    state.surgeCooldown = 120;
+    const cooldownMod = getJobBonuses(state.job).cooldown || 1;
+    state.surgeCooldown = 120 * cooldownMod;
     update();
   },
   changeJob(id){
