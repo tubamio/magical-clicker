@@ -2,16 +2,16 @@ import { getJobBonuses } from './jobs.js';
 const D = (x)=> new Decimal(x);
 
 export const DEFAULTS = {
-  g1:{ basePps:D(0.2),    baseCost:D(13.2),   costMul:D(1.15), upBaseCost:D(55),     upCostMul:D(1.17) },
-  g2:{ basePps:D(2.0),    baseCost:D(88),     costMul:D(1.17), upBaseCost:D(275),    upCostMul:D(1.18) },
-  g3:{ basePps:D(15.8),   baseCost:D(770),    costMul:D(1.18), upBaseCost:D(1100),   upCostMul:D(1.19) },
-  g4:{ basePps:D(127),    baseCost:D(5940),   costMul:D(1.20), upBaseCost:D(4400),   upCostMul:D(1.20) },
-  g5:{ basePps:D(1.03e3), baseCost:D(4.4e4),  costMul:D(1.21), upBaseCost:D(1.87e4), upCostMul:D(1.21) },
-  g6:{ basePps:D(8.3e3),  baseCost:D(3.3e5),  costMul:D(1.22), upBaseCost:D(8.8e4),  upCostMul:D(1.22) },
-  g7:{ basePps:D(6.73e4), baseCost:D(2.42e6), costMul:D(1.23), upBaseCost:D(4.07e5), upCostMul:D(1.23) },
-  g8:{ basePps:D(5.35e5), baseCost:D(1.87e7), costMul:D(1.24), upBaseCost:D(1.87e6), upCostMul:D(1.24) },
-  g9:{ basePps:D(4.16e6), baseCost:D(1.32e8), costMul:D(1.25), upBaseCost:D(8.25e6), upCostMul:D(1.25) },
-  g10:{ basePps:D(3.33e7), baseCost:D(9.9e8), costMul:D(1.26), upBaseCost:D(3.7e7),  upCostMul:D(1.26) },
+  g1:{ basePps:D(0.15),    baseCost:D(18),     costMul:D(1.17), upBaseCost:D(75),     upCostMul:D(1.19) },
+  g2:{ basePps:D(1.2),     baseCost:D(140),    costMul:D(1.19), upBaseCost:D(460),    upCostMul:D(1.20) },
+  g3:{ basePps:D(9.0),     baseCost:D(1200),   costMul:D(1.20), upBaseCost:D(1800),   upCostMul:D(1.21) },
+  g4:{ basePps:D(70),      baseCost:D(9800),   costMul:D(1.22), upBaseCost:D(7200),   upCostMul:D(1.22) },
+  g5:{ basePps:D(5.0e2),   baseCost:D(8.4e4),  costMul:D(1.23), upBaseCost:D(3.6e4),  upCostMul:D(1.23) },
+  g6:{ basePps:D(3.5e3),   baseCost:D(6.6e5),  costMul:D(1.24), upBaseCost:D(1.8e5),  upCostMul:D(1.24) },
+  g7:{ basePps:D(2.4e4),   baseCost:D(5.1e6),  costMul:D(1.25), upBaseCost:D(8.8e5),  upCostMul:D(1.25) },
+  g8:{ basePps:D(1.7e5),   baseCost:D(4.3e7),  costMul:D(1.26), upBaseCost:D(4.2e6),  upCostMul:D(1.26) },
+  g9:{ basePps:D(1.1e6),   baseCost:D(3.4e8),  costMul:D(1.27), upBaseCost:D(2.0e7),  upCostMul:D(1.27) },
+  g10:{ basePps:D(7.0e6),  baseCost:D(2.9e9),  costMul:D(1.28), upBaseCost:D(9.5e7),  upCostMul:D(1.28) },
 };
 
 function ensureParams(gen){
@@ -28,8 +28,8 @@ function ensureParams(gen){
 export function powerFor(gen){
   ensureParams(gen);
   const lv = gen.level|0;
-  const linear = Decimal.pow(1.10, lv);
-  const step   = Decimal.pow(2, Math.floor(lv/10));
+  const linear = Decimal.pow(1.08, lv);
+  const step   = Decimal.pow(1.5, Math.floor(lv/10));
   return gen.basePps.times(linear).times(step);
 }
 
@@ -134,4 +134,3 @@ export function upgrade(state, id, mode='1'){
   g.level = (g.level|0) + n;
   return true;
 }
-
