@@ -105,14 +105,65 @@ const featureHandlers = {
   }
 };
 
+
+function setupMainTabs(){
+  const tabButtons = Array.from(document.querySelectorAll('.tab-btn'));
+  const panels = Array.from(document.querySelectorAll('.tab-panel'));
+  if(!tabButtons.length || !panels.length) return;
+
+  const activate = (target)=>{
+    tabButtons.forEach(btn=> btn.classList.toggle('active', btn.dataset.tabTarget===target));
+    panels.forEach(panel=> panel.classList.toggle('active', panel.dataset.tabPanel===target));
+  };
+
+  tabButtons.forEach(btn=>{
+    btn.addEventListener('click', ()=> activate(btn.dataset.tabTarget));
+  });
+  activate('growth');
+}
+
+function animateTapEffects(){
+  const tapBtn = document.getElementById('tapBtn');
+  const tapFx = document.getElementById('tapFx');
+  if(tapBtn){
+    tapBtn.classList.remove('burst');
+    void tapBtn.offsetWidth;
+    tapBtn.classList.add('burst');
+  }
+  if(!tapFx) return;
+  for(let i=0; i<10; i+=1){
+    const spark = document.createElement('span');
+    spark.className='spark';
+    spark.style.setProperty('--dx', `${(Math.random()-0.5)*160}px`);
+    spark.style.setProperty('--dy', `${(Math.random()-0.5)*120}px`);
+    spark.style.animationDelay = `${Math.random()*120}ms`;
+    tapFx.appendChild(spark);
+    setTimeout(()=> spark.remove(), 900);
+  }
+}
+
+let __lastPowerForAnim = new Decimal(0);
+function animatePowerPulse(){
+  const powerEl = document.getElementById('power');
+  if(!powerEl) return;
+  if(state.power.gt(__lastPowerForAnim)){
+    powerEl.classList.remove('pulse');
+    void powerEl.offsetWidth;
+    powerEl.classList.add('pulse');
+  }
+  __lastPowerForAnim = state.power;
+}
+
 function update(){
   renderAll(state, performRebirth, featureHandlers);
+  animatePowerPulse();
 }
 
 document.getElementById('tapBtn').addEventListener('click', ()=>{
   const jb = getJobBonuses(state.job);
   const mult = rebirthMultiplier(state.rebirth) * (state.hyperActive?10:1) * jb.tap;
   state.power = state.power.plus(clickGainByLevel(state.clickLv).times(mult));
+  animateTapEffects();
   update();
 });
 
@@ -170,7 +221,9 @@ document.getElementById('prestigeBtn').addEventListener('click', ()=>{
 });
 
 // initial render
+setupMainTabs();
 update();
+__lastPowerForAnim = state.power;
 try{ const v=document.getElementById('version'); if(v) v.textContent = VERSION; }catch{}
 try{ bindFormatToggle && bindFormatToggle(state, featureHandlers); }catch{}
 
