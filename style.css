@@ -36,9 +36,54 @@ body {
   font-family: var(--font-body);
   font-size: 18px;
   line-height: 1.6;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.ambient-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ambient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(8px);
+  opacity: 0.45;
+  animation: floatOrb 12s ease-in-out infinite alternate;
+}
+
+.orb-a {
+  width: 240px;
+  height: 240px;
+  top: 8%;
+  left: 4%;
+  background: radial-gradient(circle, rgba(255, 128, 213, 0.4), rgba(255, 128, 213, 0));
+}
+
+.orb-b {
+  width: 300px;
+  height: 300px;
+  top: 55%;
+  right: 8%;
+  background: radial-gradient(circle, rgba(182, 140, 255, 0.45), rgba(182, 140, 255, 0));
+  animation-duration: 16s;
+}
+
+.orb-c {
+  width: 180px;
+  height: 180px;
+  bottom: 5%;
+  left: 35%;
+  background: radial-gradient(circle, rgba(255, 218, 106, 0.35), rgba(255, 218, 106, 0));
+  animation-duration: 10s;
 }
 
 .page {
+  position: relative;
+  z-index: 1;
   max-width: 1200px;
   margin: 0 auto;
   padding: 32px 20px 48px;
@@ -77,10 +122,49 @@ body {
   letter-spacing: 0.04em;
 }
 
+.main-tabs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  border: 1px solid var(--panel-highlight);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-main);
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tab-btn:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, var(--accent), var(--lavender));
+  color: #180920;
+  box-shadow: 0 8px 22px rgba(255, 128, 213, 0.3);
+}
+
 .layout {
-  display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-  gap: 24px;
+  display: block;
+}
+
+.tab-panel {
+  display: none;
+  opacity: 0;
+  transform: translateY(10px) scale(0.99);
+  transform-origin: top center;
+}
+
+.tab-panel.active {
+  display: block;
+  animation: tabIn 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
 }
 
 .column {
@@ -147,6 +231,10 @@ body {
   font-weight: 800;
 }
 
+.score-value.pulse {
+  animation: powerPulse 0.35s ease;
+}
+
 .score-pill {
   display: inline-flex;
   align-items: center;
@@ -170,6 +258,33 @@ body {
 .tap-action {
   display: flex;
   justify-content: center;
+}
+
+.tap-zone {
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tap-fx {
+  position: absolute;
+  inset: -28px;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.tap-fx .spark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0%, #ffd7f4 45%, rgba(255, 128, 213, 0.05) 100%);
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  animation: sparkle 800ms ease forwards;
 }
 
 .upgrade-block {
@@ -252,6 +367,10 @@ body {
 .btn.main {
   font-size: 18px;
   padding: 18px 32px;
+}
+
+.btn.main.burst {
+  animation: tapBurst 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .btn.sub {
@@ -483,11 +602,43 @@ body.rebirth-flash::before {
   100% { opacity: 0; }
 }
 
-@media (max-width: 1024px) {
-  .layout {
-    grid-template-columns: 1fr;
-  }
+@keyframes tabIn {
+  0% { opacity: 0; transform: translateY(8px) scale(0.99); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
 
+@keyframes powerPulse {
+  0% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(255, 128, 213, 0)); }
+  50% { transform: scale(1.05); filter: drop-shadow(0 0 14px rgba(255, 128, 213, 0.75)); }
+  100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(255, 128, 213, 0)); }
+}
+
+@keyframes tapBurst {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+@keyframes sparkle {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.2);
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.2);
+  }
+}
+
+@keyframes floatOrb {
+  0% { transform: translateY(0) translateX(0) scale(1); }
+  100% { transform: translateY(-18px) translateX(14px) scale(1.05); }
+}
+
+@media (max-width: 1024px) {
   .column-left,
   .column-right {
     gap: 20px;
@@ -511,7 +662,8 @@ body.rebirth-flash::before {
     grid-template-columns: 1fr;
   }
 
-  .buttons .row {
+  .buttons .row,
+  .main-tabs {
     flex-direction: column;
   }
 }
