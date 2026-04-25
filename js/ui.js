@@ -1,6 +1,6 @@
 function setBtnState(btn, enabled){ if(!btn) return; btn.disabled=!enabled; btn.classList.toggle('is-disabled', !enabled); }
 import { fmt, getFormatMode, setFormatMode } from './format.js';
-import { JOBS, JOB_GROUPS, getJobBonuses } from './jobs.js';
+import { JOBS, JOB_GROUPS, JOB_MAP, getJobBonuses } from './jobs.js';
 import { clickGainByLevel, clickNextCost, globalMultiplier, clickTotalCost, maxAffordableClicks } from './click.js';
 import {
   nextUnitCost, totalCostUnits, maxAffordableUnits, buyUnits,
@@ -62,6 +62,21 @@ export function renderClick(state){
   }
 
 function setText(id, value){ const n=document.getElementById(id); if(n) n.textContent = value; }
+function resolveJobEmoji(jobId){
+  if(jobId==='magical') return '✨';
+  const group = JOB_GROUPS.find(g=> g.jobs.some(j=>j.id===jobId));
+  if(!group) return '💖';
+  const iconMap = {
+    magic:'🪄',
+    maid:'🫖',
+    angel:'😇',
+    idol:'🎤',
+    reaper:'🖤',
+    scholar:'📚',
+  };
+  return iconMap[group.id] || '💖';
+}
+
 export function renderKPI(state){
   const jb = getJobBonuses(state.job);
   setText('power', fmt(state.power));
@@ -69,6 +84,12 @@ export function renderKPI(state){
   setText('pps', fmt(pps));
   setText('prestigeCurr', fmt(state.prestige||0));
   setText('prestigeGain', fmt(prestigeGain(state.power) * jb.prestige));
+
+  const currentJob = JOB_MAP[state.job]?.name || '魔法少女';
+  setText('currentJob', currentJob);
+  setText('currentRebirth', `第${(state.rebirth||0)}転生`);
+  setText('jobPortraitLabel', currentJob);
+  setText('jobPortraitEmoji', resolveJobEmoji(state.job));
 }
 
 export function renderRebirths(state, onRebirth){
