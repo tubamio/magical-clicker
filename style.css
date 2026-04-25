@@ -609,18 +609,22 @@ body {
 
 .genlist {
   display: grid;
-  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
   gap: 14px;
 }
 
 .gen {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   gap: 14px;
   padding: 16px;
   border-radius: 16px;
   border: 1px solid var(--panel-border);
   background: rgba(255, 255, 255, 0.03);
+  min-height: 320px;
+  aspect-ratio: 1 / 1;
 }
 
 .gen-left {
@@ -742,7 +746,7 @@ body.rebirth-flash::before {
   }
 
   .genlist {
-    grid-template-columns: repeat(2, minmax(260px, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -762,7 +766,7 @@ body.rebirth-flash::before {
   }
 
   .genlist {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -786,5 +790,9 @@ body.rebirth-flash::before {
   .buttons .row,
   .main-tabs {
     flex-direction: column;
+  }
+
+  .genlist {
+    grid-template-columns: 1fr;
   }
 }
