@@ -264,10 +264,12 @@ function genRow(state, g, onUpdate){
       <div class="desc">単体/sec: <span class="eachPps">${fmt(powerFor(g))}</span></div>
       <div class="desc lvline">Lv <span class="lvNow">0</span> → <span class="lvNext">1</span></div>
       <div class="desc upEffect">
-        強化+1効果：単体 <span class="e1a"></span> → <span class="e1b"></span>（+<span class="e1d"></span>）｜全体 <span class="t1a"></span> → <span class="t1b"></span>（+<span class="t1d"></span>）
+        <div>強化+1効果（単体）：<span class="e1a"></span> → <span class="e1b"></span>（+<span class="e1d"></span>）</div>
+        <div>強化+1効果（全体）：<span class="t1a"></span> → <span class="t1b"></span>（+<span class="t1d"></span>）</div>
       </div>
       <div class="desc upEffectMax">
-        まとめ強化効果：単体 <span class="eMa"></span> → <span class="eMb"></span>（+<span class="eMd"></span>）｜全体 <span class="tMa"></span> → <span class="tMb"></span>（+<span class="tMd"></span>）
+        <div>まとめ強化効果（単体）：<span class="eMa"></span> → <span class="eMb"></span>（+<span class="eMd"></span>）</div>
+        <div>まとめ強化効果（全体）：<span class="tMa"></span> → <span class="tMb"></span>（+<span class="tMd"></span>）</div>
       </div>
     </div>
     <div class="gen-right">

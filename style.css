@@ -275,9 +275,26 @@ body {
 
 .growth-top {
   display: grid;
-  grid-template-columns: minmax(320px, 1fr) minmax(260px, 0.8fr);
+  grid-template-columns: repeat(2, minmax(320px, 1fr));
+  grid-template-areas:
+    "click status"
+    "tap tap";
   gap: 20px;
   align-items: start;
+}
+
+.growth-click {
+  grid-area: click;
+}
+
+.growth-status {
+  grid-area: status;
+}
+
+.growth-tap {
+  grid-area: tap;
+  justify-self: center;
+  width: min(680px, 100%);
 }
 
 .status-extra {
@@ -339,14 +356,13 @@ body {
 }
 
 
-.tap-column {
-  justify-content: center;
-  align-self: stretch;
-}
-
 .tap-panel {
   position: sticky;
   top: 18px;
+}
+
+.growth-tap.tap-panel {
+  position: static;
 }
 
 .tap-panel-body {
@@ -678,6 +694,13 @@ body {
   color: var(--text-muted);
 }
 
+.upEffect,
+.upEffectMax {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .milestone {
   outline: 2px solid #ffe066;
   box-shadow: 0 0 16px rgba(255, 224, 102, 0.6);
@@ -742,7 +765,7 @@ body.rebirth-flash::before {
 
 @media (max-width: 1180px) {
   .growth-top {
-    grid-template-columns: minmax(280px, 1fr) minmax(280px, 0.95fr);
+    grid-template-columns: repeat(2, minmax(260px, 1fr));
   }
 
   .tap-panel {
