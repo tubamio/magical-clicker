@@ -85,9 +85,36 @@ export function renderKPI(state){
   setText('prestigeCurr', fmt(state.prestige||0));
   setText('prestigeGain', fmt(prestigeGain(state.power) * jb.prestige));
 
-  const currentJob = JOB_MAP[state.job]?.name || '魔法少女';
+  const jobInfo = JOB_MAP[state.job] || JOB_MAP.magical;
+  const currentJob = jobInfo?.name || '魔法少女';
+  const pointName = jobInfo?.point || 'なし';
+  const pointVal = (pointName && pointName !== 'なし') ? (state.jobPoints?.[pointName] || 0) : 0;
+  const nextRebirth = REBIRTHS.find(r => r.level === (state.rebirth||0) + 1);
+
+  const nextJobs = JOBS.filter(j=> j.id!=='magical' && j.id!==state.job).filter(j=>{
+    if(j.reqType==='power') return state.power.lt(new Decimal(j.req));
+    if(j.reqType==='point') return (state.jobPoints?.[j.point]||0) < j.req;
+    return false;
+  });
+  let nextJobUnlockText = '全職業解放済み';
+  if(nextJobs.length){
+    const sorted = nextJobs.sort((a,b)=>{
+      const aNeed = a.reqType==='power' ? new Decimal(a.req).minus(state.power).toNumber() : (a.req - (state.jobPoints?.[a.point]||0));
+      const bNeed = b.reqType==='power' ? new Decimal(b.req).minus(state.power).toNumber() : (b.req - (state.jobPoints?.[b.point]||0));
+      return aNeed - bNeed;
+    });
+    const j = sorted[0];
+    if(j.reqType==='power') nextJobUnlockText = `${j.name}：エンジェルハート ${fmt(new Decimal(j.req))}`;
+    else nextJobUnlockText = `${j.name}：${j.point} ${fmt(new Decimal(j.req))}`;
+  }
+
   setText('currentJob', currentJob);
+  setText('currentJobPoint', `${pointName} ${fmt(new Decimal(pointVal))}`);
   setText('currentRebirth', `第${(state.rebirth||0)}転生`);
+  setText('rebirthPoint', fmt(state.prestige||0));
+  setText('nextRebirthReq', nextRebirth ? fmt(new Decimal(nextRebirth.req)) : '最大到達');
+  setText('nextJobUnlock', nextJobUnlockText);
+  setText('nextRebirthUnlock', nextRebirth ? `スタークリスタル ${fmt(new Decimal(nextRebirth.req))}` : '全転生達成済み');
   setText('jobPortraitLabel', currentJob);
   setText('jobPortraitEmoji', resolveJobEmoji(state.job));
 }
